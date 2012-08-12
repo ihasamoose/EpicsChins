@@ -55,6 +55,7 @@ import org.powerbot.game.api.wrappers.Area;
 import org.powerbot.game.api.wrappers.Locatable;
 import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.interactive.NPC;
+import org.powerbot.game.api.wrappers.interactive.Player;
 import org.powerbot.game.api.wrappers.node.Item;
 import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.wrappers.widget.WidgetChild;
@@ -85,6 +86,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private int hpgainedExp;
 	private int expHour;
 	private int chinsThrown;
+	int chinThrowID = 2779;
 
 	private static int mouseX = 0;
 	private static int mouseY = 0;
@@ -133,9 +135,9 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	Tile chinTile2 = new Tile(2746, 9122, 0);
 	Tile chinTile3 = new Tile(2709, 9116, 0);
 	Tile chinTile4 = new Tile(2701, 9111, 0);
-	final Tile[] randomChinArray = { chinTile1, chinTile2, chinTile3, chinTile4 };
-	Tile randomChinTile = randomChinArray[Random.nextInt(0,
-			randomChinArray.length)];
+	Area chinArea3to4 = new Area(new Tile(2709, 9116, 0), new Tile(2701, 9111,
+			0));
+	Tile[] chinArray = { chinTile1, chinTile2, chinTile3, chinTile4 };
 
 	// Greegree IDs
 	private final static int monkey_greegree = 4031;
@@ -187,6 +189,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final static int house_tab = 8013;
 	private final static int[] tab = { varrock_tab, falador_tab, lumbridge_tab,
 			camelot_tab, ardougne_tab, watchtower_tab, house_tab };
+
 	// General IDs
 	private final static int chin = 10034;
 	Timer t = null;
@@ -229,7 +232,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		} catch (Exception e) {
 		}
 
-		if (Game.isLoggedIn() == false) {
+		if (!Game.isLoggedIn()) {
 			Time.sleep(Random.nextInt(2000, 4000));
 		}
 
@@ -250,15 +253,12 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 			// Declaring objects being interacted with
 			SceneObject treeDoor = SceneEntities.getNearest(treeDoorId);
-			SceneObject gnomeLadder = SceneEntities
-					.getNearest(gnomeLadderId);
-			SceneObject spiritTreeGe = SceneEntities
-					.getNearest(spiritTreeGeId);
+			SceneObject gnomeLadder = SceneEntities.getNearest(gnomeLadderId);
+			SceneObject spiritTreeGe = SceneEntities.getNearest(spiritTreeGeId);
 			SceneObject spiritTreeMain = SceneEntities
 					.getNearest(spiritTreeMainId);
 			SceneObject apeLadder = SceneEntities.getNearest(apeLadderId);
-			SceneObject varrockAltar = SceneEntities
-					.getNearest(varrockAltarId);
+			SceneObject varrockAltar = SceneEntities.getNearest(varrockAltarId);
 
 			// Declaring variables
 
@@ -276,17 +276,15 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						Time.sleep(50, 400);
 					}
 				}
-			} else {
-				if (!grandExchange.contains(Players.getLocal().getLocation())) {
-					Logger.getLogger("EpicsChins")
-							.info("You aren't in the Grand Exchange! Shutting down...");
-					Game.logout(false);
-					stop();
-				}
+			} else if (!grandExchange
+					.contains(Players.getLocal().getLocation())) {
+				Logger.getLogger("EpicsChins").info(
+						"You aren't in the Grand Exchange! Shutting down...");
+				Game.logout(false);
+				stop();
 			}
 			if (spiritMidTile.equals(Players.getLocal())
-					&& spiritTreeMain.isOnScreen()
-					&& spiritTreeMain != null) {
+					&& spiritTreeMain.isOnScreen() && spiritTreeMain != null) {
 				Camera.turnTo(spiritTreeMain);
 				spiritTreeMain.interact("Teleport");
 				if (Players.getLocal().getAnimation() == treeAnimation) {
@@ -327,8 +325,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					if (yesInterface.validate()) {
 						yesInterface.click(true);
 						Time.sleep(Random.nextInt(100, 125));
-					} else {
-						Time.sleep(Random.nextInt(50, 75));
 					}
 				}
 			}
@@ -341,12 +337,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						yesInterface.click(true);
 						Time.sleep(100, 200);
 					}
-				} else {
-					if (waydar.getAnimation() != -1 && waydar.isOnScreen()) {
-						Time.sleep(Random.nextInt(100, 125));
-					} else {
-						Walking.findPath(waydar).traverse();
-					}
+				} else if (waydar.getAnimation() != -1 && waydar.isOnScreen()) {
+					Time.sleep(Random.nextInt(100, 125));
 				}
 			}
 			if (lumdoZone.contains(Players.getLocal().getLocation())) {
@@ -356,16 +348,14 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					if (yesInterface.validate()) {
 						yesInterface.click(true);
 						Time.sleep(Random.nextInt(100, 125));
-					} else {
-						if (waydar.getAnimation() != -1 && waydar.isOnScreen()) {
-							Time.sleep(Random.nextInt(100, 125));
-						} else {
-							Walking.findPath(waydar).traverse();
-						}
+					} else if (waydar.getAnimation() != -1
+							&& waydar.isOnScreen()) {
+						Time.sleep(Random.nextInt(100, 125));
 					}
 				}
 			}
-			if (apeStart.equals(Players.getLocal()) && usingGreegree == true) {
+			if (apeStart.equals(Players.getLocal().getLocation())
+					&& usingGreegree) {
 				for (final Item item1 : Inventory.getItems()) {
 					for (int id : greegree) {
 						if (item1 != null && item1.getId() == id
@@ -383,142 +373,19 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					Time.sleep(300, 425);
 
 				}
-			} else {
-				if (apeStart.equals(Players.getLocal())
-						&& usingGreegree == false) {
-					checkRun();
-				}
+			} else if (apeStart.equals(Players.getLocal()) && !usingGreegree) {
+				checkRun();
 			}
 			if (apeLadderBottom.equals(Players.getLocal())) {
 				checkRenewal();
 				Prayer.setQuick();
-				if (randomChinTile == chinTile1) {
-					Walking.newTilePath(ladderToSpotOne).traverse();
-					Walking.findPath(chinTile1).traverse();
-					if (randomChinTile.equals(Players.getLocal())) {
-						checkPrayer();
-						if (chinTile1.equals(Players.getLoaded().length >= 2)) {
-							Logger.getLogger("EpicsChins").info(
-									"There's 2+ people"
-											+ " here, trying next spot...");
-							Walking.newTilePath(spotOneToSpotTwo).traverse();
-							Walking.findPath(chinTile2).traverse();
-							if (chinTile2
-									.equals(Players.getLoaded().length >= 2)) {
-								Logger.getLogger("EpicsChins").info(
-										"There's 2+ people"
-												+ " here, trying next spot...");
-								Walking.newTilePath(spotTwoToSpotThree)
-										.traverse();
-								Walking.findPath(chinTile3).traverse();
-								if (spotThreeToSpotFourSq.equals(Players
-										.getLoaded().length > 2)) {
-									Logger.getLogger("EpicsChins")
-											.info("There's 2+ "
-													+ "people here, hopping worlds...");
-									changeWorlds();
-								}
-							}
-						}
-					}
-				}
-				if (randomChinTile == chinTile2) {
-					Prayer.setQuick();
-					Walking.newTilePath(ladderToSpotOne).traverse();
-					Walking.newTilePath(spotOneToSpotTwo).traverse();
-					Walking.findPath(chinTile2).traverse();
-					if (randomChinTile.equals(Players.getLocal())) {
-						if (chinTile2.equals(Players.getLoaded().length >= 2)) {
-							Logger.getLogger("EpicsChins").info(
-									"There's 2+ people"
-											+ " here, trying next spot...");
-							Walking.newTilePath(spotTwoToSpotThree).traverse();
-							Walking.findPath(chinTile3).traverse();
-							if (spotThreeToSpotFourSq.equals(Players
-									.getLoaded().length >= 2)) {
-								Logger.getLogger("EpicsChins").info(
-										"There's 2+ people "
-												+ "here, trying next spot...");
-								Walking.newTilePath(spotTwoToSpotThree)
-										.reverse().traverse();
-								Walking.newTilePath(spotOneToSpotTwo).reverse()
-										.traverse();
-								Walking.findPath(chinTile1).traverse();
-								if (chinTile1
-										.equals(Players.getLoaded().length >= 2)) {
-									Logger.getLogger("EpicsChins")
-											.info("There's 2+ people"
-													+ " here, hopping worlds...");
-									changeWorlds();
-								}
-							}
-						}
-					}
-				}
-				if (randomChinTile == chinTile3) {
-					Prayer.setQuick();
-					Walking.newTilePath(ladderToSpotOne).traverse();
-					Walking.newTilePath(spotOneToSpotTwo).traverse();
-					Walking.newTilePath(spotTwoToSpotThree).traverse();
-					Walking.findPath(chinTile3).traverse();
-					if (randomChinTile.equals(Players.getLocal())) {
-						if (spotThreeToSpotFourSq
-								.equals(Players.getLoaded().length >= 2)) {
-							Logger.getLogger("EpicsChins").info(
-									"There's 2+ people here, trying "
-											+ "next spot...");
-							Walking.newTilePath(spotTwoToSpotThree).reverse()
-									.traverse();
-							Walking.findPath(chinTile2).traverse();
-							if (chinTile2
-									.equals(Players.getLoaded().length >= 2)) {
-								Logger.getLogger("EpicsChins").info(
-										"There's 2+ people here, "
-												+ "trying next spot...");
-								Walking.newTilePath(spotOneToSpotTwo).reverse()
-										.traverse();
-								Walking.findPath(chinTile1).traverse();
-								if (chinTile1
-										.equals(Players.getLoaded().length >= 2)) {
-									Logger.getLogger("EpicsChins")
-											.info("There's 2+ people "
-													+ "here, hopping worlds...");
-									changeWorlds();
-								}
-							}
-						}
-					}
-				}
-				if (randomChinTile == chinTile4) {
-					Prayer.setQuick();
-					Walking.newTilePath(ladderToSpotOne).traverse();
-					Walking.newTilePath(spotOneToSpotTwo).traverse();
-					Walking.newTilePath(spotTwoToSpotThree).traverse();
-					Walking.newTilePath(spotThreeToSpotFour).traverse();
-					if (chinTile4.equals(Players.getLoaded().length >= 2)) {
-						Logger.getLogger("EpicsChins").info(
-								"There's 2+ people here, trying next "
-										+ "spot...");
-						Walking.newTilePath(spotThreeToSpotFour).reverse()
-								.traverse();
-						Walking.newTilePath(spotTwoToSpotThree).reverse()
-								.traverse();
-						Walking.findPath(chinTile2).traverse();
-						if (spotThreeToSpotFourSq
-								.equals(Players.getLoaded().length >= 2)) {
-							Logger.getLogger("EpicsChins").info(
-									"There's 2+ people here, trying"
-											+ " next spot...");
-							Walking.newTilePath(spotOneToSpotTwo).reverse()
-									.traverse();
-							Walking.findPath(chinTile1).traverse();
-							if (chinTile1
-									.equals(Players.getLoaded().length >= 2)) {
-								Logger.getLogger("EpicsChins").info(
-										"There's 2+ people "
-												+ "here, hopping worlds...");
-								changeWorlds();
-							}
+				Walking.walk(chinTile1);
+				if (tileContainsTwoOrMore(chinTile1)) {
+					Walking.walk(chinTile2);
+					if (tileContainsTwoOrMore(chinTile2)) {
+						Walking.walk(chinTile3);
+						if (areaContainsTwoOrMore(chinArea3to4)) {
+							changeWorlds();
 						}
 					}
 				}
@@ -533,9 +400,9 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					&& Inventory.getCount(prayer_pot) == 18
 					&& Inventory.getCount(ranging_flask) == 3
 					&& Inventory.getCount(antipoison) == 1
-					&& Inventory.getCount(tab) > 0 && isPoisoned() == false
-					&& Equipment.getCount(chin) >= 500 && guiwait == false
-					&& !randomChinArray.equals(Players.getLocal());
+					&& Inventory.getCount(tab) > 0 && !isPoisoned()
+					&& Equipment.getCount(chin) >= 500 && !guiwait
+					&& !chinArray.equals(Players.getLocal());
 		}
 	}
 
@@ -545,31 +412,13 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
-			int realRange = Skills.getRealLevel(Skills.RANGE);
-			int potRange = Skills.getLevel(Skills.RANGE);
-			int rangeDifference = potRange - realRange;
 
 			doAttackMonkey(monkey_zombie);
-			if (rangeDifference >= 3) {
-				for (final Item item : Inventory.getItems()) {
-					for (int id : ranging_flask) {
-						if (item.getId() == id
-								&& item.getWidgetChild().interact("Drink")) {
-							Time.sleep(Random.nextInt(50, 100));
-						} else {
-							Logger.getLogger("EpicsChins")
-									.info("We're out of ranging pots, resuming until prayer potions are gone!");
-						}
-					}
-				}
-
-			}
-			checkRenewal();
 			Time.sleep(Random.nextInt(50, 75));
-			if (Prayer.isQuickOn() == false) {
+			if (!Prayer.isQuickOn()) {
 				Prayer.setQuick();
 			}
-			if (isPoisoned() == true) {
+			if (isPoisoned()) {
 				doDrinkAntipoison();
 			} else {
 				Logger.getLogger("EpicsChins")
@@ -578,12 +427,12 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				Game.logout(false);
 				stop();
 			}
-			int chinThrowID = 2779;
 			if (Players.getLocal().getAnimation() == chinThrowID) {
 				chinsThrown++;
 				Time.sleep(Random.nextInt(20, 50));
 			}
-			if (monkey_zombie.getAnimation() == zombieDeathAnim) {
+			if (monkey_zombie.getAnimation() == zombieDeathAnim
+					&& monkey_zombie.validate()) {
 				zombieKillCount++;
 			}
 			final int vialid = 229;
@@ -596,11 +445,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		@Override
 		public boolean validate() {
 			int chinCount = Equipment.getCount(chin);
-			return chinTile1.equals(Players.getLocal())
-					|| chinTile2.equals(Players.getLocal())
-					|| chinTile3.equals(Players.getLocal())
-					|| chinTile4.equals(Players.getLocal()) && chinCount >= 200
-					&& Inventory.getCount(prayer_pot) >= 1;
+			return chinArray.equals(Players.getLocal().getLocation())
+					&& chinCount >= 200 && Inventory.getCount(prayer_pot) >= 1;
 
 		}
 	}
@@ -688,7 +534,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			}
 			Bank.open();
 			if (Bank.isOpen()) {
-				if (usingGreegree == true) {
+				if (usingGreegree) {
+					Bank.withdraw(greegreeItem.getId(), 1);
+					Bank.close();
+
 					Bank.depositInventory();
 					Bank.withdraw(Food, 1);
 					Bank.withdraw(greegreeItem.getId(), 1);
@@ -698,16 +547,15 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					Bank.withdraw(prayer_renewal_flaskItem.getId(), 3);
 					Bank.withdraw(rangeFlaskItem.getId(), 3);
 					Bank.close();
-				}
-				if (usingGreegree == false) {
+				} else if (!usingGreegree) {
 					Bank.depositInventory();
 					Bank.withdraw(Food, 1);
+					Bank.withdraw(prayer_pot_four_dose, 18);
 					Bank.withdraw(antipoisonItem.getId(), 1);
 					Bank.withdraw(tabItem.getId(), 1);
 					Bank.withdraw(prayer_renewal_flaskItem.getId(), 3);
 					Bank.withdraw(rangeFlaskItem.getId(), 3);
-					Bank.withdraw(prayer_pot_four_dose, 18);
-					Bank.close();
+
 				}
 			}
 		}
@@ -810,7 +658,30 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
+	public void doDrinkRangePotion() {
+		int realRange = Skills.getRealLevel(Skills.RANGE);
+		int potRange = Skills.getLevel(Skills.RANGE);
+		int rangeDifference = potRange - realRange;
+		if (rangeDifference >= 3) {
+			for (final Item item : Inventory.getItems()) {
+				for (int id : ranging_flask) {
+					if (item.getId() == id
+							&& item.getWidgetChild().interact("Drink")) {
+						Time.sleep(Random.nextInt(50, 100));
+					} else {
+						Logger.getLogger("EpicsChins")
+								.info("We're out of ranging pots, resuming until prayer potions are gone!");
+					}
+				}
+			}
+
+		}
+	}
+
 	public void doAttackMonkey(final NPC npc) {
+		checkPrayer();
+		checkRenewal();
+		doDrinkRangePotion();
 		if (npc.isOnScreen() && npc.validate()) {
 			npc.interact("Attack");
 			if (!Players.getLocal().isInCombat()
@@ -880,8 +751,38 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	@SuppressWarnings("serial")
+	public boolean tileContainsTwoOrMore(final Tile tile) {
+		Player[] playersOnTile = Players.getLoaded(new Filter<Player>() {
+
+			@Override
+			public boolean accept(Player t) {
+				return t.getLocation().equals(tile);
+			}
+		});
+		if (playersOnTile.length >= 2) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean areaContainsTwoOrMore(final Area area) {
+		Player[] playersInArea = Players.getLoaded(new Filter<Player>() {
+
+			@Override
+			public boolean accept(Player t) {
+				return t.getLocation().equals(area);
+			}
+		});
+		if (playersInArea.length >= 2) {
+			return true;
+		}
+		return false;
+	}
+
 	public class GUI extends javax.swing.JFrame {
+
+		private static final long serialVersionUID = 3853009753324932631L;
+
 		public GUI() {
 			String version = " v1.0";
 
@@ -1173,15 +1074,11 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		if (new Rectangle(502, 389, 14, 15).contains(e.getPoint())) {
 			if (showpaint) {
 				showpaint = false;
-			} else {
-				if (img1 != null) {
-					Logger.getLogger("EpicsChinsGUI").info(
-							"Image failed to load");
-				}
-				showpaint = true;
+			} else if (img1 != null) {
+				Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
 			}
+			showpaint = true;
 		}
-
 	}
 
 	@Override
