@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
@@ -63,7 +64,7 @@ import org.powerbot.game.bot.Context;
 import org.powerbot.game.bot.event.listener.PaintListener;
 
 @Manifest(authors = { "Epics" }, name = "Epics Chinner", description = "Kills chins and banks when necessary.", version = 1.0)
-private class EpicsChins extends ActiveScript implements PaintListener,
+public class EpicsChins extends ActiveScript implements PaintListener,
 		MouseListener {
 
 	// GUI
@@ -74,7 +75,6 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 	private int Food = 0; // user selected food
 	private int[] Antipoison = { 0 }; // user selected Antipoison
 	private boolean usingGreegree;
-	private int stage = 0;
 
 	// Paint variables
 	private long startTime;
@@ -86,7 +86,7 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 	private int hpgainedExp;
 	private int expHour;
 	private int chinsThrown;
-	private int chinThrowID = 2779;
+	private final int chinThrowID = 2779;
 
 	private int mouseX = 0;
 	private int mouseY = 0;
@@ -94,50 +94,36 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 	private boolean showpaint = true;
 
 	// Members Worlds array
-	private int[] membersWorlds = { 5, 6, 9, 12, 15, 18, 21, 22, 23, 24, 25, 26,
-			27, 28, 31, 32, 36, 39, 40, 42, 44, 45, 46, 48, 49, 51, 52, 53, 54,
-			56, 58, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
-			76, 77, 78, 79, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 96, 97, 99,
-			100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137, 138,
-			139 };
+	private final int[] membersWorlds = { 5, 6, 9, 12, 15, 18, 21, 22, 23, 24,
+			25, 26, 27, 28, 31, 32, 36, 39, 40, 42, 44, 45, 46, 48, 49, 51, 52,
+			53, 54, 56, 58, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72,
+			73, 74, 76, 77, 78, 79, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 96,
+			97, 99, 100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137,
+			138, 139 };
 
 	// Path details
-	private final Tile[] ladderToSpotOne = { new Tile(2764, 9103, 0),
-			new Tile(2810, 9110, 0), new Tile(2810, 9127, 0),
-			new Tile(2740, 9137, 0), new Tile(2714, 9129, 0) };
-
-	private final Tile[] spotOneToSpotTwo = { new Tile(2714, 9129, 0),
-			new Tile(2719, 9129, 0), new Tile(2740, 9128, 0),
-			new Tile(2744, 9125, 0) };
-
-	private final Tile[] spotTwoToSpotThree = { new Tile(2743, 9120, 0),
-			new Tile(2738, 9120, 0), new Tile(2736, 9121, 0) };
-
-	private final Tile[] spotThreeToSpotFour = { new Tile(2705, 9113, 0),
-			new Tile(2705, 9111, 0) };
-	Area grandExchange = new Area(new Tile(3192, 3512, 0), new Tile(3142, 3471,
-			0));
-	Area daeroZone = new Area(new Tile(2474, 3493, 1), new Tile(2490, 3483, 1));
-	Area waydarZone = new Area(new Tile(2642, 4525, 0), new Tile(2652, 4515, 0));
-	Area lumdoZone = new Area(new Tile(2896, 2730, 0), new Tile(2887, 2717, 0));
-	Area treeDoorInsideTile = new Area(new Tile(2896, 2730, 0), new Tile(2887,
-			2717, 0));
-	Area spotThreeToSpotFourSq = new Area(new Tile(2709, 9116, 0), new Tile(
-			2701, 9111, 0));
-	Tile spiritMidTile = new Tile(2542, 3169, 0);
-	Tile spiritEndTile = new Tile(2462, 3444, 0);
-	Tile apeStart = new Tile(2802, 2707, 0);
-	Tile gnomeLadderBottom = new Tile(2466, 3494, 0);
-	Tile gnomeLadderMid = new Tile(2466, 3994, 1);
-	Tile apeLadderTop = new Tile(2764, 2703, 0);
-	Tile apeLadderBottom = new Tile(2764, 9103, 0);
-	Tile chinTile1 = new Tile(2715, 9127, 0);
-	Tile chinTile2 = new Tile(2746, 9122, 0);
-	Tile chinTile3 = new Tile(2709, 9116, 0);
-	Tile chinTile4 = new Tile(2701, 9111, 0);
-	Area chinArea3to4 = new Area(new Tile(2709, 9116, 0), new Tile(2701, 9111,
-			0));
-	Tile[] chinArray = { chinTile1, chinTile2, chinTile3, chinTile4 };
+	private final Area grandExchange = new Area(new Tile(3192, 3512, 0),
+			new Tile(3142, 3471, 0));
+	private final Area waydarZone = new Area(new Tile(2642, 4525, 0), new Tile(
+			2652, 4515, 0));
+	private final Area lumdoZone = new Area(new Tile(2896, 2730, 0), new Tile(
+			2887, 2717, 0));
+	private final Area treeDoorInsideTile = new Area(new Tile(2896, 2730, 0),
+			new Tile(2887, 2717, 0));
+	private final Tile spiritMidTile = new Tile(2542, 3169, 0);
+	private final Tile spiritEndTile = new Tile(2462, 3444, 0);
+	private final Tile apeStart = new Tile(2802, 2707, 0);
+	private final Tile gnomeLadderMid = new Tile(2466, 3994, 1);
+	private final Tile apeLadderTop = new Tile(2764, 2703, 0);
+	private final Tile apeLadderBottom = new Tile(2764, 9103, 0);
+	private final Tile chinTile1 = new Tile(2715, 9127, 0);
+	private final Tile chinTile2 = new Tile(2746, 9122, 0);
+	private final Tile chinTile3 = new Tile(2709, 9116, 0);
+	private final Tile chinTile4 = new Tile(2701, 9111, 0);
+	private final Area chinArea3to4 = new Area(new Tile(2709, 9116, 0),
+			new Tile(2701, 9111, 0));
+	private final Tile[] chinArray = { chinTile1, chinTile2, chinTile3,
+			chinTile4 };
 
 	// Greegree IDs
 	private final static int monkey_greegree = 4031;
@@ -167,8 +153,8 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 
 	private int[] antiPoisonSuperFlask = { 23327, 23329, 23331, 23333, 23335,
 			23337 };
-	private int[] antiPoisonPlusPlusFlask = { 23591, 23593, 23595, 23597, 23599,
-			23601 };
+	private int[] antiPoisonPlusPlusFlask = { 23591, 23593, 23595, 23597,
+			23599, 23601 };
 	private int[] antiPoisonPlusFlask = { 23579, 23581, 23583, 23585, 23587,
 			23589 };
 	private int[] antiPoisonFlask = { 23315, 23317, 23319, 23321, 23323, 23325 };
@@ -373,8 +359,7 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 					Time.sleep(300, 425);
 
 				}
-			} else if (apeStart.equals(Players.getLocal())
-					&& !usingGreegree) {
+			} else if (apeStart.equals(Players.getLocal()) && !usingGreegree) {
 				checkRun();
 			}
 			if (apeLadderBottom.equals(Players.getLocal())) {
@@ -409,10 +394,11 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 
 	private class throwChins extends Strategy implements Task {
 
-		NPC monkey_zombie = NPCs.getNearest(monkey_zombie_id);
+		private NPC monkey_zombie;
 
 		@Override
-		public void run() {
+		// look carefully...
+		public void run() {// done. :)
 
 			doAttackMonkey(monkey_zombie);
 			Time.sleep(Random.nextInt(50, 75));
@@ -447,7 +433,9 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 		public boolean validate() {
 			int chinCount = Equipment.getCount(chin);
 			return chinArray.equals(Players.getLocal().getLocation())
-					&& chinCount >= 200 && Inventory.getCount(prayer_pot) >= 1;
+					&& chinCount >= 200
+					&& Inventory.getCount(prayer_pot) >= 1
+					&& (monkey_zombie = NPCs.getNearest(monkey_zombie_id)) != null;
 
 		}
 	}
@@ -541,7 +529,8 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 
 					Bank.depositInventory();
 					Bank.withdraw(Food, 1);
-					Bank.withdraw(greegreeItem.getId(), 1);
+					Bank.withdraw(greegreeItem.getId(), 1);// how else could it
+															// be..?
 					Bank.withdraw(prayer_pot_four_dose, 18);
 					Bank.withdraw(antipoisonItem.getId(), 1);
 					Bank.withdraw(tabItem.getId(), 1);
@@ -553,7 +542,7 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 					Bank.withdraw(Food, 1);
 					Bank.withdraw(prayer_pot_four_dose, 18);
 					Bank.withdraw(antipoisonItem.getId(), 1);
-					Bank.withdraw(tabItem.getId(), 1);
+					Bank.withdraw(tabItem.getId(), 1);// nvm LOL
 					Bank.withdraw(prayer_renewal_flaskItem.getId(), 3);
 					Bank.withdraw(rangeFlaskItem.getId(), 3);
 
@@ -597,17 +586,19 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 
 	private void checkPrayer() {
 		if (Prayer.getPoints() <= 250) {
-			for (final Item prayerPotItem : Inventory.getItems()) {
-				for (int prayerPotID : prayer_pot) {
-					if (prayerPotItem.getId() == prayerPotID
-							&& prayerPotItem.getWidgetChild().interact("Drink")) {
-						Time.sleep(Random.nextInt(25, 50));
-					}
+			final Item prayerPot = Inventory.getItem(prayer_pot);
+			if (prayerPot != null
+					&& prayerPot.getWidgetChild().interact("Drink")) {
+				final int id = prayerPot.getId();
+				final int count = Inventory.getCount(id);
+				final Timer t = new Timer(2500);
+				while (t.isRunning() && Inventory.getCount(id) == count) {
+					Time.sleep(50);
 				}
+			} else {
+				Logger.getLogger("EpicsChins").info(
+						"Prayer is above 25%, not using potion!");
 			}
-		} else {
-			Logger.getLogger("EpicsChins").info(
-					"Prayer is above 25%, not using potion!");
 		}
 	}
 
@@ -621,45 +612,43 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void doDrinkRenewal() {
-		for (final Item renewalFlask : Inventory.getItems()) {
-			for (int id : prayer_renewal_flask) {
-				if (renewalFlask != null && renewalFlask.getId() == id
-						&& renewalFlask.getWidgetChild().interact("Drink")) {
-					if (renewalFlask != null && renewalFlask.getId() != id) {
-						Logger.getLogger("EpicsChins").info(
-								"Drank a dose of Prayer Renewal");
-					}
-				}
+		final Item prayerRenewal = Inventory.getItem(prayer_renewal_flask);
+		if (prayer_renewal_flask != null
+				&& prayerRenewal.getWidgetChild().interact("Drink")) {
+			final int id = prayerRenewal.getId();
+			final int count = Inventory.getCount(id);
+			final Timer t = new Timer(2500);
+			while (t.isRunning() && Inventory.getCount(id) == count) {
+				Time.sleep(50);
 			}
 		}
 	}
 
-	private void doDrinkAntipoison() {
-		for (final Item item : Inventory.getItems()) {
-			for (int id : Antipoison) {
-				if (item.getId() == id
-						&& item.getWidgetChild().interact("Drink")) {
-					if (item != null && item.getId() != id) {
-						Logger.getLogger("EpicsChins").info(
-								"Drank a dose of Antipoison");
-					}
-				}
+	private void doDrinkAntipoison() {// same thing here +1 LOL yup
+		final Item antipoison = Inventory.getItem(Antipoison);
+		if (antipoison != null && antipoison.getWidgetChild().interact("Drink")) {
+			final int id = antipoison.getId();
+			final int count = Inventory.getCount(id);
+			final Timer t = new Timer(2500);
+			while (t.isRunning() && Inventory.getCount(id) == count) {
+				Time.sleep(50);
 			}
 		}
 	}
 
-	private void doBreakTab() {
-		for (final Item tabItem : Inventory.getItems()) {
-			for (int tabID : tab) {
-				if (tabItem.getId() == tabID
-						&& tabItem.getWidgetChild().interact("Break")) {
-					Time.sleep(Random.nextInt(50, 100));
-				}
+	private void doBreakTab() {// and there
+		final Item tabItem = Inventory.getItem(tab);
+		if (tabItem != null && tabItem.getWidgetChild().interact("Break")) {
+			final int id = tabItem.getId();
+			final int count = Inventory.getCount(id);
+			final Timer t = new Timer(2500);
+			while (t.isRunning() && Inventory.getCount(id) == count) {
+				Time.sleep(50);
 			}
 		}
 	}
 
-	private void doDrinkRangePotion() {
+	private void doDrinkRangePotion() {// here
 		int realRange = Skills.getRealLevel(Skills.RANGE);
 		int potRange = Skills.getLevel(Skills.RANGE);
 		int rangeDifference = potRange - realRange;
@@ -683,7 +672,7 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 		checkPrayer();
 		checkRenewal();
 		doDrinkRangePotion();
-		if (npc.isOnScreen() && npc.validate()) {
+		if (npc.isOnScreen() && npc.validate() && npc != null) {
 			npc.interact("Attack");
 			if (!Players.getLocal().isInCombat()
 					&& Players.getLocal().getInteracting() == null) {
@@ -752,7 +741,8 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private boolean tileContainsTwoOrMore(final Tile tile) {
+	private boolean tileContainsTwoOrMore(final Tile tile) {// lol idk, getting
+															// tired now :Psorry
 		Player[] playersOnTile = Players.getLoaded(new Filter<Player>() {
 
 			@Override
@@ -780,7 +770,7 @@ private class EpicsChins extends ActiveScript implements PaintListener,
 		return false;
 	}
 
-	private class GUI extends javax.swing.JFrame {
+	private class GUI extends JFrame {
 		private static final long serialVersionUID = 3853009753324932631L;
 
 		private GUI() {
