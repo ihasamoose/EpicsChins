@@ -63,7 +63,7 @@ import org.powerbot.game.bot.Context;
 import org.powerbot.game.bot.event.listener.PaintListener;
 
 @Manifest(authors = { "Epics" }, name = "Epics Chinner", description = "Kills chins and banks when necessary.", version = 1.0)
-public class EpicsChins extends ActiveScript implements PaintListener,
+private class EpicsChins extends ActiveScript implements PaintListener,
 		MouseListener {
 
 	// GUI
@@ -71,10 +71,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private GUI gui;
 
 	// GUI variables
-	public int Food = 0; // user selected food
-	public int[] Antipoison = { 0 }; // user selected Antipoison
-	public boolean usingGreegree;
-	public int stage = 0;
+	private int Food = 0; // user selected food
+	private int[] Antipoison = { 0 }; // user selected Antipoison
+	private boolean usingGreegree;
+	private int stage = 0;
 
 	// Paint variables
 	private long startTime;
@@ -86,15 +86,15 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private int hpgainedExp;
 	private int expHour;
 	private int chinsThrown;
-	int chinThrowID = 2779;
+	private int chinThrowID = 2779;
 
-	private static int mouseX = 0;
-	private static int mouseY = 0;
+	private int mouseX = 0;
+	private int mouseY = 0;
 
-	public boolean showpaint = true;
+	private boolean showpaint = true;
 
 	// Members Worlds array
-	public int[] membersWorlds = { 5, 6, 9, 12, 15, 18, 21, 22, 23, 24, 25, 26,
+	private int[] membersWorlds = { 5, 6, 9, 12, 15, 18, 21, 22, 23, 24, 25, 26,
 			27, 28, 31, 32, 36, 39, 40, 42, 44, 45, 46, 48, 49, 51, 52, 53, 54,
 			56, 58, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
 			76, 77, 78, 79, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 96, 97, 99,
@@ -102,18 +102,18 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			139 };
 
 	// Path details
-	public final Tile[] ladderToSpotOne = { new Tile(2764, 9103, 0),
+	private final Tile[] ladderToSpotOne = { new Tile(2764, 9103, 0),
 			new Tile(2810, 9110, 0), new Tile(2810, 9127, 0),
 			new Tile(2740, 9137, 0), new Tile(2714, 9129, 0) };
 
-	public final Tile[] spotOneToSpotTwo = { new Tile(2714, 9129, 0),
+	private final Tile[] spotOneToSpotTwo = { new Tile(2714, 9129, 0),
 			new Tile(2719, 9129, 0), new Tile(2740, 9128, 0),
 			new Tile(2744, 9125, 0) };
 
-	public final Tile[] spotTwoToSpotThree = { new Tile(2743, 9120, 0),
+	private final Tile[] spotTwoToSpotThree = { new Tile(2743, 9120, 0),
 			new Tile(2738, 9120, 0), new Tile(2736, 9121, 0) };
 
-	public final Tile[] spotThreeToSpotFour = { new Tile(2705, 9113, 0),
+	private final Tile[] spotThreeToSpotFour = { new Tile(2705, 9113, 0),
 			new Tile(2705, 9111, 0) };
 	Area grandExchange = new Area(new Tile(3192, 3512, 0), new Tile(3142, 3471,
 			0));
@@ -165,19 +165,19 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			20879 // antipoison elixir
 	};
 
-	public int[] antiPoisonSuperFlask = { 23327, 23329, 23331, 23333, 23335,
+	private int[] antiPoisonSuperFlask = { 23327, 23329, 23331, 23333, 23335,
 			23337 };
-	public int[] antiPoisonPlusPlusFlask = { 23591, 23593, 23595, 23597, 23599,
+	private int[] antiPoisonPlusPlusFlask = { 23591, 23593, 23595, 23597, 23599,
 			23601 };
-	public int[] antiPoisonPlusFlask = { 23579, 23581, 23583, 23585, 23587,
+	private int[] antiPoisonPlusFlask = { 23579, 23581, 23583, 23585, 23587,
 			23589 };
-	public int[] antiPoisonFlask = { 23315, 23317, 23319, 23321, 23323, 23325 };
-	public int[] antiPoisonMix = { 11433, 11435 };
-	public int[] antiPoisonSuperPot = { 2448, 181, 183, 185 };
-	public int[] antiPoisonPlusPlusPot = { 5952, 5954, 5956, 5958 };
-	public int[] antiPoisonPlusPot = { 5943, 5945, 5947, 5949 };
-	public int[] antiPoisonPot = { 2446, 175, 177, 179 };
-	public int[] antiPoisonElixir = { 20879 };
+	private int[] antiPoisonFlask = { 23315, 23317, 23319, 23321, 23323, 23325 };
+	private int[] antiPoisonMix = { 11433, 11435 };
+	private int[] antiPoisonSuperPot = { 2448, 181, 183, 185 };
+	private int[] antiPoisonPlusPlusPot = { 5952, 5954, 5956, 5958 };
+	private int[] antiPoisonPlusPot = { 5943, 5945, 5947, 5949 };
+	private int[] antiPoisonPot = { 2446, 175, 177, 179 };
+	private int[] antiPoisonElixir = { 20879 };
 
 	// Tab IDs
 	private final static int varrock_tab = 8007;
@@ -373,7 +373,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					Time.sleep(300, 425);
 
 				}
-			} else if (apeStart.equals(Players.getLocal()) && !usingGreegree) {
+			} else if (apeStart.equals(Players.getLocal())
+					&& !usingGreegree) {
 				checkRun();
 			}
 			if (apeLadderBottom.equals(Players.getLocal())) {
@@ -610,7 +611,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public void checkRenewal() {
+	private void checkRenewal() {
 		if (t == null || t != null && !t.isRunning()) {
 			doDrinkRenewal();
 			t = new Timer(300000);
@@ -619,7 +620,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public void doDrinkRenewal() {
+	private void doDrinkRenewal() {
 		for (final Item renewalFlask : Inventory.getItems()) {
 			for (int id : prayer_renewal_flask) {
 				if (renewalFlask != null && renewalFlask.getId() == id
@@ -633,7 +634,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public void doDrinkAntipoison() {
+	private void doDrinkAntipoison() {
 		for (final Item item : Inventory.getItems()) {
 			for (int id : Antipoison) {
 				if (item.getId() == id
@@ -647,7 +648,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public void doBreakTab() {
+	private void doBreakTab() {
 		for (final Item tabItem : Inventory.getItems()) {
 			for (int tabID : tab) {
 				if (tabItem.getId() == tabID
@@ -658,7 +659,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public void doDrinkRangePotion() {
+	private void doDrinkRangePotion() {
 		int realRange = Skills.getRealLevel(Skills.RANGE);
 		int potRange = Skills.getLevel(Skills.RANGE);
 		int rangeDifference = potRange - realRange;
@@ -678,7 +679,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public void doAttackMonkey(final NPC npc) {
+	private void doAttackMonkey(final NPC npc) {
 		checkPrayer();
 		checkRenewal();
 		doDrinkRangePotion();
@@ -695,7 +696,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public static void doChargePrayer(final SceneObject sceneobject) {
+	private static void doChargePrayer(final SceneObject sceneobject) {
 		if (Prayer.getPoints() > 300) {
 			Logger.getLogger("EpicsChins")
 					.info("Prayer is lower than 80%, let's go charge up before we head out.");
@@ -718,7 +719,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public static void doPreEat(final Item item, Item item2) {
+	private static void doPreEat(final Item item, Item item2) {
 		if (Players.getLocal().getHpPercent() > 30) {
 			Walking.findPath((Locatable) Bank.getNearest());
 			Bank.open();
@@ -751,7 +752,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	public boolean tileContainsTwoOrMore(final Tile tile) {
+	private boolean tileContainsTwoOrMore(final Tile tile) {
 		Player[] playersOnTile = Players.getLoaded(new Filter<Player>() {
 
 			@Override
@@ -765,7 +766,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		return false;
 	}
 
-	public boolean areaContainsTwoOrMore(final Area area) {
+	private boolean areaContainsTwoOrMore(final Area area) {
 		Player[] playersInArea = Players.getLoaded(new Filter<Player>() {
 
 			@Override
@@ -779,11 +780,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		return false;
 	}
 
-	public class GUI extends javax.swing.JFrame {
-
+	private class GUI extends javax.swing.JFrame {
 		private static final long serialVersionUID = 3853009753324932631L;
 
-		public GUI() {
+		private GUI() {
 			String version = " v1.0";
 
 			// Title
