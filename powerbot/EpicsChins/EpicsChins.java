@@ -75,6 +75,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private int Food = 0; // user selected food
 	private int[] Antipoison = { 0 }; // user selected Antipoison
 	private boolean usingGreegree;
+	private int loop = 0;
+	private boolean stratsProvided = true;
 
 	// Paint variables
 	private long startTime;
@@ -91,7 +93,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private int mouseX = 0;
 	private int mouseY = 0;
 
-	private boolean showpaint = true;
+	private boolean showpaint = false;
 
 	// Members Worlds array
 	private final int[] membersWorlds = { 5, 6, 9, 12, 15, 18, 21, 22, 23, 24,
@@ -102,7 +104,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			138, 139 };
 
 	// Path details
-	private final Area grandExchange = new Area(new Tile(3192, 3512, 0),
+	public final Area grandExchange = new Area(new Tile(3192, 3512, 0),
 			new Tile(3142, 3471, 0));
 	private final Area waydarZone = new Area(new Tile(2642, 4525, 0), new Tile(
 			2652, 4515, 0));
@@ -204,28 +206,48 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	@Override
 	protected void setup() {
 
+		provide(new Strats());
+
 		RANGEstartExp = Skills.getExperience(Skills.RANGE);
 		HPstartExp = Skills.getExperience(Skills.CONSTITUTION);
 		startTime = System.currentTimeMillis();
 
-		try {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					gui = new GUI();
-					gui.setVisible(true);
+	}
+
+	private class Strats extends Strategy implements Task {
+		@Override
+		public void run() {
+			if (Game.isLoggedIn()) {
+				log.info("Starting script");
+				provide(new runToChins());
+				provide(new throwChins());
+				provide(new Banking());
+				stratsProvided = false;
+
+				try {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							gui = new GUI();
+							gui.setVisible(true);
+						}
+					});
+				} catch (Exception e) {
 				}
-			});
-		} catch (Exception e) {
+				showpaint = true;
+
+			} else {
+				loop++;
+				if (loop == 1) {
+					log.info("Waiting for Runescape® to log in and load your character..");
+				}
+				Time.sleep(2000, 2500);
+			}
 		}
 
-		if (!Game.isLoggedIn()) {
-			Time.sleep(Random.nextInt(2000, 4000));
+		@Override
+		public boolean validate() {
+			return stratsProvided;
 		}
-
-		provide(new runToChins());
-		provide(new throwChins());
-		provide(new Banking());
-
 	}
 
 	private class runToChins extends Strategy implements Task {
@@ -264,8 +286,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				}
 			} else if (!grandExchange
 					.contains(Players.getLocal().getLocation())) {
-				Logger.getLogger("EpicsChins").info(
-						"You aren't in the Grand Exchange! Shutting down...");
+				log.info("You aren't in the Grand Exchange! Shutting down...");
 				Game.logout(false);
 				stop();
 			}
@@ -276,8 +297,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				if (Players.getLocal().getAnimation() == treeAnimation) {
 					Time.sleep(50, 400);
 				} else {
-					Logger.getLogger("EpicsChins")
-							.info("Tree animation is not present. Something has gone turribly wrong!");
+					log.info("Tree animation is not present. Something has gone turribly wrong!");
 				}
 				Time.sleep(50, 400);
 				WidgetChild spiritTreeInterface = Widgets.get(6, 0);
@@ -380,8 +400,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public boolean validate() {
-			return grandExchange.contains(Players.getLocal()) && !isPoisoned()
-					&& Inventory.getCount(Food) >= 1
+			return grandExchange.contains(Players.getLocal().getLocation())
+					&& !isPoisoned() && Inventory.getCount(Food) >= 1
 					&& Inventory.getCount(prayer_renewal_flask) == 3
 					&& Inventory.getCount(prayer_pot) == 18
 					&& Inventory.getCount(ranging_flask) == 3
@@ -397,8 +417,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		private NPC monkey_zombie;
 
 		@Override
-		// look carefully...
-		public void run() {// done. :)
+		public void run() {
 
 			doAttackMonkey(monkey_zombie);
 			Time.sleep(Random.nextInt(50, 75));
@@ -408,8 +427,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			if (isPoisoned()) {
 				doDrinkAntipoison();
 			} else {
-				Logger.getLogger("EpicsChins")
-						.info("We're out of antipoison & we're poisoned! Teleporting to safety and shutting down...");
+				log.info("We're out of antipoison & we're poisoned! Teleporting to safety and shutting down...");
 				doBreakTab();
 				Game.logout(false);
 				stop();
@@ -435,7 +453,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			return chinArray.equals(Players.getLocal().getLocation())
 					&& chinCount >= 200
 					&& Inventory.getCount(prayer_pot) >= 1
-					&& (monkey_zombie = NPCs.getNearest(monkey_zombie_id)) != null;
+					&& (monkey_zombie = NPCs.getNearest(monkey_zombie_id)) != null
+					&& !guiwait;
 
 		}
 	}
@@ -510,7 +529,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			checkRun();
 			Walking.findPath((Locatable) Bank.getNearest());
 			Camera.turnTo((Locatable) Bank.getNearest());
-			if (Players.getLocal().getHpPercent() >= 70) {
+			if (Players.getLocal().getHpPercent() <= 70) {
 				Bank.open();
 				if (Bank.isOpen()) {
 					Bank.depositInventory();
@@ -554,8 +573,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		public boolean validate() {
 			return Inventory.getCount(prayer_pot) <= 1
 					|| Equipment.getCount(chin) <= 100 || isPoisoned()
-					&& Antipoison == null
-					|| Players.getLocal().getHpPercent() <= 25;
+					&& Antipoison == null && !guiwait
+					|| Players.getLocal().getHpPercent() <= 25 && !guiwait;
 
 		}
 	}
@@ -596,8 +615,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					Time.sleep(50);
 				}
 			} else {
-				Logger.getLogger("EpicsChins").info(
-						"Prayer is above 25%, not using potion!");
+				log.info("Prayer is above 25%, not using potion!");
 			}
 		}
 	}
@@ -624,7 +642,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private void doDrinkAntipoison() {// same thing here +1 LOL yup
+	private void doDrinkAntipoison() {
 		final Item antipoison = Inventory.getItem(Antipoison);
 		if (antipoison != null && antipoison.getWidgetChild().interact("Drink")) {
 			final int id = antipoison.getId();
@@ -636,7 +654,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private void doBreakTab() {// and there
+	private void doBreakTab() {
 		final Item tabItem = Inventory.getItem(tab);
 		if (tabItem != null && tabItem.getWidgetChild().interact("Break")) {
 			final int id = tabItem.getId();
@@ -648,23 +666,21 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private void doDrinkRangePotion() {// here
+	private void doDrinkRangePotion() {
+		final Item rangePotItem = Inventory.getItem(ranging_flask);
 		int realRange = Skills.getRealLevel(Skills.RANGE);
 		int potRange = Skills.getLevel(Skills.RANGE);
 		int rangeDifference = potRange - realRange;
-		if (rangeDifference >= 3) {
-			for (final Item item : Inventory.getItems()) {
-				for (int id : ranging_flask) {
-					if (item.getId() == id
-							&& item.getWidgetChild().interact("Drink")) {
-						Time.sleep(Random.nextInt(50, 100));
-					} else {
-						Logger.getLogger("EpicsChins")
-								.info("We're out of ranging pots, resuming until prayer potions are gone!");
-					}
-				}
+		if (rangeDifference >= 3 && rangePotItem != null
+				&& rangePotItem.getWidgetChild().interact("Drink")) {
+			final int id = rangePotItem.getId();
+			final int count = Inventory.getCount(id);
+			final Timer t = new Timer(2500);
+			while (t.isRunning() && Inventory.getCount(id) == count) {
+				Time.sleep(50);
 			}
-
+		} else {
+			log.info("We're out of ranging pots, resuming until prayer potions are gone!");
 		}
 	}
 
@@ -773,7 +789,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private class GUI extends JFrame {
 		private static final long serialVersionUID = 3853009753324932631L;
 
-		private GUI() {
+		public GUI() {
 			String version = " v1.0";
 
 			// Title
@@ -785,6 +801,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 			// ---- foodLabel ----
 			final JLabel foodLabel = new JLabel("What food should we use?");
+			foodLabel.setBackground(new Color(212, 208, 200));
 			foodLabel.setFont(foodLabel.getFont().deriveFont(
 					foodLabel.getFont().getStyle() | Font.BOLD));
 			contentPane.add(foodLabel);
@@ -793,8 +810,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 			// ---- antiLabel ----
 			final JTextPane antiLabel = new JTextPane();
+			antiLabel.setBackground(new Color(212, 208, 200));
 			antiLabel.setText("What antipoison should we use?");
-			antiLabel.setBackground(new Color(240, 240, 240));
 			antiLabel.setFont(antiLabel.getFont().deriveFont(
 					antiLabel.getFont().getStyle() | Font.BOLD));
 			antiLabel.setEditable(false);
@@ -826,12 +843,12 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 			// chinLabelRight
 			final Image chinPictureRight = getImage("http://2c1c.net/images/faceLeft.png");
-			if (chinPictureRight != null) {
+			if (chinPictureRight == null) {
 				Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
 			}
 			final JLabel chinLabelRight = new JLabel(new ImageIcon(
 					chinPictureRight));
-			if (chinPictureLeft != null) {
+			if (chinPictureLeft == null) {
 				Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
 			}
 			contentPane.add(chinLabelRight);
@@ -854,10 +871,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 			// ---- reqTextPane ----
 			final JTextPane reqTextPane = new JTextPane();
+			reqTextPane.setBackground(new Color(212, 208, 200));
 			reqTextPane.setCursor(Cursor
 					.getPredefinedCursor(Cursor.TEXT_CURSOR));
 			reqTextPane.setDisabledTextColor(new Color(240, 240, 240));
-			reqTextPane.setBackground(new Color(240, 240, 240));
 			reqTextPane.setEditable(false);
 			reqTextPane.setText("Requirements:");
 			reqTextPane.setFont(reqTextPane.getFont().deriveFont(
@@ -867,7 +884,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 			// ---- reqTextPaneB ----
 			final JTextPane reqTextPaneB = new JTextPane();
-			reqTextPaneB.setBackground(new Color(240, 240, 240));
+			reqTextPaneB.setBackground(new Color(212, 208, 200));
 			reqTextPaneB
 					.setText("- Access to Ape Atoll\n- 43 Prayer\n- 55 Ranged\n- 3+ Prayer renewal flasks\n- 3+ Ranged flasks");
 			reqTextPaneB.setEditable(false);
@@ -943,7 +960,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					if (chosenFood.equals("Select your food...")) {
 						Logger.getLogger("EpicsChins").info(
 								"No food selected, stopping script");
-						Game.logout(false);
 						stop();
 					}
 					if (chosenFood.equals("Shark")) {
@@ -1008,11 +1024,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					if (chosenAntipoison.equals("Antipoison elixir")) {
 						Antipoison = antiPoisonElixir;
 					}
+					gui.dispose();
+					guiwait = false;
 				}
 			});
-			this.dispose();
-			guiwait = false;
-
 		}
 	}
 
@@ -1064,7 +1079,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		if (new Rectangle(502, 389, 14, 15).contains(e.getPoint())) {
 			if (showpaint) {
 				showpaint = false;
-			} else if (img1 != null) {
+			} else if (img1 == null) {
 				Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
 			}
 			showpaint = true;
