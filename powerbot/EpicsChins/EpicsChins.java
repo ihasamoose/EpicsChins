@@ -245,6 +245,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private class runToChins extends Strategy implements Runnable {
 		@Override
 		public void run() {
+			log.info("Running walk there code");
 			// Declaring NPCs
 			NPC daero = NPCs.getNearest(ID_NPC_DAERO);
 			NPC waydar = NPCs.getNearest(ID_NPC_WAYDAR);
@@ -396,7 +397,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
-
+			log.info("Running attack code");
 			final Item rangePotItem = Inventory.getItem(FLASK_RANGING);
 			int realRange = Skills.getRealLevel(Skills.RANGE);
 			int potRange = Skills.getLevel(Skills.RANGE);
@@ -511,6 +512,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
+			log.info("Running banking code");
 			for (final Item tabItem : Inventory.getItems()) {
 				for (int tabID : tab) {
 					if (tabItem.getId() == tabID
@@ -573,6 +575,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void changeWorlds() {
+		log.info("Running changeWorlds code");
 		Game.logout(true);
 		Time.sleep(Random.nextInt(2000, 5000));
 		if (Lobby.isOpen() && Lobby.STATE_LOBBY_IDLE != 0) {
@@ -593,6 +596,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void checkPrayer() {
+		log.info("Running checkPrayer code");
 		if (Prayer.getPoints() <= 250) {
 			final Item prayerPot = Inventory.getItem(POT_PRAYER);
 			if (prayerPot != null
@@ -610,6 +614,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void checkRenewal() {
+		log.info("Running checkRenewal code");
 		if (t == null || t != null && !t.isRunning()) {
 			doDrinkRenewal();
 			t = new Timer(300000);
@@ -619,6 +624,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void doDrinkRenewal() {
+		log.info("Running doDrinkRenewal code");
 		final Item prayerRenewal = Inventory.getItem(FLASK_PRAYER_RENEWAL);
 		if (FLASK_PRAYER_RENEWAL != null
 				&& prayerRenewal.getWidgetChild().interact("Drink")) {
@@ -632,6 +638,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void doDrinkAntipoison() {
+		log.info("Running doDrinkAntipoison code");
 		final Item ANTIPOISON_ALL = Inventory.getItem(Antipoison);
 		if (ANTIPOISON_ALL != null
 				&& ANTIPOISON_ALL.getWidgetChild().interact("Drink")) {
@@ -645,6 +652,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void doBreakTab() {
+		log.info("Running doBreakTab code");
 		final Item tabItem = Inventory.getItem(tab);
 		if (tabItem != null && tabItem.getWidgetChild().interact("Break")) {
 			final int id = tabItem.getId();
@@ -657,6 +665,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void doDrinkRangePotion() {
+		log.info("Running doDrinkRangePotion code");
 		final Item rangePotItem = Inventory.getItem(FLASK_RANGING);
 		int realRange = Skills.getRealLevel(Skills.RANGE);
 		int potRange = Skills.getLevel(Skills.RANGE);
@@ -675,6 +684,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void doAttackMonkey(final NPC npc) {
+		log.info("Running doAttackMonkey code");
 		checkPrayer();
 		checkRenewal();
 		doDrinkRangePotion();
@@ -692,6 +702,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void equipGreegree() {
+		log.info("Running equipGreegree code");
 		final Item GREEGREE = Inventory.getItem(GREEGREE_IDS);
 		if (GREEGREE != null && GREEGREE.getWidgetChild().interact("Equip")) {
 			final int id = GREEGREE.getId();
@@ -704,6 +715,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private static void doChargePrayer(final SceneObject sceneobject) {
+		Logger.getLogger("EpicsChins").info("Running doChargePrayer code");
 		if (Prayer.getPoints() > 300) {
 			Logger.getLogger("EpicsChins")
 					.info("Prayer is lower than 80%, let's go charge up before we head out.");
@@ -727,6 +739,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private static void doPreEat(final Item item, Item item2) {
+		Logger.getLogger("EpicsChins").info("Running doPreEat code");
 		if (Players.getLocal().getHpPercent() > 30) {
 			Walking.findPath((Locatable) Bank.getNearest());
 			Bank.open();
@@ -760,6 +773,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private boolean tileContainsTwoOrMore(final Tile tile) {
+		Logger.getLogger("EpicsChins").info(
+				"Running tileContainsTwoOrMore code");
 		Player[] playersOnTile = Players.getLoaded(new Filter<Player>() {
 			@Override
 			public boolean accept(Player t) {
@@ -774,6 +789,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private boolean areaContainsTwoOrMore(final Area area) {
+		Logger.getLogger("EpicsChins").info(
+				"Running areaContainsTwoOrMore code");
 		Player[] playersInArea = Players.getLoaded(new Filter<Player>() {
 			@Override
 			public boolean accept(Player t) {
@@ -788,6 +805,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void antiban() {
+		Logger.getLogger("EpicsChins").info("Running antiban code");
 		state = Random.nextInt(0, 3);
 		switch (state) {
 		case 1:
