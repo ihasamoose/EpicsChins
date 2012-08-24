@@ -472,7 +472,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		Item prayerRenewalFlaskItem = Bank.getItem(new Filter<Item>() {
 			@Override
 			public boolean accept(final Item p) {
-				for (int id : tab) {
+				for (int id : FLASK_PRAYER_RENEWAL) {
 					if (p.getId() == id)
 						return true;
 				}
@@ -482,6 +482,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
+			log.info("BUGTESTING VALUE: " + String.valueOf(antipoisonItem.getId()));
 			if (!AREA_GE.contains(Players.getLocal().getLocation())) {
 				log.info("You aren't in the Grand Exchange! Shutting down...");
 				stop();
@@ -489,14 +490,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			log.info("Running banking code");
 			if (!AREA_GE.contains(Players.getLocal().getLocation())
 					&& Inventory.getCount(tab) >= 1) {
-				for (final Item tabItem : Inventory.getItems()) {
-					for (int tabID : tab) {
-						if (tabItem.getId() == tabID
-								&& tabItem.getWidgetChild().interact("Break")) {
-							Time.sleep(Random.nextInt(50, 100));
-						}
-					}
-				}
+				doBreakTab();
 			}
 			checkRun();
 			Walking.findPath((Locatable) Bank.getNearest());
@@ -583,7 +577,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		public boolean validate() {
 			return Inventory.getCount(POT_PRAYER) <= 1
 					|| Equipment.getCount(ID_CHIN) <= 100 || isPoisoned()
-					&& (Inventory.getCount(Antipoison) == 0)
+					&& (Inventory.getCount(antipoisonItem.getId()) == 0)
 					|| Players.getLocal().getHpPercent() <= 25;
 		}
 	}
