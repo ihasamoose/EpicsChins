@@ -119,6 +119,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final Tile TILE_CHIN_4 = new Tile(2701, 9111, 0);
 	private final Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
 	private final Tile TILE_TREE_DAERO = new Tile(2480, 3488, 1);
+	private final static Tile TILE_PRAYER = new Tile(3254, 3485, 0);
 	private final Area AREA_CHIN_3_4 = new Area(new Tile(2709, 9116, 0),
 			new Tile(2701, 9111, 0));
 	private final Tile[] CHIN_ARRAY = { TILE_CHIN_1, TILE_CHIN_2, TILE_CHIN_3,
@@ -201,10 +202,28 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		HPstartExp = Skills.getExperience(Skills.CONSTITUTION);
 		startTime = System.currentTimeMillis();
 
+		provide(new checks());
 		provide(new runToChins());
 		provide(new throwChins());
 		provide(new Banking());
-		provide(new checks());
+	}
+
+	private class checks extends Strategy implements Runnable {
+
+		@Override
+		public void run() {
+			chinnum = Equipment.getItem(10034).getStackSize();
+
+			if (!Attack.isAutoRetaliateEnabled()) {
+				Widgets.get(884).getChild(11).click(true);
+			}
+			runcheck = false;
+		}
+
+		@Override
+		public boolean validate() {
+			return runcheck;
+		}
 	}
 
 	private class runToChins extends Strategy implements Runnable {
@@ -223,15 +242,13 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			SceneObject spiritTreeMain = SceneEntities
 					.getNearest(ID_SPIRITTREE_MAIN);
 			SceneObject apeLadder = SceneEntities.getNearest(ID_LADDER_APE);
-			SceneObject varrockAltar = SceneEntities
-					.getNearest(ID_ALTAR_VARROCK);
 			// Declaring variables
 			Item food = Inventory.getItem(Food);
 			Item prayerPot = Inventory.getItem(POT_PRAYER_DOSE_4);
 			if (AREA_GE.contains(Players.getLocal().getLocation())) {
 				checkRun();
 				doPreEat(food, prayerPot);
-				doChargePrayer(varrockAltar);
+				doChargePrayer();
 				Walking.findPath(TILE_GRAND_TREE).traverse();
 				if (spiritTreeGe.isOnScreen() && spiritTreeGe != null) {
 					spiritTreeGe.interact("Teleport");
@@ -645,24 +662,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private class checks extends Strategy implements Runnable {
-
-		@Override
-		public void run() {
-			chinnum = Equipment.getItem(10034).getStackSize();
-
-			if (!Attack.isAutoRetaliateEnabled()) {
-				Widgets.get(884).getChild(11).click(true);
-			}
-			runcheck = false;
-		}
-
-		@Override
-		public boolean validate() {
-			return runcheck;
-		}
-	}
-
 	private boolean isPoisoned() {
 		return Settings.get(102) != 0;
 	}
@@ -807,16 +806,17 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private static void doChargePrayer(final SceneObject sceneobject) {
+	private static void doChargePrayer() {
+		SceneObject varrockAltar = SceneEntities.getNearest(ID_ALTAR_VARROCK);
 		Logger.getLogger("EpicsChins").info("Running doChargePrayer code");
 		if (Prayer.getPoints() < 300) {
 			Logger.getLogger("EpicsChins").info(
 					"Prayer is low, let's go charge up before we head out.");
-			Walking.findPath(sceneobject.getLocation()).traverse();
-			if (sceneobject.isOnScreen() && sceneobject != null) {
-				Camera.turnTo(sceneobject);
+			Walking.findPath(TILE_PRAYER).traverse();
+			if (varrockAltar.isOnScreen() && varrockAltar != null) {
+				Camera.turnTo(varrockAltar);
 				Time.sleep(Random.nextInt(20, 50));
-				sceneobject.click(true);
+				varrockAltar.click(true);
 				if (Players.getLocal().getAnimation() == ID_ANIMATION_PRAY) {
 					Time.sleep(100, 400);
 				}
