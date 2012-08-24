@@ -71,8 +71,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	// GUI variables
 	private int Food = 0; // user selected food
 	private int[] Antipoison = { 0 }; // user selected Antipoison
-	private boolean usingGreegree;
-	private int loop = 0;
+	private boolean usingGreegree, startscript = true;
 	// Paint variables
 	private long startTime;
 	private int zombieKillCount;
@@ -86,7 +85,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final int chinThrowID = 2779;
 	private int mouseX = 0;
 	private int mouseY = 0;
-	private boolean showpaint = false;
+	private boolean showpaint = true;
 	// Antiban variables
 	private int RANDOM_PITCH;
 	private int RANDOM_ANGLE;
@@ -107,6 +106,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			2887, 2717, 0));
 	private final Area AREA_INSIDE_TREE_DOOR = new Area(
 			new Tile(2896, 2730, 0), new Tile(2887, 2717, 0));
+	private final Tile TILE_GRAND_TREE = new Tile(3185, 3508, 0);
 	private final Tile TILE_SPIRIT_MID = new Tile(2542, 3169, 0);
 	private final Tile TILE_SPIRIT_END = new Tile(2462, 3444, 0);
 	private final Tile TILE_APE_START = new Tile(2802, 2707, 0);
@@ -131,22 +131,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final static int POT_PRAYER_DOSE_4 = 2434;
 	private final static int[] FLASK_PRAYER_RENEWAL = { 23609, 23611, 23613,
 			23615, 23617, 23619 };
-	private final static int[] ANTIPOISON_ALL = { 23315, 23317, 23319, 23321,
-			23323, 23325, // ANTIPOISON_ALL FLASK
-			23579, 23581, 23583, 23585, 23587, 23589, // ANTIPOISON_ALL FLASK
-			// PLUS
-			23591, 23593, 23595, 23597, 23599, 23601, // ANTIPOISON_ALL FLASK
-			// PLUS
-			// PLUS
-			23327, 23329, 23331, 23333, 23335, 23337, // ANTIPOISON_ALL FLASK
-			// SUPER
-			11433, 11435, // ANTIPOISON_ALL MIX
-			2446, 175, 177, 179, // ANTIPOISON_ALL POT
-			5943, 5945, 5947, 5949, // ANTIPOISON_ALL POT PLUS
-			5952, 5954, 5956, 5958, // ANTIPOISON_ALL POT PLUS PLUS
-			2448, 181, 183, 185, // ANTIPOISON_ALL POT SUPER
-			20879 // ANTIPOISON_ALL elixir
-	};
 	private int[] FLASK_ANTIPOISON_SUPER = { 23327, 23329, 23331, 23333, 23335,
 			23337 };
 	private int[] FLASK_ANTIPOISON_PLUSPLUS = { 23591, 23593, 23595, 23597,
@@ -171,7 +155,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final static int[] tab = { TAB_VARROCK, TAB_FALADOR, TAB_LUMBRIDGE,
 			TAB_CAMELOT, TAB_ARDOUGNE, TAB_WATCHTOWER, TAB_HOUSE };
 	// General IDs
-	private final static int ID_CHIN = 10034;
 	Timer t = null;
 	// Interaction IDs
 	private final static int ID_ANIMATION_TREE = 7082; // Tree animation when
@@ -199,29 +182,24 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	@Override
 	protected void setup() {
-		if (Game.isLoggedIn()) {
-			log.info("Starting script");
-			try {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						gui = new GUI();
-						gui.setVisible(true);
-					}
-				});
-			} catch (Exception e) {
-			}
-			showpaint = true;
-		} else {
-			if (loop == 0) {
-				log.info("Waiting for Runescape to log in and load your character..");
-				loop++;
-			}
-			Time.sleep(2000, 2500);
-			return;
+
+		try {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					gui = new GUI();
+					gui.setVisible(true);
+				}
+			});
+		} catch (Exception e) {
 		}
+
 		RANGEstartExp = Skills.getExperience(Skills.RANGE);
 		HPstartExp = Skills.getExperience(Skills.CONSTITUTION);
 		startTime = System.currentTimeMillis();
+
+		provide(new runToChins());
+		provide(new throwChins());
+		provide(new Banking());
 	}
 
 	private class runToChins extends Strategy implements Runnable {
@@ -249,7 +227,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				checkRun();
 				doPreEat(food, prayerPot);
 				doChargePrayer(varrockAltar);
-				Walking.findPath(spiritTreeGe).traverse();
+				Walking.findPath(TILE_GRAND_TREE).traverse();
 				if (spiritTreeGe.isOnScreen() && spiritTreeGe != null) {
 					spiritTreeGe.interact("Teleport");
 					if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
@@ -279,7 +257,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				}
 			}
 			if (TILE_SPIRIT_END.equals(Players.getLocal().getLocation())) {
-				Walking.findPath(treeDoor).traverse();
+				Walking.findPath(treeDoor.getLocation()).traverse();
 				if (treeDoor.isOnScreen() && treeDoor != null) {
 					if (treeDoor.interact("Open"))
 						;
@@ -287,7 +265,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			}
 			if (AREA_INSIDE_TREE_DOOR
 					.contains(Players.getLocal().getLocation())) {
-				Walking.findPath(gnomeLadder).traverse();
+				Walking.findPath(gnomeLadder.getLocation()).traverse();
 				if (gnomeLadder != null
 						&& Players.getLocal().getAnimation() == -1) {
 					Camera.turnTo(gnomeLadder);
@@ -296,7 +274,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				}
 			}
 			if (TILE_GNOME_LADDER_MID.equals(Players.getLocal().getLocation())) {
-				Walking.findPath(daero).traverse();
+				Walking.findPath(daero.getLocation()).traverse();
 				if (daero.isOnScreen() && daero.getAnimation() == -1) {
 					Camera.turnTo(daero);
 					daero.interact("Travel");
@@ -331,7 +309,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			if (TILE_APE_START.equals(Players.getLocal().getLocation())
 					&& usingGreegree) {
 				equipGreegree();
-				Walking.findPath(apeLadder).traverse();
+				Walking.findPath(apeLadder.getLocation()).traverse();
 				Time.sleep(Random.nextInt(50, 125));
 				if (apeLadder.isOnScreen()
 						&& TILE_APE_LADDER_TOP.equals(Players.getLocal()
@@ -361,15 +339,50 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public boolean validate() {
+			int praypotcountdata = 0;
+			for (Item y : Inventory.getItems()) {
+				for (int x : POT_PRAYER) {
+					if (y.getId() == x) {
+						praypotcountdata++;
+					}
+				}
+			}
+			int flaskrenewalcountdata = 0;
+			for (Item y : Inventory.getItems()) {
+				for (int x : FLASK_PRAYER_RENEWAL) {
+					if (y.getId() == x) {
+						flaskrenewalcountdata++;
+					}
+				}
+			}
+			int rangingflaskdata = 0;
+			for (Item y : Inventory.getItems()) {
+				for (int x : FLASK_RANGING) {
+					if (y.getId() == x) {
+						rangingflaskdata++;
+					}
+				}
+			}
+			int antipoisondata = 0;
+			for (Item y : Inventory.getItems()) {
+				for (int x : Antipoison) {
+					if (y.getId() == x) {
+						antipoisondata++;
+					}
+				}
+			}
+			log.info("Prayer pots: "+ praypotcountdata);
+			log.info("Renewal flasks: "+ flaskrenewalcountdata);
+			log.info("Ranged flasks: "+ rangingflaskdata);
+			log.info("Antipoison: "+ antipoisondata);
+			int chinnum = Equipment.getItem(10034).getStackSize();
 			return AREA_GE.contains(Players.getLocal().getLocation())
 					&& !isPoisoned() && Inventory.getCount(Food) >= 1
-					&& Inventory.getCount(FLASK_PRAYER_RENEWAL) == 3
-					&& Inventory.getCount(POT_PRAYER) == 18
-					&& Inventory.getCount(FLASK_RANGING) == 3
-					&& Inventory.getCount(ANTIPOISON_ALL) == 1
-					&& Inventory.getCount(tab) > 0 && !isPoisoned()
-					&& Equipment.getCount(ID_CHIN) >= 500
-					&& !CHIN_ARRAY.equals(Players.getLocal().getLocation());
+					&& flaskrenewalcountdata == 3 && praypotcountdata == 18
+					&& rangingflaskdata == 3 && antipoisondata == 1
+					&& TAB_VARROCK > 0 && chinnum >= 500
+					&& !CHIN_ARRAY.equals(Players.getLocal().getLocation())
+					&& startscript && Game.isLoggedIn();
 		}
 	}
 
@@ -430,11 +443,20 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public boolean validate() {
-			int chinCount = Equipment.getCount(ID_CHIN);
+			int praypotcountdata = 0;
+			for (Item y : Inventory.getItems()) {
+				for (int x : POT_PRAYER) {
+					if (y.getId() == x) {
+						praypotcountdata++;
+					}
+				}
+			}
+			int chinnum = Equipment.getItem(10034).getStackSize();
 			return CHIN_ARRAY.equals(Players.getLocal().getLocation())
-					&& chinCount >= 200
-					&& Inventory.getCount(POT_PRAYER) >= 1
-					&& (monkey_zombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null;
+					&& chinnum >= 200
+					&& praypotcountdata >= 1
+					&& (monkey_zombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null
+					&& startscript && Game.isLoggedIn();
 		}
 	}
 
@@ -482,7 +504,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
-			log.info("BUGTESTING VALUE: " + String.valueOf(antipoisonItem.getId()));
 			if (!AREA_GE.contains(Players.getLocal().getLocation())) {
 				log.info("You aren't in the Grand Exchange! Shutting down...");
 				stop();
@@ -575,10 +596,20 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public boolean validate() {
-			return Inventory.getCount(POT_PRAYER) <= 1
-					|| Equipment.getCount(ID_CHIN) <= 100 || isPoisoned()
-					&& (Inventory.getCount(antipoisonItem.getId()) == 0)
-					|| Players.getLocal().getHpPercent() <= 25;
+			int antipoisondata = 0;
+			for (Item y : Inventory.getItems()) {
+				for (int x : Antipoison) {
+					if (y.getId() == x) {
+						antipoisondata++;
+					}
+				}
+			}
+			int chinnum = Equipment.getItem(10034).getStackSize();
+			return (Inventory.getCount(POT_PRAYER) <= 1 || chinnum <= 100
+					|| isPoisoned() && antipoisondata == 0 || Players
+					.getLocal().getHpPercent() <= 25)
+					&& startscript
+					&& Game.isLoggedIn();
 		}
 	}
 
@@ -728,10 +759,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	private static void doChargePrayer(final SceneObject sceneobject) {
 		Logger.getLogger("EpicsChins").info("Running doChargePrayer code");
-		if (Prayer.getPoints() > 300) {
-			Logger.getLogger("EpicsChins")
-					.info("Prayer is lower than 80%, let's go charge up before we head out.");
-			Walking.findPath(sceneobject).traverse();
+		if (Prayer.getPoints() < 300) {
+			Logger.getLogger("EpicsChins").info(
+					"Prayer is low, let's go charge up before we head out.");
+			Walking.findPath(sceneobject.getLocation()).traverse();
 			if (sceneobject.isOnScreen() && sceneobject != null) {
 				Camera.turnTo(sceneobject);
 				Time.sleep(Random.nextInt(20, 50));
@@ -752,7 +783,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	private static void doPreEat(final Item item, Item item2) {
 		Logger.getLogger("EpicsChins").info("Running doPreEat code");
-		if (Players.getLocal().getHpPercent() > 30) {
+		if (Players.getLocal().getHpPercent() < 30) {
 			Walking.findPath((Locatable) Bank.getNearest());
 			Bank.open();
 			if (Bank.isOpen()) {
@@ -847,10 +878,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				break;
 			}
 		}
-	}
-
-	private void provideStrategy(final Strategy s) {
-		((EpicsChins) Context.get().getActiveScript()).provide(s);
 	}
 
 	private class GUI extends JFrame {
@@ -1006,6 +1033,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			startButton.setBounds(5, 330, 185, 25);
 			startButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					startscript = true;
 					String chosenFood = foodCombo.getSelectedItem().toString();
 					if (chosenFood.equals("Select your food...")) {
 						Logger.getLogger("EpicsChins").info(
@@ -1036,7 +1064,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					if (chosenFood.equals("Salmon")) {
 						Food = 329;
 					}
-					String chosenAntipoison = foodCombo.getSelectedItem()
+					String chosenAntipoison = poisonCombo.getSelectedItem()
 							.toString();
 					if (chosenAntipoison.equals("Select an antipoison...")) {
 						Logger.getLogger("EpicsChins").info(
@@ -1044,7 +1072,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						Game.logout(false);
 						stop();
 					}
-					if (chosenAntipoison.equals("Super Antipoison flask")) {
+					if (chosenAntipoison.equals("Super antipoison flask")) {
 						Antipoison = FLASK_ANTIPOISON_SUPER;
 					}
 					if (chosenAntipoison.equals("Antipoison++ flask")) {
@@ -1076,9 +1104,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					}
 					gui.dispose();
 					log.info("GUI disposed, providing methods");
-					provideStrategy(new runToChins());
-					provideStrategy(new throwChins());
-					provideStrategy(new Banking());
 				}
 			});
 		}
