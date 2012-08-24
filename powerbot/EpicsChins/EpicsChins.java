@@ -67,14 +67,12 @@ import org.powerbot.game.bot.event.listener.PaintListener;
 public class EpicsChins extends ActiveScript implements PaintListener,
 		MouseListener {
 	// GUI
-	private boolean guiwait = true;
 	private GUI gui;
 	// GUI variables
 	private int Food = 0; // user selected food
 	private int[] Antipoison = { 0 }; // user selected Antipoison
 	private boolean usingGreegree;
 	private int loop = 0;
-	private boolean stratsProvided = true;
 	// Paint variables
 	private long startTime;
 	private int zombieKillCount;
@@ -101,8 +99,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			97, 99, 100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137,
 			138, 139 };
 	// Path details
-	public final Area AREA_GE = new Area(new Tile(3192, 3512, 0), new Tile(
-			3142, 3471, 0));
+	public final Area AREA_GE = new Area(new Tile(3135, 3464, 0), new Tile(
+			3203, 3516, 0));
 	private final Area AREA_WAYDAR = new Area(new Tile(2642, 4525, 0),
 			new Tile(2652, 4515, 0));
 	private final Area AREA_LUMDO = new Area(new Tile(2896, 2730, 0), new Tile(
@@ -124,9 +122,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final Tile[] CHIN_ARRAY = { TILE_CHIN_1, TILE_CHIN_2, TILE_CHIN_3,
 			TILE_CHIN_4 };
 	// GREEGREE_IDS IDs
-	private final static int GREEGREE_MONKEY = 4031;
-	private final static int[] GREEGREE_IDS = { GREEGREE_MONKEY, 4024, 4025,
-			40256, 4027, 4028, 4029, 4030 };
+	private final static int[] GREEGREE_IDS = { 4031, 4024, 4025, 40256, 4027,
+			4028, 4029, 4030 };
 	// Potion IDs
 	private final static int[] FLASK_RANGING = { 23303, 23305, 23307, 23309,
 			23311, 23313 };
@@ -202,44 +199,29 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	@Override
 	protected void setup() {
-		provide(new Strats());
+		if (Game.isLoggedIn()) {
+			log.info("Starting script");
+			try {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						gui = new GUI();
+						gui.setVisible(true);
+					}
+				});
+			} catch (Exception e) {
+			}
+			showpaint = true;
+		} else {
+			if (loop == 0) {
+				log.info("Waiting for Runescape to log in and load your character..");
+				loop++;
+			}
+			Time.sleep(2000, 2500);
+			return;
+		}
 		RANGEstartExp = Skills.getExperience(Skills.RANGE);
 		HPstartExp = Skills.getExperience(Skills.CONSTITUTION);
 		startTime = System.currentTimeMillis();
-	}
-
-	private class Strats extends Strategy implements Runnable {
-		@Override
-		public void run() {
-			if (Game.isLoggedIn()) {
-				log.info("Starting script");
-				provide(new runToChins());
-				provide(new throwChins());
-				provide(new Banking());
-				stratsProvided = false;
-				try {
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							gui = new GUI();
-							gui.setVisible(true);
-						}
-					});
-				} catch (Exception e) {
-				}
-				showpaint = true;
-			} else {
-				loop++;
-				if (loop == 1) {
-					log.info("Waiting for Runescape® to log in and load your character..");
-				}
-				Time.sleep(2000, 2500);
-			}
-		}
-
-		@Override
-		public boolean validate() {
-			return stratsProvided;
-		}
 	}
 
 	private class runToChins extends Strategy implements Runnable {
@@ -276,7 +258,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				}
 			} else if (!AREA_GE.contains(Players.getLocal().getLocation())) {
 				log.info("You aren't in the Grand Exchange! Shutting down...");
-				Game.logout(false);
 				stop();
 			}
 			if (!Attack.isAutoRetaliateEnabled()) {
@@ -387,7 +368,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					&& Inventory.getCount(FLASK_RANGING) == 3
 					&& Inventory.getCount(ANTIPOISON_ALL) == 1
 					&& Inventory.getCount(tab) > 0 && !isPoisoned()
-					&& Equipment.getCount(ID_CHIN) >= 500 && !guiwait
+					&& Equipment.getCount(ID_CHIN) >= 500
 					&& !CHIN_ARRAY.equals(Players.getLocal().getLocation());
 		}
 	}
@@ -453,8 +434,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			return CHIN_ARRAY.equals(Players.getLocal().getLocation())
 					&& chinCount >= 200
 					&& Inventory.getCount(POT_PRAYER) >= 1
-					&& (monkey_zombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null
-					&& !guiwait;
+					&& (monkey_zombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null;
 		}
 	}
 
@@ -489,17 +469,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				return false;
 			}
 		});
-		Item tabItem = Bank.getItem(new Filter<Item>() {
-			@Override
-			public boolean accept(final Item o) {
-				for (int id : tab) {
-					if (o.getId() == id)
-						return true;
-				}
-				return false;
-			}
-		});
-		Item playerRenewalFlaskItem = Bank.getItem(new Filter<Item>() {
+		Item prayerRenewalFlaskItem = Bank.getItem(new Filter<Item>() {
 			@Override
 			public boolean accept(final Item p) {
 				for (int id : tab) {
@@ -512,20 +482,92 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
+			if (!AREA_GE.contains(Players.getLocal().getLocation())) {
+				log.info("You aren't in the Grand Exchange! Shutting down...");
+				stop();
+			}
 			log.info("Running banking code");
-			for (final Item tabItem : Inventory.getItems()) {
-				for (int tabID : tab) {
-					if (tabItem.getId() == tabID
-							&& tabItem.getWidgetChild().interact("Break")) {
-						Time.sleep(Random.nextInt(50, 100));
+			if (!AREA_GE.contains(Players.getLocal().getLocation())
+					&& Inventory.getCount(tab) >= 1) {
+				for (final Item tabItem : Inventory.getItems()) {
+					for (int tabID : tab) {
+						if (tabItem.getId() == tabID
+								&& tabItem.getWidgetChild().interact("Break")) {
+							Time.sleep(Random.nextInt(50, 100));
+						}
 					}
 				}
 			}
 			checkRun();
 			Walking.findPath((Locatable) Bank.getNearest());
 			Camera.turnTo((Locatable) Bank.getNearest());
+			Bank.open();
+			Time.sleep(Random.nextInt(500, 700));
+			if (Bank.isOpen()) {
+				if (usingGreegree) {
+					log.info("Selected use a greegree, banking accordingly");
+					Bank.depositInventory();
+					if (Inventory.getCount(Food) == 0) {
+						if (Bank.withdraw(Food, 1)) {
+							return;
+						}
+					} else if (Inventory.getCount(greegreeItem.getId()) == 0
+							&& usingGreegree) {
+						if (Bank.withdraw(greegreeItem.getId(), 1)) {
+							return;
+						} else if (Bank.getItemCount(greegreeItem.getId()) == 0
+								&& usingGreegree) {
+							log.info("No greegree is present. Shutting down...");
+							stop();
+						}
+					} else if (!usingGreegree) {
+						log.info("Selected not to use a greegree, banking accordingly");
+						return;
+					} else if (Inventory.getCount(POT_PRAYER_DOSE_4) == 0) {
+						if (Bank.withdraw(POT_PRAYER_DOSE_4, 18)) {
+							return;
+						} else if (Bank.getItemCount(POT_PRAYER_DOSE_4) < 18) {
+							log.info("Not enough prayer pots. Shutting down...");
+							stop();
+						}
+					} else if (Inventory.getCount(Antipoison) == 0) {
+						if (Bank.withdraw(antipoisonItem.getId(), 1)) {
+							return;
+						} else if (Bank.getItemCount(Antipoison) < 1) {
+							log.info("Not enough antipoison. Shutting down...");
+							stop();
+						}
+					} else if (Inventory.getCount(TAB_VARROCK) == 0) {
+						if (Bank.withdraw(TAB_VARROCK, 1)) {
+							return;
+						} else if (Bank.getItemCount(TAB_VARROCK) == 0) {
+							log.info("Not enough tabs. Shutting down...");
+							stop();
+						}
+					} else if (Inventory.getCount(prayerRenewalFlaskItem
+							.getId()) == 0) {
+						if (Bank.withdraw(prayerRenewalFlaskItem.getId(), 3)) {
+							return;
+						} else if (Bank.getItemCount(prayerRenewalFlaskItem
+								.getId()) < 3) {
+							log.info("Not enough prayer renewal flasks. Shutting down...");
+							stop();
+						}
+					} else if (Inventory.getCount(rangeFlaskItem.getId()) == 0) {
+						if (Bank.withdraw(rangeFlaskItem.getId(), 3)) {
+							return;
+						} else if (Bank.getItemCount(rangeFlaskItem.getId()) < 3) {
+							log.info("Not enough ranged flasks. Shutting down...");
+							stop();
+						}
+						Bank.close();
+					}
+				}
+			}
 			if (Players.getLocal().getHpPercent() <= 70) {
+				log.info("HP is low when banking, eating");
 				Bank.open();
+				Time.sleep(Random.nextInt(500, 700));
 				if (Bank.isOpen()) {
 					Bank.depositInventory();
 					Bank.withdraw(Food, 2);
@@ -535,38 +577,14 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				food.getWidgetChild().interact("Eat");
 				Time.sleep(Random.nextInt(900, 1200));
 			}
-			Bank.open();
-			if (Bank.isOpen()) {
-				if (usingGreegree) {
-					Bank.withdraw(greegreeItem.getId(), 1);
-					Bank.close();
-					Bank.depositInventory();
-					Bank.withdraw(Food, 1);
-					Bank.withdraw(greegreeItem.getId(), 1);
-					Bank.withdraw(POT_PRAYER_DOSE_4, 18);
-					Bank.withdraw(antipoisonItem.getId(), 1);
-					Bank.withdraw(tabItem.getId(), 1);
-					Bank.withdraw(playerRenewalFlaskItem.getId(), 3);
-					Bank.withdraw(rangeFlaskItem.getId(), 3);
-					Bank.close();
-				} else if (!usingGreegree) {
-					Bank.depositInventory();
-					Bank.withdraw(Food, 1);
-					Bank.withdraw(POT_PRAYER_DOSE_4, 18);
-					Bank.withdraw(antipoisonItem.getId(), 1);
-					Bank.withdraw(tabItem.getId(), 1);
-					Bank.withdraw(playerRenewalFlaskItem.getId(), 3);
-					Bank.withdraw(rangeFlaskItem.getId(), 3);
-				}
-			}
 		}
 
 		@Override
 		public boolean validate() {
 			return Inventory.getCount(POT_PRAYER) <= 1
 					|| Equipment.getCount(ID_CHIN) <= 100 || isPoisoned()
-					&& Antipoison == null && !guiwait
-					|| Players.getLocal().getHpPercent() <= 25 && !guiwait;
+					&& (Inventory.getCount(Antipoison) == 0)
+					|| Players.getLocal().getHpPercent() <= 25;
 		}
 	}
 
@@ -580,7 +598,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		Time.sleep(Random.nextInt(2000, 5000));
 		if (Lobby.isOpen() && Lobby.STATE_LOBBY_IDLE != 0) {
 			int randomWorld = WORLDS_MEMBER[Random.nextInt(0,
-					WORLDS_MEMBER.length)];
+					WORLDS_MEMBER.length) - 1];
 			Context.setLoginWorld(randomWorld);
 			Time.sleep(Random.nextInt(200, 400));
 			if (Game.isLoggedIn()) {
@@ -837,6 +855,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
+	private void provideStrategy(final Strategy s) {
+		((EpicsChins) Context.get().getActiveScript()).provide(s);
+	}
+
 	private class GUI extends JFrame {
 		private static final long serialVersionUID = 3853009753324932631L;
 
@@ -859,7 +881,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			// ---- antiLabel ----
 			final JTextPane antiLabel = new JTextPane();
 			antiLabel.setBackground(new Color(212, 208, 200));
-			antiLabel.setText("What ANTIPOISON_ALL should we use?");
+			antiLabel.setText("What antipoison should we use?");
 			antiLabel.setFont(antiLabel.getFont().deriveFont(
 					antiLabel.getFont().getStyle() | Font.BOLD));
 			antiLabel.setEditable(false);
@@ -959,11 +981,11 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			// ---- poisonCombo ----
 			final JComboBox<String> poisonCombo = new JComboBox<String>();
 			poisonCombo.setModel(new DefaultComboBoxModel<>(new String[] {
-					"Select an ANTIPOISON_ALL...",
-					"Super ANTIPOISON_ALL flask", "Antipoison++ flask",
-					"Antipoison+ flask", "Antipoison flask",
-					"Super ANTIPOISON_ALL", "Antipoison++", "Antipoison+",
-					"Antipoison", "Antipoison mix", "Antipoison elixir" }));
+					"Select an antipoison...", "Super antipoison flask",
+					"Antipoison++ flask", "Antipoison+ flask",
+					"Antipoison flask", "Super antipoison", "Antipoison++",
+					"Antipoison+", "Antipoison", "Antipoison mix",
+					"Antipoison elixir" }));
 			contentPane.add(poisonCombo);
 			poisonCombo.setBounds(25, 260, 150,
 					poisonCombo.getPreferredSize().height);
@@ -1022,9 +1044,9 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					}
 					String chosenAntipoison = foodCombo.getSelectedItem()
 							.toString();
-					if (chosenAntipoison.equals("Select an ANTIPOISON_ALL...")) {
+					if (chosenAntipoison.equals("Select an antipoison...")) {
 						Logger.getLogger("EpicsChins").info(
-								"No ANTIPOISON_ALL selected, stopping script");
+								"No antipoison selected, stopping script");
 						Game.logout(false);
 						stop();
 					}
@@ -1059,7 +1081,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						Antipoison = ELIXIR_ANTIPOISON;
 					}
 					gui.dispose();
-					guiwait = false;
+					log.info("GUI disposed, providing methods");
+					provideStrategy(new runToChins());
+					provideStrategy(new throwChins());
+					provideStrategy(new Banking());
 				}
 			});
 		}
