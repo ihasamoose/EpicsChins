@@ -117,6 +117,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final Tile TILE_CHIN_2 = new Tile(2746, 9122, 0);
 	private final Tile TILE_CHIN_3 = new Tile(2709, 9116, 0);
 	private final Tile TILE_CHIN_4 = new Tile(2701, 9111, 0);
+	private final Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
+	private final Tile TILE_TREE_DAERO = new Tile(2480, 3488, 1);
 	private final Area AREA_CHIN_3_4 = new Area(new Tile(2709, 9116, 0),
 			new Tile(2701, 9111, 0));
 	private final Tile[] CHIN_ARRAY = { TILE_CHIN_1, TILE_CHIN_2, TILE_CHIN_3,
@@ -257,7 +259,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				}
 			}
 			if (TILE_SPIRIT_END.equals(Players.getLocal().getLocation())) {
-				Walking.findPath(treeDoor.getLocation()).traverse();
+				Walking.findPath(TILE_TREE_DOOR).traverse();
 				if (treeDoor.isOnScreen() && treeDoor != null) {
 					if (treeDoor.interact("Open"))
 						;
@@ -265,51 +267,55 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			}
 			if (AREA_INSIDE_TREE_DOOR
 					.contains(Players.getLocal().getLocation())) {
-				Walking.findPath(gnomeLadder.getLocation()).traverse();
 				if (gnomeLadder != null
-						&& Players.getLocal().getAnimation() == -1) {
+						&& Players.getLocal().getAnimation() == -1
+						&& gnomeLadder.validate()) {
 					Camera.turnTo(gnomeLadder);
 					if (gnomeLadder.interact("Climb-up"))
 						;
 				}
 			}
 			if (TILE_GNOME_LADDER_MID.equals(Players.getLocal().getLocation())) {
-				Walking.findPath(daero.getLocation()).traverse();
-				if (daero.isOnScreen() && daero.getAnimation() == -1) {
+				Walking.findPath(TILE_TREE_DAERO).traverse();
+				if (daero.isOnScreen() && daero.getAnimation() == -1
+						&& daero.validate()) {
 					Camera.turnTo(daero);
 					daero.interact("Travel");
 					WidgetChild yesInterface = Widgets.get(1188, 3);
 					if (yesInterface.validate()) {
-						yesInterface.click(true);
-						Time.sleep(Random.nextInt(100, 125));
+						if (yesInterface.click(true)) {
+							Time.sleep(Random.nextInt(100, 125));
+						}
 					}
 				}
 			}
 			if (AREA_WAYDAR.contains(Players.getLocal().getLocation())) {
-				if (waydar.isOnScreen() && waydar.getAnimation() == -1) {
+				if (waydar.isOnScreen() && waydar.getAnimation() == -1
+						&& waydar.validate()) {
 					Camera.turnTo(waydar);
 					waydar.interact("Travel");
 					WidgetChild yesInterface = Widgets.get(1188, 3);
 					if (yesInterface.validate()) {
 						yesInterface.click(true);
 					}
-				} else if (waydar.getAnimation() != -1 && waydar.isOnScreen()) {
 				}
 			}
 			if (AREA_LUMDO.contains(Players.getLocal().getLocation())) {
-				if (lumdo.isOnScreen() && lumdo.getAnimation() == -1) {
+				if (lumdo.isOnScreen() && lumdo.getAnimation() == -1
+						&& lumdo.validate()) {
 					lumdo.interact("Travel");
 					WidgetChild yesInterface = Widgets.get(1188, 3);
 					if (yesInterface.validate()) {
-						if (yesInterface.click(true))
-							;
+						if (yesInterface.click(true)) {
+							Time.sleep(50, 70);
+						}
 					}
 				}
 			}
 			if (TILE_APE_START.equals(Players.getLocal().getLocation())
 					&& usingGreegree) {
 				equipGreegree();
-				Walking.findPath(apeLadder.getLocation()).traverse();
+				Walking.findPath(TILE_APE_LADDER_TOP).traverse();
 				Time.sleep(Random.nextInt(50, 125));
 				if (apeLadder.isOnScreen()
 						&& TILE_APE_LADDER_TOP.equals(Players.getLocal()
@@ -518,8 +524,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				doBreakTab();
 			}
 			checkRun();
-			Walking.findPath((Locatable) Bank.getNearest());
-			Camera.turnTo((Locatable) Bank.getNearest());
+			// TODO walking path to banks of Varrock
 			Bank.open();
 			Time.sleep(Random.nextInt(500, 700));
 			if (Bank.isOpen()) {
@@ -534,6 +539,11 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					if (Inventory.getCount(10034) >= 0) {
 						Item chinItem = Inventory.getItem(10034);
 						chinItem.getWidgetChild().click(true);
+						if (Inventory.getCount(10034) < 1) {
+							chinnum = Equipment.getItem(10034).getStackSize();
+						} else {
+							return;
+						}
 					}
 				}
 				if (usingGreegree) {
@@ -753,7 +763,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		int realRange = Skills.getRealLevel(Skills.RANGE);
 		int potRange = Skills.getLevel(Skills.RANGE);
 		int rangeDifference = potRange - realRange;
-		if (rangeDifference >= 3 && rangePotItem != null
+		if (rangeDifference <= 3 && rangePotItem != null
 				&& rangePotItem.getWidgetChild().interact("Drink")) {
 			final int id = rangePotItem.getId();
 			final int count = Inventory.getCount(id);
