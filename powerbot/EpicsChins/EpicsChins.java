@@ -156,6 +156,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			TAB_CAMELOT, TAB_ARDOUGNE, TAB_WATCHTOWER, TAB_HOUSE };
 	// General IDs
 	Timer t = null;
+	private int chinnum;
+	private boolean runcheck = true;
 	// Interaction IDs
 	private final static int ID_ANIMATION_TREE = 7082; // Tree animation when
 	// being
@@ -200,6 +202,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		provide(new runToChins());
 		provide(new throwChins());
 		provide(new Banking());
+		provide(new checks());
 	}
 
 	private class runToChins extends Strategy implements Runnable {
@@ -237,9 +240,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			} else if (!AREA_GE.contains(Players.getLocal().getLocation())) {
 				log.info("You aren't in the Grand Exchange! Shutting down...");
 				stop();
-			}
-			if (!Attack.isAutoRetaliateEnabled()) {
-				Attack.setAutoRetaliate(true);
 			}
 			if (TILE_SPIRIT_MID.equals(Players.getLocal().getLocation())
 					&& spiritTreeMain.isOnScreen() && spiritTreeMain != null) {
@@ -371,11 +371,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					}
 				}
 			}
-			log.info("Prayer pots: "+ praypotcountdata);
-			log.info("Renewal flasks: "+ flaskrenewalcountdata);
-			log.info("Ranged flasks: "+ rangingflaskdata);
-			log.info("Antipoison: "+ antipoisondata);
-			int chinnum = Equipment.getItem(10034).getStackSize();
 			return AREA_GE.contains(Players.getLocal().getLocation())
 					&& !isPoisoned() && Inventory.getCount(Food) >= 1
 					&& flaskrenewalcountdata == 3 && praypotcountdata == 18
@@ -397,6 +392,16 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			int potRange = Skills.getLevel(Skills.RANGE);
 			int rangeDifference = potRange - realRange;
 
+			if (Players.getLocal().isInCombat()) {
+				Timer throwtimer = new Timer(5000);
+				while (Players.getLocal().getAnimation() == chinThrowID
+						&& throwtimer.isRunning() && isRunning()) {
+					Time.sleep(Random.nextInt(20, 50));
+					if (Players.getLocal().getAnimation() == chinThrowID) {
+						chinnum--;
+					}
+				}
+			}
 			doAttackMonkey(monkey_zombie);
 			if (Players.getLocal().isInCombat() && Prayer.getPoints() >= 42
 					&& !isPoisoned() && Players.getLocal().getHpPercent() >= 90
@@ -451,7 +456,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					}
 				}
 			}
-			int chinnum = Equipment.getItem(10034).getStackSize();
 			return CHIN_ARRAY.equals(Players.getLocal().getLocation())
 					&& chinnum >= 200
 					&& praypotcountdata >= 1
@@ -519,6 +523,19 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			Bank.open();
 			Time.sleep(Random.nextInt(500, 700));
 			if (Bank.isOpen()) {
+				if (Bank.withdraw(10034, 2000)) {
+					return;
+				} else if (Bank.getItemCount(10034) <= 1500) {
+					log.info("Not enough chins to continue! Shutting down...");
+					Game.logout(true);
+					stop();
+				}
+				if (Bank.close()) {
+					if (Inventory.getCount(10034) >= 0) {
+						Item chinItem = Inventory.getItem(10034);
+						chinItem.getWidgetChild().click(true);
+					}
+				}
 				if (usingGreegree) {
 					log.info("Selected use a greegree, banking accordingly");
 					Bank.depositInventory();
@@ -533,6 +550,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						} else if (Bank.getItemCount(greegreeItem.getId()) == 0
 								&& usingGreegree) {
 							log.info("No greegree is present. Shutting down...");
+							Game.logout(true);
 							stop();
 						}
 					} else if (!usingGreegree) {
@@ -543,6 +561,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							return;
 						} else if (Bank.getItemCount(POT_PRAYER_DOSE_4) < 18) {
 							log.info("Not enough prayer pots. Shutting down...");
+							Game.logout(true);
 							stop();
 						}
 					} else if (Inventory.getCount(Antipoison) == 0) {
@@ -550,6 +569,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							return;
 						} else if (Bank.getItemCount(Antipoison) < 1) {
 							log.info("Not enough antipoison. Shutting down...");
+							Game.logout(true);
 							stop();
 						}
 					} else if (Inventory.getCount(TAB_VARROCK) == 0) {
@@ -557,6 +577,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							return;
 						} else if (Bank.getItemCount(TAB_VARROCK) == 0) {
 							log.info("Not enough tabs. Shutting down...");
+							Game.logout(true);
 							stop();
 						}
 					} else if (Inventory.getCount(prayerRenewalFlaskItem
@@ -566,6 +587,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						} else if (Bank.getItemCount(prayerRenewalFlaskItem
 								.getId()) < 3) {
 							log.info("Not enough prayer renewal flasks. Shutting down...");
+							Game.logout(true);
 							stop();
 						}
 					} else if (Inventory.getCount(rangeFlaskItem.getId()) == 0) {
@@ -573,6 +595,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							return;
 						} else if (Bank.getItemCount(rangeFlaskItem.getId()) < 3) {
 							log.info("Not enough ranged flasks. Shutting down...");
+							Game.logout(true);
 							stop();
 						}
 						Bank.close();
@@ -604,12 +627,29 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					}
 				}
 			}
-			int chinnum = Equipment.getItem(10034).getStackSize();
 			return (Inventory.getCount(POT_PRAYER) <= 1 || chinnum <= 100
 					|| isPoisoned() && antipoisondata == 0 || Players
 					.getLocal().getHpPercent() <= 25)
 					&& startscript
 					&& Game.isLoggedIn();
+		}
+	}
+
+	private class checks extends Strategy implements Runnable {
+
+		@Override
+		public void run() {
+			chinnum = Equipment.getItem(10034).getStackSize();
+
+			if (!Attack.isAutoRetaliateEnabled()) {
+				Widgets.get(884).getChild(11).click(true);
+			}
+			runcheck = false;
+		}
+
+		@Override
+		public boolean validate() {
+			return runcheck;
 		}
 	}
 
