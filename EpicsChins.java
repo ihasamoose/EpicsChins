@@ -230,101 +230,112 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		@Override
 		public void run() {
 			log.info("Running walk there code");
-			// Declaring NPCs
-			NPC daero = NPCs.getNearest(ID_NPC_DAERO);
-			NPC waydar = NPCs.getNearest(ID_NPC_WAYDAR);
-			NPC lumdo = NPCs.getNearest(ID_NPC_LUMBO);
-			// Declaring objects being interacted with
-			SceneObject treeDoor = SceneEntities.getNearest(ID_TREEDOOR);
-			SceneObject gnomeLadder = SceneEntities.getNearest(ID_LADDER_GNOME);
 			SceneObject spiritTreeGe = SceneEntities
 					.getNearest(ID_SPIRITTREE_GE);
-			SceneObject spiritTreeMain = SceneEntities
-					.getNearest(ID_SPIRITTREE_MAIN);
-			SceneObject apeLadder = SceneEntities.getNearest(ID_LADDER_APE);
-			// Declaring variables
-			Item food = Inventory.getItem(Food);
-			Item prayerPot = Inventory.getItem(POT_PRAYER_DOSE_4);
 			if (AREA_GE.contains(Players.getLocal().getLocation())) {
+				Item food = Inventory.getItem(Food);
+				Item prayerPot = Inventory.getItem(POT_PRAYER_DOSE_4);
 				checkRun();
 				doPreEat(food, prayerPot);
 				doChargePrayer();
 				Walking.findPath(TILE_GRAND_TREE).traverse();
-				if (spiritTreeGe.isOnScreen() && spiritTreeGe != null) {
-					spiritTreeGe.interact("Teleport");
-					if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
-						Time.sleep(50, 400);
+				if (spiritTreeGe != null && spiritTreeGe.isOnScreen()) {
+					if (spiritTreeGe.interact("Teleport")) {
+						Time.sleep(50);
+						if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
+							Time.sleep(50, 400);
+						}
 					}
 				}
 			} else if (!AREA_GE.contains(Players.getLocal().getLocation())) {
 				log.info("You aren't in the Grand Exchange! Shutting down...");
 				stop();
 			}
-			if (TILE_SPIRIT_MID.equals(Players.getLocal().getLocation())
-					&& spiritTreeMain.isOnScreen() && spiritTreeMain != null) {
-				Camera.turnTo(spiritTreeMain);
-				spiritTreeMain.interact("Teleport");
-				if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
-				} else {
-					log.info("Tree animation is not present. Something has gone turribly wrong!");
+			SceneObject spiritTreeMain = SceneEntities
+					.getNearest(ID_SPIRITTREE_MAIN);
+			if (spiritTreeMain != null
+					&& TILE_SPIRIT_MID.equals(Players.getLocal().getLocation())
+					&& spiritTreeMain.isOnScreen()) {
+				if (spiritTreeMain.interact("Teleport")) {
+					Time.sleep(50);
+					if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
+					} else {
+						log.info("Tree animation is not present. Something has gone turribly wrong!");
+					}
 				}
 				Time.sleep(50, 400);
 				WidgetChild spiritTreeInterface = Widgets.get(6, 0);
 				if (spiritTreeInterface.validate()) {
-					if (spiritTreeInterface.click(true))
-						;
+					if (spiritTreeInterface.click(true)) {
+						Time.sleep(50);
+					}
 				}
+			} else if (!spiritTreeMain.isOnScreen()) {
+				Camera.turnTo(spiritTreeMain);
 			}
 			if (TILE_SPIRIT_END.equals(Players.getLocal().getLocation())) {
+				SceneObject treeDoor = SceneEntities.getNearest(ID_TREEDOOR);
 				Walking.findPath(TILE_TREE_DOOR).traverse();
-				if (treeDoor.isOnScreen() && treeDoor != null) {
-					if (treeDoor.interact("Open"))
-						;
+				if (treeDoor != null && treeDoor.isOnScreen()) {
+					if (treeDoor.interact("Open")) {
+						Time.sleep(50);
+					}
 				}
 			}
 			if (AREA_INSIDE_TREE_DOOR
 					.contains(Players.getLocal().getLocation())) {
+				SceneObject gnomeLadder = SceneEntities
+						.getNearest(ID_LADDER_GNOME);
 				if (gnomeLadder != null
-						&& Players.getLocal().getAnimation() == -1
-						&& gnomeLadder.validate()) {
+						&& Players.getLocal().getAnimation() == -1) {
 					Camera.turnTo(gnomeLadder);
-					if (gnomeLadder.interact("Climb-up"))
-						;
+					if (gnomeLadder.interact("Climb-up")) {
+						Time.sleep(50);
+					}
 				}
 			}
 			if (TILE_GNOME_LADDER_MID.equals(Players.getLocal().getLocation())) {
 				Walking.findPath(TILE_TREE_DAERO).traverse();
-				if (daero.isOnScreen() && daero.getAnimation() == -1
-						&& daero.validate()) {
+				NPC daero = NPCs.getNearest(ID_NPC_DAERO);
+				if (daero != null && daero.isOnScreen()
+						&& daero.getAnimation() == -1) {
 					Camera.turnTo(daero);
-					daero.interact("Travel");
-					WidgetChild yesInterface = Widgets.get(1188, 3);
-					if (yesInterface.validate()) {
-						if (yesInterface.click(true)) {
-							Time.sleep(Random.nextInt(100, 125));
+					if (daero.interact("Travel")) {
+						Time.sleep(50);
+						WidgetChild yesInterface = Widgets.get(1188, 3);
+						if (yesInterface.validate()) {
+							if (yesInterface.click(true)) {
+								Time.sleep(Random.nextInt(100, 125));
+							}
 						}
 					}
 				}
 			}
 			if (AREA_WAYDAR.contains(Players.getLocal().getLocation())) {
-				if (waydar.isOnScreen() && waydar.getAnimation() == -1
-						&& waydar.validate()) {
+				NPC waydar = NPCs.getNearest(ID_NPC_WAYDAR);
+				if (waydar != null && waydar.isOnScreen()
+						&& waydar.getAnimation() == -1) {
 					Camera.turnTo(waydar);
-					waydar.interact("Travel");
-					WidgetChild yesInterface = Widgets.get(1188, 3);
-					if (yesInterface.validate()) {
-						yesInterface.click(true);
+					if (waydar.interact("Travel")) {
+						Time.sleep(50);
+						WidgetChild yesInterface = Widgets.get(1188, 3);
+						if (yesInterface.validate()) {
+							yesInterface.click(true);
+						}
 					}
 				}
 			}
 			if (AREA_LUMDO.contains(Players.getLocal().getLocation())) {
-				if (lumdo.isOnScreen() && lumdo.getAnimation() == -1
-						&& lumdo.validate()) {
-					lumdo.interact("Travel");
-					WidgetChild yesInterface = Widgets.get(1188, 3);
-					if (yesInterface.validate()) {
-						if (yesInterface.click(true)) {
-							Time.sleep(50, 70);
+				NPC lumdo = NPCs.getNearest(ID_NPC_LUMBO);
+				if (lumdo != null && lumdo.isOnScreen()
+						&& lumdo.getAnimation() == -1) {
+					if (lumdo.interact("Travel")) {
+						Time.sleep(50);
+						WidgetChild yesInterface = Widgets.get(1188, 3);
+						if (yesInterface.validate()) {
+							if (yesInterface.click(true)) {
+								Time.sleep(50, 70);
+							}
 						}
 					}
 				}
@@ -334,9 +345,11 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				equipGreegree();
 				Walking.findPath(TILE_APE_LADDER_TOP).traverse();
 				Time.sleep(Random.nextInt(50, 125));
-				if (apeLadder.isOnScreen()
+				SceneObject apeLadder = SceneEntities.getNearest(ID_LADDER_APE);
+				if (apeLadder != null
+						&& apeLadder.isOnScreen()
 						&& TILE_APE_LADDER_TOP.equals(Players.getLocal()
-								.getLocation()) && apeLadder != null) {
+								.getLocation())) {
 					if (apeLadder.interact("Climb-down"))
 						Time.sleep(300, 425);
 				}
@@ -426,9 +439,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				}
 			}
 			doAttackMonkey(monkey_zombie);
-			if (Players.getLocal().isInCombat() && Prayer.getPoints() >= 42
-					&& !isPoisoned() && Players.getLocal().getHpPercent() >= 90
-					&& rangeDifference >= 3 && rangePotItem != null) {
+			if (rangePotItem != null && Players.getLocal().isInCombat()
+					&& Prayer.getPoints() >= 42 && !isPoisoned()
+					&& Players.getLocal().getHpPercent() >= 90
+					&& rangeDifference >= 3) {
 				log.info("Killing monkeys and nothing is needed. Using antiban...");
 				antiban();
 			}
@@ -458,8 +472,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				chinsThrown++;
 				Time.sleep(Random.nextInt(20, 50));
 			}
-			if (monkey_zombie.getAnimation() == ID_ANIMATION_DEATH_ZOMBIE
-					&& monkey_zombie.validate()) {
+			if (monkey_zombie != null
+					&& monkey_zombie.getAnimation() == ID_ANIMATION_DEATH_ZOMBIE) {
 				zombieKillCount++;
 			}
 			final int vialid = 229;
@@ -479,11 +493,12 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					}
 				}
 			}
-			return CHIN_ARRAY.equals(Players.getLocal().getLocation())
+			return (monkey_zombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null
+					&& CHIN_ARRAY.equals(Players.getLocal().getLocation())
 					&& chinnum >= 200
 					&& praypotcountdata >= 1
-					&& (monkey_zombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null
-					&& startscript && Game.isLoggedIn();
+					&& startscript
+					&& Game.isLoggedIn();
 		}
 	}
 
@@ -639,8 +654,9 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					Bank.close();
 				}
 				Item food = Inventory.getItem(Food);
-				food.getWidgetChild().interact("Eat");
-				Time.sleep(Random.nextInt(900, 1200));
+				if (food.getWidgetChild().interact("Eat")) {
+					Time.sleep(Random.nextInt(900, 1200));
+				}
 			}
 		}
 
@@ -762,7 +778,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		int realRange = Skills.getRealLevel(Skills.RANGE);
 		int potRange = Skills.getLevel(Skills.RANGE);
 		int rangeDifference = potRange - realRange;
-		if (rangeDifference <= 3 && rangePotItem != null
+		if (rangePotItem != null && rangeDifference <= 3
 				&& rangePotItem.getWidgetChild().interact("Drink")) {
 			final int id = rangePotItem.getId();
 			final int count = Inventory.getCount(id);
@@ -780,15 +796,19 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		checkPrayer();
 		checkRenewal();
 		doDrinkRangePotion();
-		if (npc.isOnScreen() && npc.validate() && npc != null) {
-			npc.interact("Attack");
-			if (!Players.getLocal().isInCombat()
-					&& Players.getLocal().getInteracting() == null) {
-				Time.sleep(Random.nextInt(700, 800));
-			}
-			if (!npc.isOnScreen() && npc.validate()) {
-				Camera.turnTo(npc);
-				npc.interact("Attack");
+		if (npc != null && npc.isOnScreen()) {
+			if (npc.interact("Attack")) {
+				Time.sleep(50);
+				if (!Players.getLocal().isInCombat()
+						&& Players.getLocal().getInteracting() == null) {
+					Time.sleep(Random.nextInt(700, 800));
+				}
+				if (!npc.isOnScreen()) {
+					Camera.turnTo(npc);
+					if (npc.interact("Attack")) {
+						Time.sleep(50);
+					}
+				}
 			}
 		}
 	}
@@ -813,7 +833,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			Logger.getLogger("EpicsChins").info(
 					"Prayer is low, let's go charge up before we head out.");
 			Walking.findPath(TILE_PRAYER).traverse();
-			if (varrockAltar.isOnScreen() && varrockAltar != null) {
+			if (varrockAltar != null && varrockAltar.isOnScreen()) {
 				Camera.turnTo(varrockAltar);
 				Time.sleep(Random.nextInt(20, 50));
 				varrockAltar.click(true);
