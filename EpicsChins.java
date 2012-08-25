@@ -854,7 +854,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private static void doPreEat(final Item item, Item item2) {
 		Logger.getLogger("EpicsChins").info("Running doPreEat code");
 		if (Players.getLocal().getHpPercent() < 30) {
-			Walking.findPath((Locatable) Bank.getNearest());
+//TODO BANKING
 			Bank.open();
 			if (Bank.isOpen()) {
 				if (Inventory.isFull()) {
