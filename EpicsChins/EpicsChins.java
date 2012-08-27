@@ -616,8 +616,9 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					doBreakTab();
 				}
 				checkRun();
-
-				Bank.open();
+				if (!Bank.open()) {
+					Bank.open();
+				}
 				Time.sleep(Random.nextInt(500, 700));
 				if (chinNumber <= 2000 && Bank.isOpen()) {
 					if (chinNumber == 0) {
@@ -626,7 +627,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						Game.logout(true);
 					}
 					if (chinNumber <= 2000 && Bank.withdraw(10034, 2000)) {
-						return;
+						Time.sleep(50);
 					} else if (Bank.getItemCount(10034) <= 1500
 							&& chinNumber <= 2000) {
 						log.info("Not enough chins to continue! Shutting down...");
@@ -641,74 +642,96 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 								log.severe("d");
 								chinNumber = Equipment.getItem(10034)
 										.getStackSize();
-							} else {
-								return;
 							}
 						}
 					}
 				}
 				if (usingGreegree) {
 					log.info("Selected use a greegree, banking accordingly");
-					if (Inventory.getCount() == 28 && Inventory.getCount(foodUser) < 1){
+					if (Inventory.getCount() == 28
+							&& Inventory.getCount(foodUser) < 1) {
 						log.info("Supplies are done wrong, restarting...");
 						Bank.depositInventory();
 					}
-					if (Inventory.getCount(foodUser) == 0) {
-						if (Bank.withdraw(foodUser, 1)) {
-							log.severe("food");
+					if (Inventory.getCount(foodUser) == 0
+							&& Bank.getItemCount(foodUser) >= 1) {
+						Bank.withdraw(foodUser, 1);
+						if (Inventory.getCount(foodUser) != 0) {
+							log.severe("Food withdrawn");
 						}
-					} else if (Inventory.getCount(GREEGREE_ITEM.getId()) == 0
-							&& usingGreegree) {
-						if (Bank.withdraw(GREEGREE_ITEM.getId(), 1)) {
-							log.severe("greegree");
-							return;
-						} else if (Bank.getItemCount(GREEGREE_ITEM.getId()) == 0
-								&& usingGreegree) {
-							log.info("No greegree is present. Shutting down...");
-							Game.logout(true);
-							stop();
+					}
+					if (Inventory.getCount(GREEGREE_ITEM.getId()) == 0
+							&& usingGreegree
+							&& Bank.getItemCount(GREEGREE_ITEM.getId()) >= 1) {
+						Bank.withdraw(GREEGREE_ITEM.getId(), 1);
+						if (Inventory.getCount(GREEGREE_ITEM.getId()) != 0) {
+							log.severe("Greegree withdrawn");
 						}
-					} else if (!usingGreegree) {
+					} else if (Bank.getItemCount(GREEGREE_ITEM.getId()) == 0
+							&& usingGreegree
+							&& Inventory.getCount(GREEGREE_ITEM.getId()) == 0) {
+						log.info("No greegree is present. Shutting down...");
+						Game.logout(true);
+						stop();
+					}
+					if (!usingGreegree) {
 						log.info("Selected not to use a greegree, banking accordingly");
-						return;
-					} else if (Inventory.getCount(POT_PRAYER_DOSE_4) == 0) {
-						if (Bank.withdraw(POT_PRAYER_DOSE_4, 18)) {
-							return;
-						} else if (Bank.getItemCount(POT_PRAYER_DOSE_4) < 18) {
+					}
+					if (Inventory.getCount(POT_PRAYER_DOSE_4) == 0) {
+						Bank.withdraw(POT_PRAYER_DOSE_4, 18);
+						if (Inventory.getCount(POT_PRAYER_DOSE_4) != 0) {
+							log.severe("Prayer pots withdrawn");
+						} else if (Bank.getItemCount(POT_PRAYER_DOSE_4) < 18
+								&& Inventory.getCount(POT_PRAYER_DOSE_4) < 18) {
 							log.info("Not enough prayer pots. Shutting down...");
 							Game.logout(true);
 							stop();
 						}
-					} else if (Inventory.getCount(antipoisonUser) == 0) {
-						if (Bank.withdraw(ANTIPOISON_ITEM.getId(), 1)) {
-							return;
-						} else if (Bank.getItemCount(antipoisonUser) < 1) {
+					}
+					if (Inventory.getCount(ANTIPOISON_ITEM.getId()) == 0
+							&& Bank.getItemCount(ANTIPOISON_ITEM.getId()) > 0) {
+						Bank.withdraw(ANTIPOISON_ITEM.getId(), 1);
+						if (Inventory.getCount(ANTIPOISON_ITEM.getId()) != 0) {
+							log.severe("Antipoison withdrawn");
+						} else if (Bank.getItemCount(ANTIPOISON_ITEM.getId()) < 1
+								&& Inventory.getCount(ANTIPOISON_ITEM.getId()) < 1) {
 							log.info("Not enough antipoison. Shutting down...");
 							Game.logout(true);
 							stop();
 						}
-					} else if (Inventory.getCount(TAB_VARROCK) == 0) {
-						if (Bank.withdraw(TAB_VARROCK, 1)) {
-							return;
-						} else if (Bank.getItemCount(TAB_VARROCK) == 0) {
+					}
+					if (Inventory.getCount(TAB_VARROCK) == 0
+							&& Bank.getItemCount(TAB_VARROCK) > 0) {
+						Bank.withdraw(TAB_VARROCK, 1);
+						if (Inventory.getCount(TAB_VARROCK) != 0) {
+							log.severe("Varrock tab withdrawn");
+						} else if (Bank.getItemCount(TAB_VARROCK) == 0
+								&& Inventory.getCount(TAB_VARROCK) < 1) {
 							log.info("Not enough tabs. Shutting down...");
 							Game.logout(true);
 							stop();
 						}
-					} else if (Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM
-							.getId()) == 0) {
-						if (Bank.withdraw(PRAYER_RENEWAL_FLASK_ITEM.getId(), 3)) {
-							return;
+					}
+					if (Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM.getId()) == 0) {
+						Bank.withdraw(PRAYER_RENEWAL_FLASK_ITEM.getId(), 3);
+						if (Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM
+								.getId()) != 0) {
+							log.severe("Renewal flasks withdrawn");
 						} else if (Bank.getItemCount(PRAYER_RENEWAL_FLASK_ITEM
-								.getId()) < 3) {
+								.getId()) < 3
+								&& Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM
+										.getId()) < 3) {
 							log.info("Not enough prayer renewal flasks. Shutting down...");
 							Game.logout(true);
 							stop();
 						}
-					} else if (Inventory.getCount(RANGE_FLASK_ITEM.getId()) == 0) {
-						if (Bank.withdraw(RANGE_FLASK_ITEM.getId(), 3)) {
-							return;
-						} else if (Bank.getItemCount(RANGE_FLASK_ITEM.getId()) < 3) {
+					}
+					if (Inventory.getCount(RANGE_FLASK_ITEM.getId()) == 0) {
+						Bank.withdraw(RANGE_FLASK_ITEM.getId(), 3);
+						if (Inventory.getCount(RANGE_FLASK_ITEM.getId()) != 0) {
+							log.severe("Range flasks withdrawn");
+						} else if (Bank.getItemCount(RANGE_FLASK_ITEM.getId()) < 3
+								&& Inventory.getCount(RANGE_FLASK_ITEM.getId()) < 3) {
 							log.info("Not enough ranged flasks. Shutting down...");
 							Game.logout(true);
 							stop();
