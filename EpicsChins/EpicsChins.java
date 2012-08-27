@@ -32,6 +32,7 @@ import javax.swing.WindowConstants;
 import org.powerbot.concurrent.strategy.Strategy;
 import org.powerbot.game.api.ActiveScript;
 import org.powerbot.game.api.Manifest;
+import org.powerbot.game.api.methods.Calculations;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.Settings;
 import org.powerbot.game.api.methods.Walking;
@@ -53,7 +54,6 @@ import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.util.Time;
 import org.powerbot.game.api.util.Timer;
 import org.powerbot.game.api.wrappers.Area;
-import org.powerbot.game.api.wrappers.Locatable;
 import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.interactive.NPC;
 import org.powerbot.game.api.wrappers.interactive.Player;
@@ -63,32 +63,32 @@ import org.powerbot.game.api.wrappers.widget.WidgetChild;
 import org.powerbot.game.bot.Context;
 import org.powerbot.game.bot.event.listener.PaintListener;
 
-@Manifest(authors = { "Epics" }, name = "Epics Chinner", description = "Kills chins and banks when necessary.", version = 1.0)
+@Manifest(authors = { "Epics" }, name = "Epics Chinner", description = "Kills chins and banks when necessary.", version = 0.1)
 public class EpicsChins extends ActiveScript implements PaintListener,
 		MouseListener {
 	// GUI
 	private GUI gui;
 	// GUI variables
-	private int Food = 0; // user selected food
-	private int[] Antipoison = { 0 }; // user selected Antipoison
-	private boolean usingGreegree, startscript = true;
+	private int foodUser = 0; // user selected food
+	private int[] antipoisonUser = { 0 }; // user selected Antipoison
+	private boolean usingGreegree, START_SCRIPT, SHOWPAINT = true;
+	String version = " v0.1";
 	// Paint variables
 	private long startTime;
 	private int zombieKillCount;
-	private final Timer runtime = new Timer(0);
-	private int RANGEstartExp;
-	private int HPstartExp;
-	private int rangegainedExp;
-	private int hpgainedExp;
-	private int expHour;
+	private final Timer RUNTIME = new Timer(0);
+	private int rangedStartExp;
+	private int hpStartExp;
+	private int rangeGainedExp;
+	private int hpGainedExp;
+	private int expHr;
 	private int chinsThrown;
-	private final int chinThrowID = 2779;
+	private final int CHIN_THROW_ID = 2779;
 	private int mouseX = 0;
 	private int mouseY = 0;
-	private boolean showpaint = true;
 	// Antiban variables
-	private int RANDOM_PITCH;
-	private int RANDOM_ANGLE;
+	private final int RANDOM_PITCH = Random.nextInt(350, 10);
+	private final int RANDOM_ANGLE = Random.nextInt(89, 50);
 	private int state;
 	// Members Worlds array
 	private final int[] WORLDS_MEMBER = { 5, 6, 9, 12, 15, 18, 21, 22, 23, 24,
@@ -98,29 +98,32 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			97, 99, 100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137,
 			138, 139 };
 	// Path details
-	public final Area AREA_GE = new Area(new Tile(3135, 3464, 0), new Tile(
+	public final static Area AREA_GE = new Area(new Tile(3135, 3464, 0), new Tile(
 			3203, 3516, 0));
-	private final Area AREA_WAYDAR = new Area(new Tile(2642, 4525, 0),
+	private final static Area AREA_WAYDAR = new Area(new Tile(2642, 4525, 0),
 			new Tile(2652, 4515, 0));
-	private final Area AREA_LUMDO = new Area(new Tile(2896, 2730, 0), new Tile(
+	private final static Area AREA_LUMDO = new Area(new Tile(2896, 2730, 0), new Tile(
 			2887, 2717, 0));
-	private final Area AREA_INSIDE_TREE_DOOR = new Area(
+	private final static Area AREA_INSIDE_TREE_DOOR = new Area(
 			new Tile(2896, 2730, 0), new Tile(2887, 2717, 0));
-	private final Tile TILE_GRAND_TREE = new Tile(3185, 3508, 0);
-	private final Tile TILE_SPIRIT_MID = new Tile(2542, 3169, 0);
-	private final Tile TILE_SPIRIT_END = new Tile(2462, 3444, 0);
-	private final Tile TILE_APE_START = new Tile(2802, 2707, 0);
-	private final Tile TILE_GNOME_LADDER_MID = new Tile(2466, 3994, 1);
-	private final Tile TILE_APE_LADDER_TOP = new Tile(2764, 2703, 0);
-	private final Tile TILE_APE_LADDER_BOTTOM = new Tile(2764, 9103, 0);
-	private final Tile TILE_CHIN_1 = new Tile(2715, 9127, 0);
-	private final Tile TILE_CHIN_2 = new Tile(2746, 9122, 0);
-	private final Tile TILE_CHIN_3 = new Tile(2709, 9116, 0);
-	private final Tile TILE_CHIN_4 = new Tile(2701, 9111, 0);
-	private final Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
-	private final Tile TILE_TREE_DAERO = new Tile(2480, 3488, 1);
+	private final static Area AREA_GRAND_TELE = new Area(new Tile(3208, 3429, 0),
+			new Tile(2316, 3421, 0));
+	private final static Tile TILE_GRAND_BANK = new Tile(3181, 3502, 0);
+	private final static Tile TILE_GRAND_TREE = new Tile(3185, 3508, 0);
+	private final static Tile TILE_SPIRIT_MID = new Tile(2542, 3169, 0);
+	private final static Tile TILE_SPIRIT_END = new Tile(2462, 3444, 0);
+	private final static Tile TILE_APE_START = new Tile(2802, 2707, 0);
+	private final static Tile TILE_GNOME_LADDER_MID = new Tile(2466, 3994, 1);
+	private final static Tile TILE_APE_LADDER_TOP = new Tile(2764, 2703, 0);
+	private final static Tile TILE_APE_LADDER_BOTTOM = new Tile(2764, 9103, 0);
+	private final static Tile TILE_CHIN_1 = new Tile(2715, 9127, 0);
+	private final static Tile TILE_CHIN_2 = new Tile(2746, 9122, 0);
+	private final static Tile TILE_CHIN_3 = new Tile(2709, 9116, 0);
+	private final static Tile TILE_CHIN_4 = new Tile(2701, 9111, 0);
+	private final static Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
+	private final static Tile TILE_TREE_DAERO = new Tile(2480, 3488, 1);
 	private final static Tile TILE_PRAYER = new Tile(3254, 3485, 0);
-	private final Area AREA_CHIN_3_4 = new Area(new Tile(2709, 9116, 0),
+	private final static Area AREA_CHIN_3_4 = new Area(new Tile(2709, 9116, 0),
 			new Tile(2701, 9111, 0));
 	private final Tile[] CHIN_ARRAY = { TILE_CHIN_1, TILE_CHIN_2, TILE_CHIN_3,
 			TILE_CHIN_4 };
@@ -134,19 +137,21 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final static int POT_PRAYER_DOSE_4 = 2434;
 	private final static int[] FLASK_PRAYER_RENEWAL = { 23609, 23611, 23613,
 			23615, 23617, 23619 };
-	private int[] FLASK_ANTIPOISON_SUPER = { 23327, 23329, 23331, 23333, 23335,
-			23337 };
-	private int[] FLASK_ANTIPOISON_PLUSPLUS = { 23591, 23593, 23595, 23597,
-			23599, 23601 };
-	private int[] FLASK_ANTIPOISON_PLUS = { 23579, 23581, 23583, 23585, 23587,
-			23589 };
-	private int[] FLASK_ANTIPOISON = { 23315, 23317, 23319, 23321, 23323, 23325 };
-	private int[] MIX_ANTIPOISON = { 11433, 11435 };
-	private int[] POT_ANTIPOISON_SUPER = { 2448, 181, 183, 185 };
-	private int[] POT_ANTIPOISON_PLUSPLUS = { 5952, 5954, 5956, 5958 };
-	private int[] POT_ANTIPOISON_PLUS = { 5943, 5945, 5947, 5949 };
-	private int[] POT_ANTIPOISON = { 2446, 175, 177, 179 };
-	private int[] ELIXIR_ANTIPOISON = { 20879 };
+	private final static int[] FLASK_ANTIPOISON_SUPER = { 23327, 23329, 23331,
+			23333, 23335, 23337 };
+	private final static int[] FLASK_ANTIPOISON_PLUSPLUS = { 23591, 23593,
+			23595, 23597, 23599, 23601 };
+	private final static int[] FLASK_ANTIPOISON_PLUS = { 23579, 23581, 23583,
+			23585, 23587, 23589 };
+	private final static int[] FLASK_ANTIPOISON = { 23315, 23317, 23319, 23321,
+			23323, 23325 };
+	private final static int[] MIX_ANTIPOISON = { 11433, 11435 };
+	private final static int[] POT_ANTIPOISON_SUPER = { 2448, 181, 183, 185 };
+	private final static int[] POT_ANTIPOISON_PLUSPLUS = { 5952, 5954, 5956,
+			5958 };
+	private final static int[] POT_ANTIPOISON_PLUS = { 5943, 5945, 5947, 5949 };
+	private final static int[] POT_ANTIPOISON = { 2446, 175, 177, 179 };
+	private final static int[] ELIXIR_ANTIPOISON = { 20879 };
 	// Tab IDs
 	private final static int TAB_VARROCK = 8007;
 	private final static int TAB_LUMBRIDGE = 8008;
@@ -159,30 +164,22 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			TAB_CAMELOT, TAB_ARDOUGNE, TAB_WATCHTOWER, TAB_HOUSE };
 	// General IDs
 	Timer t = null;
-	private int chinnum;
-	private boolean runcheck = true;
+	private int chinNumber;
+	private boolean runCheck = true;
 	// Interaction IDs
-	private final static int ID_ANIMATION_TREE = 7082; // Tree animation when
-	// being
-	// teleported
+	private final static int ID_ANIMATION_TREE = 7082;
 	private final static int ID_ANIMATION_PRAY = 645;
-	private final static int[] ID_TREEDOOR = { 69197, 69198 }; // Open Tree
-	// Door
-	private final static int ID_SPIRITTREE_GE = 1317; // Teleport Spirit tree
+	private final static int[] ID_TREEDOOR = { 69197, 69198 };
+	private final static int ID_SPIRITTREE_GE = 1317;
 	private final static int ID_SPIRITTREE_MAIN = 68974;
-	private final static int ID_LADDER_GNOME = 69499; // Climb-up Ladder
-	private final static int ID_LADDER_APE = 4780; // Climb-down Ladder
+	private final static int ID_LADDER_GNOME = 69499;
+	private final static int ID_LADDER_APE = 4780;
 	private final static int ID_ALTAR_VARROCK = 24343;
 	private final static int ID_ANIMATION_DEATH_ZOMBIE = 1384;
 	// NPC IDs
-	private final static int ID_NPC_DAERO = 824; // first NPC "Travel" and reply
-	// Yes
-	private final static int ID_NPC_WAYDAR = 1407; // second NPC "Travel" and
-	// reply
-	// Yes
-	private final static int ID_NPC_LUMBO = 1408; // third NPC "Travel" and
-	// reply
-	// Yes
+	private final static int ID_NPC_DAERO = 824;
+	private final static int ID_NPC_WAYDAR = 1407;
+	private final static int ID_NPC_LUMBO = 1408;
 	private final static int ID_NPC_MONKEY_ZOMBIE = 1465;
 
 	@Override
@@ -198,146 +195,168 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		} catch (Exception e) {
 		}
 
-		RANGEstartExp = Skills.getExperience(Skills.RANGE);
-		HPstartExp = Skills.getExperience(Skills.CONSTITUTION);
+		rangedStartExp = Skills.getExperience(Skills.RANGE);
+		hpStartExp = Skills.getExperience(Skills.CONSTITUTION);
 		startTime = System.currentTimeMillis();
 
-		provide(new checks());
-		provide(new runToChins());
-		provide(new throwChins());
+		provide(new Checks());
+		provide(new RunToChins());
+		provide(new ThrowChins());
 		provide(new Banking());
 	}
 
-	private class checks extends Strategy implements Runnable {
+	private class Checks extends Strategy implements Runnable {
 
 		@Override
 		public void run() {
-			chinnum = Equipment.getItem(10034).getStackSize();
+			chinNumber = Equipment.getItem(10034).getStackSize();
 
-			if (!Attack.isAutoRetaliateEnabled()) {
+			while (!Attack.isAutoRetaliateEnabled()) {
 				Widgets.get(884).getChild(11).click(true);
 			}
-			runcheck = false;
+			runCheck = false;
 		}
 
 		@Override
 		public boolean validate() {
-			return runcheck;
+			final Timer CHECK_TIMER = new Timer(30000);
+			while (CHECK_TIMER.isRunning()) {
+				Time.sleep(50);
+			}
+			return runCheck && !CHECK_TIMER.isRunning();
 		}
 	}
 
-	private class runToChins extends Strategy implements Runnable {
+	private class RunToChins extends Strategy implements Runnable {
 		@Override
 		public void run() {
+			// Interaction ID
+			final WidgetChild SPIRIT_TREE_INTERFACE = Widgets.get(6, 0);
 			log.info("Running walk there code");
-			SceneObject spiritTreeGe = SceneEntities
+			final SceneObject SPIRIT_TREE_GE = SceneEntities
 					.getNearest(ID_SPIRITTREE_GE);
 			if (AREA_GE.contains(Players.getLocal().getLocation())) {
-				Item food = Inventory.getItem(Food);
-				Item prayerPot = Inventory.getItem(POT_PRAYER_DOSE_4);
+				final Item FOOD = Inventory.getItem(foodUser);
+				final Item PRAYER_POT = Inventory.getItem(POT_PRAYER_DOSE_4);
 				checkRun();
-				doPreEat(food, prayerPot);
+				doPreEat(FOOD, PRAYER_POT);
 				doChargePrayer();
 				Walking.findPath(TILE_GRAND_TREE).traverse();
-				if (spiritTreeGe != null && spiritTreeGe.isOnScreen()) {
-					if (spiritTreeGe.interact("Teleport")) {
+				if (SPIRIT_TREE_GE != null && SPIRIT_TREE_GE.isOnScreen()
+						&& SPIRIT_TREE_GE.interact("Teleport")) {
+					final Timer SPIRIT_TREE_TIMER = new Timer(2500);
+					while (SPIRIT_TREE_TIMER.isRunning()
+							&& SPIRIT_TREE_GE != null) {
 						Time.sleep(50);
-						if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
-							Time.sleep(50, 400);
-						}
 					}
 				}
 			} else if (!AREA_GE.contains(Players.getLocal().getLocation())) {
-				log.info("You aren't in the Grand Exchange! Shutting down...");
-				stop();
-			}
-			SceneObject spiritTreeMain = SceneEntities
-					.getNearest(ID_SPIRITTREE_MAIN);
-			if (spiritTreeMain != null
-					&& TILE_SPIRIT_MID.equals(Players.getLocal().getLocation())
-					&& spiritTreeMain.isOnScreen()) {
-				if (spiritTreeMain.interact("Teleport")) {
-					Time.sleep(50);
-					if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
-					} else {
-						log.info("Tree animation is not present. Something has gone turribly wrong!");
-					}
-				}
-				Time.sleep(50, 400);
-				WidgetChild spiritTreeInterface = Widgets.get(6, 0);
-				if (spiritTreeInterface.validate()) {
-					if (spiritTreeInterface.click(true)) {
+				if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
+					log.info("You have the n00b varrock teleport. Walking to bank");
+					Walking.findPath(TILE_GRAND_BANK).traverse();
+					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 5) {
 						Time.sleep(50);
 					}
 				}
-			} else if (!spiritTreeMain.isOnScreen()) {
-				Camera.turnTo(spiritTreeMain);
+				log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
+				stop();
+			}
+			final SceneObject SPIRIT_TREE_MAIN = SceneEntities
+					.getNearest(ID_SPIRITTREE_MAIN);
+			if (SPIRIT_TREE_MAIN != null
+					&& TILE_SPIRIT_MID.equals(Players.getLocal().getLocation())
+					&& SPIRIT_TREE_MAIN.isOnScreen()
+					&& SPIRIT_TREE_MAIN.interact("Teleport")) {
+				final Timer SPIRIT_TREE_MAIN_TIMER = new Timer(2500);
+				while (SPIRIT_TREE_MAIN_TIMER.isRunning()
+						&& SPIRIT_TREE_MAIN != null) {
+					Time.sleep(50);
+				}
+				Time.sleep(50);
+				if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
+				} else {
+					log.info("Tree animation is not present. Something has gone turribly wrong!");
+				}
+				Time.sleep(50, 400);
+				if (SPIRIT_TREE_INTERFACE.validate()
+						&& SPIRIT_TREE_INTERFACE.click(true)) {
+					final Timer SPIRIT_TREE_INTERFACE_TIMER = new Timer(2500);
+					while (SPIRIT_TREE_INTERFACE != null
+							&& SPIRIT_TREE_INTERFACE_TIMER.isRunning()) {
+						Time.sleep(50);
+					}
+				}
+			} else if (!SPIRIT_TREE_MAIN.isOnScreen()) {
+				Camera.turnTo(SPIRIT_TREE_MAIN);
 			}
 			if (TILE_SPIRIT_END.equals(Players.getLocal().getLocation())) {
-				SceneObject treeDoor = SceneEntities.getNearest(ID_TREEDOOR);
+				final SceneObject TREE_DOOR = SceneEntities
+						.getNearest(ID_TREEDOOR);
 				Walking.findPath(TILE_TREE_DOOR).traverse();
-				if (treeDoor != null && treeDoor.isOnScreen()) {
-					if (treeDoor.interact("Open")) {
+				if (TREE_DOOR != null && TREE_DOOR.isOnScreen()
+						&& TREE_DOOR.interact("Open")) {
+					final Timer TREE_DOOR_TIMER = new Timer(2500);
+					while (TREE_DOOR != null && TREE_DOOR_TIMER.isRunning()) {
 						Time.sleep(50);
 					}
 				}
 			}
 			if (AREA_INSIDE_TREE_DOOR
 					.contains(Players.getLocal().getLocation())) {
-				SceneObject gnomeLadder = SceneEntities
+				final SceneObject GNOME_LADDER = SceneEntities
 						.getNearest(ID_LADDER_GNOME);
-				if (gnomeLadder != null
-						&& Players.getLocal().getAnimation() == -1) {
-					Camera.turnTo(gnomeLadder);
-					if (gnomeLadder.interact("Climb-up")) {
+				if (GNOME_LADDER != null
+						&& Players.getLocal().getAnimation() == -1
+						&& GNOME_LADDER.interact("Climb-up")) {
+					final Timer GNOME_LADDER_TIMER = new Timer(2500);
+					while (GNOME_LADDER != null
+							&& GNOME_LADDER_TIMER.isRunning()) {
 						Time.sleep(50);
 					}
+				} else if (!GNOME_LADDER.isOnScreen()) {
+					Camera.turnTo(GNOME_LADDER);
 				}
 			}
 			if (TILE_GNOME_LADDER_MID.equals(Players.getLocal().getLocation())) {
 				Walking.findPath(TILE_TREE_DAERO).traverse();
-				NPC daero = NPCs.getNearest(ID_NPC_DAERO);
-				if (daero != null && daero.isOnScreen()
-						&& daero.getAnimation() == -1) {
-					Camera.turnTo(daero);
-					if (daero.interact("Travel")) {
+				final NPC DAERO = NPCs.getNearest(ID_NPC_DAERO);
+				if (DAERO != null && DAERO.isOnScreen()
+						&& DAERO.getAnimation() == -1
+						&& DAERO.interact("Travel")) {
+					final Timer DAERO_TIMER = new Timer(2500);
+					while (DAERO != null && DAERO_TIMER.isRunning()) {
 						Time.sleep(50);
-						WidgetChild yesInterface = Widgets.get(1188, 3);
-						if (yesInterface.validate()) {
-							if (yesInterface.click(true)) {
-								Time.sleep(Random.nextInt(100, 125));
-							}
-						}
 					}
+				} else if (!DAERO.isOnScreen()) {
+					Camera.turnTo(DAERO);
 				}
 			}
 			if (AREA_WAYDAR.contains(Players.getLocal().getLocation())) {
-				NPC waydar = NPCs.getNearest(ID_NPC_WAYDAR);
-				if (waydar != null && waydar.isOnScreen()
-						&& waydar.getAnimation() == -1) {
-					Camera.turnTo(waydar);
-					if (waydar.interact("Travel")) {
+				final NPC WAYDAR = NPCs.getNearest(ID_NPC_WAYDAR);
+				if (WAYDAR != null && WAYDAR.isOnScreen()
+						&& WAYDAR.getAnimation() == -1
+						&& WAYDAR.interact("Travel")) {
+					final Timer WAYDAR_TIMER = new Timer(2500);
+					while (WAYDAR != null && WAYDAR_TIMER.isRunning()) {
+						yesInterfaceClicker();
 						Time.sleep(50);
-						WidgetChild yesInterface = Widgets.get(1188, 3);
-						if (yesInterface.validate()) {
-							yesInterface.click(true);
-						}
 					}
+				} else if (!WAYDAR.isOnScreen()) {
+					Camera.turnTo(WAYDAR);
 				}
 			}
 			if (AREA_LUMDO.contains(Players.getLocal().getLocation())) {
-				NPC lumdo = NPCs.getNearest(ID_NPC_LUMBO);
-				if (lumdo != null && lumdo.isOnScreen()
-						&& lumdo.getAnimation() == -1) {
-					if (lumdo.interact("Travel")) {
+				final NPC LUMDO = NPCs.getNearest(ID_NPC_LUMBO);
+				if (LUMDO != null && LUMDO.isOnScreen()
+						&& LUMDO.getAnimation() == -1
+						&& LUMDO.interact("Travel")) {
+					final Timer LUMDO_TIMER = new Timer(2500);
+					while (LUMDO != null && LUMDO_TIMER.isRunning()) {
+						yesInterfaceClicker();
 						Time.sleep(50);
-						WidgetChild yesInterface = Widgets.get(1188, 3);
-						if (yesInterface.validate()) {
-							if (yesInterface.click(true)) {
-								Time.sleep(50, 70);
-							}
-						}
 					}
+				} else if (!LUMDO.isOnScreen()) {
+					Camera.turnTo(LUMDO);
 				}
 			}
 			if (TILE_APE_START.equals(Players.getLocal().getLocation())
@@ -345,13 +364,20 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				equipGreegree();
 				Walking.findPath(TILE_APE_LADDER_TOP).traverse();
 				Time.sleep(Random.nextInt(50, 125));
-				SceneObject apeLadder = SceneEntities.getNearest(ID_LADDER_APE);
-				if (apeLadder != null
-						&& apeLadder.isOnScreen()
+				final SceneObject APE_ATOLL_LADDER = SceneEntities
+						.getNearest(ID_LADDER_APE);
+				if (APE_ATOLL_LADDER != null
+						&& APE_ATOLL_LADDER.isOnScreen()
 						&& TILE_APE_LADDER_TOP.equals(Players.getLocal()
-								.getLocation())) {
-					if (apeLadder.interact("Climb-down"))
-						Time.sleep(300, 425);
+								.getLocation())
+						&& APE_ATOLL_LADDER.interact("Climb-down")) {
+					Timer APE_ATOLL_LADDER_TIMER = new Timer(2500);
+					while (APE_ATOLL_LADDER != null
+							&& APE_ATOLL_LADDER_TIMER.isRunning()) {
+						Time.sleep(50);
+					}
+				} else if (!APE_ATOLL_LADDER.isOnScreen()) {
+					Camera.turnTo(APE_ATOLL_LADDER);
 				}
 			} else if (TILE_APE_START.equals(Players.getLocal().getLocation())
 					&& !usingGreegree) {
@@ -360,13 +386,29 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			if (TILE_APE_LADDER_BOTTOM.equals(Players.getLocal().getLocation())) {
 				checkRenewal();
 				Prayer.setQuick();
-				Walking.walk(TILE_CHIN_1);
-				if (tileContainsTwoOrMore(TILE_CHIN_1)) {
-					Walking.walk(TILE_CHIN_2);
-					if (tileContainsTwoOrMore(TILE_CHIN_2)) {
-						Walking.walk(TILE_CHIN_3);
-						if (areaContainsTwoOrMore(AREA_CHIN_3_4)) {
-							changeWorlds();
+				if (Calculations.distanceTo(TILE_CHIN_1) >= 5) {
+					Walking.findPath(TILE_CHIN_1).traverse();
+					while (Calculations.distanceTo(TILE_CHIN_1) >= 5) {
+						Time.sleep(50);
+					}
+				} else if (Calculations.distanceTo(TILE_CHIN_1) <= 5) {
+					if (tileContainsTwoOrMore(TILE_CHIN_1)
+							&& Calculations.distanceTo(TILE_CHIN_2) >= 5) {
+						Walking.findPath(TILE_CHIN_2).traverse();
+						while (Calculations.distanceTo(TILE_CHIN_2) >= 5) {
+							Time.sleep(50);
+						}
+					} else if (Calculations.distanceTo(TILE_CHIN_2) <= 5) {
+						if (tileContainsTwoOrMore(TILE_CHIN_2)
+								&& Calculations.distanceTo(TILE_CHIN_3) >= 5) {
+							Walking.findPath(TILE_CHIN_3).traverse();
+							while (Calculations.distanceTo(TILE_CHIN_3) >= 5) {
+								Time.sleep(50);
+							}
+						} else if (Calculations.distanceTo(TILE_CHIN_3) <= 5) {
+							if (areaContainsTwoOrMore(AREA_CHIN_3_4)) {
+								changeWorlds();
+							}
 						}
 					}
 				}
@@ -375,74 +417,74 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public boolean validate() {
-			int praypotcountdata = 0;
+			int prayerPotCountData = 0;
 			for (Item y : Inventory.getItems()) {
 				for (int x : POT_PRAYER) {
 					if (y.getId() == x) {
-						praypotcountdata++;
+						prayerPotCountData++;
 					}
 				}
 			}
-			int flaskrenewalcountdata = 0;
+			int flaskRenewalCountData = 0;
 			for (Item y : Inventory.getItems()) {
 				for (int x : FLASK_PRAYER_RENEWAL) {
 					if (y.getId() == x) {
-						flaskrenewalcountdata++;
+						flaskRenewalCountData++;
 					}
 				}
 			}
-			int rangingflaskdata = 0;
+			int rangingFlaskData = 0;
 			for (Item y : Inventory.getItems()) {
 				for (int x : FLASK_RANGING) {
 					if (y.getId() == x) {
-						rangingflaskdata++;
+						rangingFlaskData++;
 					}
 				}
 			}
-			int antipoisondata = 0;
+			int antiPoisonData = 0;
 			for (Item y : Inventory.getItems()) {
-				for (int x : Antipoison) {
+				for (int x : antipoisonUser) {
 					if (y.getId() == x) {
-						antipoisondata++;
+						antiPoisonData++;
 					}
 				}
 			}
 			return AREA_GE.contains(Players.getLocal().getLocation())
-					&& !isPoisoned() && Inventory.getCount(Food) >= 1
-					&& flaskrenewalcountdata == 3 && praypotcountdata == 18
-					&& rangingflaskdata == 3 && antipoisondata == 1
-					&& TAB_VARROCK > 0 && chinnum >= 500
+					&& !isPoisoned() && Inventory.getCount(foodUser) >= 1
+					&& flaskRenewalCountData == 3 && prayerPotCountData == 18
+					&& rangingFlaskData == 3 && antiPoisonData == 1
+					&& TAB_VARROCK > 0 && chinNumber >= 500
 					&& !CHIN_ARRAY.equals(Players.getLocal().getLocation())
-					&& startscript && Game.isLoggedIn();
+					&& START_SCRIPT && Game.isLoggedIn();
 		}
 	}
 
-	private class throwChins extends Strategy implements Runnable {
-		private NPC monkey_zombie;
+	private class ThrowChins extends Strategy implements Runnable {
+		private NPC monkeyZombie;
 
 		@Override
 		public void run() {
 			log.info("Running attack code");
-			final Item rangePotItem = Inventory.getItem(FLASK_RANGING);
-			int realRange = Skills.getRealLevel(Skills.RANGE);
-			int potRange = Skills.getLevel(Skills.RANGE);
-			int rangeDifference = potRange - realRange;
+			final Item RANGE_POT_ITEM = Inventory.getItem(FLASK_RANGING);
+			final int REAL_RANGE = Skills.getRealLevel(Skills.RANGE);
+			final int POTTED_RANGE = Skills.getLevel(Skills.RANGE);
+			final int RANGE_DIFFERENCE = POTTED_RANGE - REAL_RANGE;
 
 			if (Players.getLocal().isInCombat()) {
 				Timer throwtimer = new Timer(5000);
-				while (Players.getLocal().getAnimation() == chinThrowID
+				while (Players.getLocal().getAnimation() == CHIN_THROW_ID
 						&& throwtimer.isRunning() && isRunning()) {
 					Time.sleep(Random.nextInt(20, 50));
-					if (Players.getLocal().getAnimation() == chinThrowID) {
-						chinnum--;
+					if (Players.getLocal().getAnimation() == CHIN_THROW_ID) {
+						chinNumber--;
 					}
 				}
 			}
-			doAttackMonkey(monkey_zombie);
-			if (rangePotItem != null && Players.getLocal().isInCombat()
+			doAttackMonkey(monkeyZombie);
+			if (RANGE_POT_ITEM != null && Players.getLocal().isInCombat()
 					&& Prayer.getPoints() >= 42 && !isPoisoned()
 					&& Players.getLocal().getHpPercent() >= 90
-					&& rangeDifference >= 3) {
+					&& RANGE_DIFFERENCE >= 3) {
 				log.info("Killing monkeys and nothing is needed. Using antiban...");
 				antiban();
 			}
@@ -468,52 +510,51 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				log.info("We're out of antipoison & we're poisoned! Teleporting to safety to bank...");
 				doBreakTab();
 			}
-			if (Players.getLocal().getAnimation() == chinThrowID) {
+			if (Players.getLocal().getAnimation() == CHIN_THROW_ID) {
 				chinsThrown++;
 				Time.sleep(Random.nextInt(20, 50));
 			}
-			if (monkey_zombie != null
-					&& monkey_zombie.getAnimation() == ID_ANIMATION_DEATH_ZOMBIE) {
+			if (monkeyZombie != null
+					&& monkeyZombie.getAnimation() == ID_ANIMATION_DEATH_ZOMBIE) {
 				zombieKillCount++;
 			}
-			final int vialid = 229;
-			Item vial = Inventory.getItem(vialid);
-			if (Inventory.getItem() == vial) {
-				vial.getWidgetChild().interact("Drop");
+			final int VIAL_ID = 229;
+			final Item VIAL = Inventory.getItem(VIAL_ID);
+			if (Inventory.getItem() == VIAL) {
+				VIAL.getWidgetChild().interact("Drop");
 			}
 		}
 
 		@Override
 		public boolean validate() {
-			int praypotcountdata = 0;
+			int prayPotCountData = 0;
 			for (Item y : Inventory.getItems()) {
 				for (int x : POT_PRAYER) {
 					if (y.getId() == x) {
-						praypotcountdata++;
+						prayPotCountData++;
 					}
 				}
 			}
-			return (monkey_zombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null
+			return (monkeyZombie = NPCs.getNearest(ID_NPC_MONKEY_ZOMBIE)) != null
 					&& CHIN_ARRAY.equals(Players.getLocal().getLocation())
-					&& chinnum >= 200
-					&& praypotcountdata >= 1
-					&& startscript
-					&& Game.isLoggedIn();
+					&& chinNumber >= 200
+					&& prayPotCountData >= 1
+					&& START_SCRIPT && Game.isLoggedIn();
 		}
 	}
 
 	private class Banking extends Strategy implements Runnable {
-		Item antipoisonItem = Bank.getItem(new Filter<Item>() {
+		final Item ANTIPOISON_ITEM = Bank.getItem(new Filter<Item>() {
 			@Override
 			public boolean accept(final Item l) {
-				for (int id : Antipoison) {
+				for (int id : antipoisonUser) {
 					if (l.getId() == id)
 						return true;
 				}
 				return false;
 			}
 		});
-		Item greegreeItem = Bank.getItem(new Filter<Item>() {
+		final Item GREEGREE_ITEM = Bank.getItem(new Filter<Item>() {
 			@Override
 			public boolean accept(final Item m) {
 				for (int id : GREEGREE_IDS) {
@@ -523,7 +564,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				return false;
 			}
 		});
-		Item rangeFlaskItem = Bank.getItem(new Filter<Item>() {
+		final Item RANGE_FLASK_ITEM = Bank.getItem(new Filter<Item>() {
 			@Override
 			public boolean accept(final Item n) {
 				for (int id : FLASK_RANGING) {
@@ -533,7 +574,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				return false;
 			}
 		});
-		Item prayerRenewalFlaskItem = Bank.getItem(new Filter<Item>() {
+		final Item PRAYER_RENEWAL_FLASK_ITEM = Bank.getItem(new Filter<Item>() {
 			@Override
 			public boolean accept(final Item p) {
 				for (int id : FLASK_PRAYER_RENEWAL) {
@@ -547,8 +588,15 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		@Override
 		public void run() {
 			if (!AREA_GE.contains(Players.getLocal().getLocation())) {
-				log.info("You aren't in the Grand Exchange! Shutting down...");
-				stop();
+				if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
+					log.info("You have the n00b varrock teleport. Walking to bank");
+					Walking.findPath(TILE_GRAND_BANK).traverse();
+					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 5) {
+						Time.sleep(50);
+					}
+					log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
+					stop();
+				}
 			}
 			log.info("Running banking code");
 			if (!AREA_GE.contains(Players.getLocal().getLocation())
@@ -556,7 +604,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				doBreakTab();
 			}
 			checkRun();
-			// TODO walking path to banks of Varrock
 			Bank.open();
 			Time.sleep(Random.nextInt(500, 700));
 			if (Bank.isOpen()) {
@@ -572,7 +619,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						Item chinItem = Inventory.getItem(10034);
 						chinItem.getWidgetChild().click(true);
 						if (Inventory.getCount(10034) < 1) {
-							chinnum = Equipment.getItem(10034).getStackSize();
+							chinNumber = Equipment.getItem(10034)
+									.getStackSize();
 						} else {
 							return;
 						}
@@ -581,15 +629,15 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				if (usingGreegree) {
 					log.info("Selected use a greegree, banking accordingly");
 					Bank.depositInventory();
-					if (Inventory.getCount(Food) == 0) {
-						if (Bank.withdraw(Food, 1)) {
+					if (Inventory.getCount(foodUser) == 0) {
+						if (Bank.withdraw(foodUser, 1)) {
 							return;
 						}
-					} else if (Inventory.getCount(greegreeItem.getId()) == 0
+					} else if (Inventory.getCount(GREEGREE_ITEM.getId()) == 0
 							&& usingGreegree) {
-						if (Bank.withdraw(greegreeItem.getId(), 1)) {
+						if (Bank.withdraw(GREEGREE_ITEM.getId(), 1)) {
 							return;
-						} else if (Bank.getItemCount(greegreeItem.getId()) == 0
+						} else if (Bank.getItemCount(GREEGREE_ITEM.getId()) == 0
 								&& usingGreegree) {
 							log.info("No greegree is present. Shutting down...");
 							Game.logout(true);
@@ -606,10 +654,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							Game.logout(true);
 							stop();
 						}
-					} else if (Inventory.getCount(Antipoison) == 0) {
-						if (Bank.withdraw(antipoisonItem.getId(), 1)) {
+					} else if (Inventory.getCount(antipoisonUser) == 0) {
+						if (Bank.withdraw(ANTIPOISON_ITEM.getId(), 1)) {
 							return;
-						} else if (Bank.getItemCount(Antipoison) < 1) {
+						} else if (Bank.getItemCount(antipoisonUser) < 1) {
 							log.info("Not enough antipoison. Shutting down...");
 							Game.logout(true);
 							stop();
@@ -622,20 +670,20 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							Game.logout(true);
 							stop();
 						}
-					} else if (Inventory.getCount(prayerRenewalFlaskItem
+					} else if (Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM
 							.getId()) == 0) {
-						if (Bank.withdraw(prayerRenewalFlaskItem.getId(), 3)) {
+						if (Bank.withdraw(PRAYER_RENEWAL_FLASK_ITEM.getId(), 3)) {
 							return;
-						} else if (Bank.getItemCount(prayerRenewalFlaskItem
+						} else if (Bank.getItemCount(PRAYER_RENEWAL_FLASK_ITEM
 								.getId()) < 3) {
 							log.info("Not enough prayer renewal flasks. Shutting down...");
 							Game.logout(true);
 							stop();
 						}
-					} else if (Inventory.getCount(rangeFlaskItem.getId()) == 0) {
-						if (Bank.withdraw(rangeFlaskItem.getId(), 3)) {
+					} else if (Inventory.getCount(RANGE_FLASK_ITEM.getId()) == 0) {
+						if (Bank.withdraw(RANGE_FLASK_ITEM.getId(), 3)) {
 							return;
-						} else if (Bank.getItemCount(rangeFlaskItem.getId()) < 3) {
+						} else if (Bank.getItemCount(RANGE_FLASK_ITEM.getId()) < 3) {
 							log.info("Not enough ranged flasks. Shutting down...");
 							Game.logout(true);
 							stop();
@@ -650,11 +698,11 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				Time.sleep(Random.nextInt(500, 700));
 				if (Bank.isOpen()) {
 					Bank.depositInventory();
-					Bank.withdraw(Food, 2);
+					Bank.withdraw(foodUser, 2);
 					Bank.close();
 				}
-				Item food = Inventory.getItem(Food);
-				if (food.getWidgetChild().interact("Eat")) {
+				final Item FOOD = Inventory.getItem(foodUser);
+				if (FOOD.getWidgetChild().interact("Eat")) {
 					Time.sleep(Random.nextInt(900, 1200));
 				}
 			}
@@ -662,18 +710,18 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public boolean validate() {
-			int antipoisondata = 0;
+			int antipoisonData = 0;
 			for (Item y : Inventory.getItems()) {
-				for (int x : Antipoison) {
+				for (int x : antipoisonUser) {
 					if (y.getId() == x) {
-						antipoisondata++;
+						antipoisonData++;
 					}
 				}
 			}
-			return (Inventory.getCount(POT_PRAYER) <= 1 || chinnum <= 100
-					|| isPoisoned() && antipoisondata == 0 || Players
+			return (Inventory.getCount(POT_PRAYER) <= 1 || chinNumber <= 100
+					|| isPoisoned() && antipoisonData == 0 || Players
 					.getLocal().getHpPercent() <= 25)
-					&& startscript
+					&& START_SCRIPT
 					&& Game.isLoggedIn();
 		}
 	}
@@ -706,10 +754,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private void checkPrayer() {
 		log.info("Running checkPrayer code");
 		if (Prayer.getPoints() <= 250) {
-			final Item prayerPot = Inventory.getItem(POT_PRAYER);
-			if (prayerPot != null
-					&& prayerPot.getWidgetChild().interact("Drink")) {
-				final int id = prayerPot.getId();
+			final Item PRAYER_POT_ITEM = Inventory.getItem(POT_PRAYER);
+			if (PRAYER_POT_ITEM != null
+					&& PRAYER_POT_ITEM.getWidgetChild().interact("Drink")) {
+				final int id = PRAYER_POT_ITEM.getId();
 				final int count = Inventory.getCount(id);
 				final Timer t = new Timer(2500);
 				while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -733,10 +781,11 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	private void doDrinkRenewal() {
 		log.info("Running doDrinkRenewal code");
-		final Item prayerRenewal = Inventory.getItem(FLASK_PRAYER_RENEWAL);
-		if (FLASK_PRAYER_RENEWAL != null
-				&& prayerRenewal.getWidgetChild().interact("Drink")) {
-			final int id = prayerRenewal.getId();
+		final Item PRAYER_RENEWAL_ITEM = Inventory
+				.getItem(FLASK_PRAYER_RENEWAL);
+		if (PRAYER_RENEWAL_ITEM != null
+				&& PRAYER_RENEWAL_ITEM.getWidgetChild().interact("Drink")) {
+			final int id = PRAYER_RENEWAL_ITEM.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -747,10 +796,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	private void doDrinkAntipoison() {
 		log.info("Running doDrinkAntipoison code");
-		final Item ANTIPOISON_ALL = Inventory.getItem(Antipoison);
-		if (ANTIPOISON_ALL != null
-				&& ANTIPOISON_ALL.getWidgetChild().interact("Drink")) {
-			final int id = ANTIPOISON_ALL.getId();
+		final Item ANTIPOISON_ALL_ITEM = Inventory.getItem(antipoisonUser);
+		if (ANTIPOISON_ALL_ITEM != null
+				&& ANTIPOISON_ALL_ITEM.getWidgetChild().interact("Drink")) {
+			final int id = ANTIPOISON_ALL_ITEM.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -761,9 +810,9 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	private void doBreakTab() {
 		log.info("Running doBreakTab code");
-		final Item tabItem = Inventory.getItem(tab);
-		if (tabItem != null && tabItem.getWidgetChild().interact("Break")) {
-			final int id = tabItem.getId();
+		final Item TAB_ITEM = Inventory.getItem(tab);
+		if (TAB_ITEM != null && TAB_ITEM.getWidgetChild().interact("Break")) {
+			final int id = TAB_ITEM.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -774,13 +823,13 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 	private void doDrinkRangePotion() {
 		log.info("Running doDrinkRangePotion code");
-		final Item rangePotItem = Inventory.getItem(FLASK_RANGING);
-		int realRange = Skills.getRealLevel(Skills.RANGE);
-		int potRange = Skills.getLevel(Skills.RANGE);
-		int rangeDifference = potRange - realRange;
-		if (rangePotItem != null && rangeDifference <= 3
-				&& rangePotItem.getWidgetChild().interact("Drink")) {
-			final int id = rangePotItem.getId();
+		final Item RANGE_POT_ITEM = Inventory.getItem(FLASK_RANGING);
+		final int REAL_RANGE = Skills.getRealLevel(Skills.RANGE);
+		final int POTTED_RANGE = Skills.getLevel(Skills.RANGE);
+		final int RANGE_DIFFERENCE = POTTED_RANGE - REAL_RANGE;
+		if (RANGE_POT_ITEM != null && RANGE_DIFFERENCE <= 3
+				&& RANGE_POT_ITEM.getWidgetChild().interact("Drink")) {
+			final int id = RANGE_POT_ITEM.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -817,26 +866,27 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		log.info("Running equipGreegree code");
 		final Item GREEGREE = Inventory.getItem(GREEGREE_IDS);
 		if (GREEGREE != null && GREEGREE.getWidgetChild().interact("Equip")) {
-			final int id = GREEGREE.getId();
-			final int count = Inventory.getCount(id);
+			final int ID = GREEGREE.getId();
+			final int COUNT = Inventory.getCount(ID);
 			final Timer t = new Timer(2500);
-			while (t.isRunning() && Inventory.getCount(id) == count) {
+			while (t.isRunning() && Inventory.getCount(ID) == COUNT) {
 				Time.sleep(50);
 			}
 		}
 	}
 
 	private static void doChargePrayer() {
-		SceneObject varrockAltar = SceneEntities.getNearest(ID_ALTAR_VARROCK);
+		final SceneObject VARROCK_ALTAR = SceneEntities
+				.getNearest(ID_ALTAR_VARROCK);
 		Logger.getLogger("EpicsChins").info("Running doChargePrayer code");
 		if (Prayer.getPoints() < 300) {
 			Logger.getLogger("EpicsChins").info(
 					"Prayer is low, let's go charge up before we head out.");
 			Walking.findPath(TILE_PRAYER).traverse();
-			if (varrockAltar != null && varrockAltar.isOnScreen()) {
-				Camera.turnTo(varrockAltar);
+			if (VARROCK_ALTAR != null && VARROCK_ALTAR.isOnScreen()) {
+				Camera.turnTo(VARROCK_ALTAR);
 				Time.sleep(Random.nextInt(20, 50));
-				varrockAltar.click(true);
+				VARROCK_ALTAR.click(true);
 				if (Players.getLocal().getAnimation() == ID_ANIMATION_PRAY) {
 					Time.sleep(100, 400);
 				}
@@ -854,7 +904,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private static void doPreEat(final Item item, Item item2) {
 		Logger.getLogger("EpicsChins").info("Running doPreEat code");
 		if (Players.getLocal().getHpPercent() < 30) {
-//TODO BANKING
+			Walking.findPath(TILE_GRAND_BANK).traverse();
+			while (Calculations.distanceTo(TILE_GRAND_BANK) >= 5) {
+				Time.sleep(50);
+			}
 			Bank.open();
 			if (Bank.isOpen()) {
 				if (Inventory.isFull()) {
@@ -888,14 +941,15 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private boolean tileContainsTwoOrMore(final Tile tile) {
 		Logger.getLogger("EpicsChins").info(
 				"Running tileContainsTwoOrMore code");
-		Player[] playersOnTile = Players.getLoaded(new Filter<Player>() {
-			@Override
-			public boolean accept(Player t) {
-				return t.getLocation().equals(tile);
-			}
-		});
+		final Player[] PLAYERS_ON_TILE = Players
+				.getLoaded(new Filter<Player>() {
+					@Override
+					public boolean accept(Player t) {
+						return t.getLocation().equals(tile);
+					}
+				});
 		if (Game.getClientState() != Game.INDEX_MAP_LOADING
-				&& playersOnTile.length >= 2) {
+				&& PLAYERS_ON_TILE.length >= 2) {
 			return true;
 		}
 		return false;
@@ -904,14 +958,15 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private boolean areaContainsTwoOrMore(final Area area) {
 		Logger.getLogger("EpicsChins").info(
 				"Running areaContainsTwoOrMore code");
-		Player[] playersInArea = Players.getLoaded(new Filter<Player>() {
-			@Override
-			public boolean accept(Player t) {
-				return t.getLocation().equals(area);
-			}
-		});
+		final Player[] PLAYERS_IN_AREA = Players
+				.getLoaded(new Filter<Player>() {
+					@Override
+					public boolean accept(Player t) {
+						return t.getLocation().equals(area);
+					}
+				});
 		if (Game.getClientState() != Game.INDEX_MAP_LOADING
-				&& playersInArea.length >= 2) {
+				&& PLAYERS_IN_AREA.length >= 2) {
 			return true;
 		}
 		return false;
@@ -924,8 +979,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		case 1:
 			Logger.getLogger("EpicsChins").info(
 					"Setting random camera angle & pitch");
-			RANDOM_ANGLE = Random.nextInt(350, 10);
-			RANDOM_PITCH = Random.nextInt(89, 50);
 			Camera.setAngle(RANDOM_ANGLE);
 			Camera.setPitch(RANDOM_PITCH);
 			break;
@@ -950,11 +1003,21 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
+	private void yesInterfaceClicker() {
+		Logger.getLogger("EpicsChins").info("Running yesInterfaceClicker code");
+		final WidgetChild YES_INTERFACE = Widgets.get(1188, 3);
+		if (YES_INTERFACE.validate() && YES_INTERFACE.click(true)) {
+			final Timer YES_INTERFACE_TIMER = new Timer(2500);
+			while (YES_INTERFACE != null && YES_INTERFACE_TIMER.isRunning()) {
+				Time.sleep(50);
+			}
+		}
+	}
+
 	private class GUI extends JFrame {
 		private static final long serialVersionUID = 3853009753324932631L;
 
 		public GUI() {
-			String version = " v0.1";
 			// Title
 			setTitle("EC" + version);
 			setResizable(false);
@@ -979,107 +1042,107 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			contentPane.add(antiLabel);
 			antiLabel.setBounds(5, 235, 190, 25);
 			// ---- warningLabel ----
-			final JLabel warningLabel = new JLabel("WARNING");
-			warningLabel.setForeground(Color.red);
-			warningLabel.setFont(warningLabel.getFont().deriveFont(
-					warningLabel.getFont().getStyle() | Font.BOLD));
-			contentPane.add(warningLabel);
-			warningLabel.setBounds(70, 285, 60,
-					warningLabel.getPreferredSize().height);
+			final JLabel WARNING_LABEL = new JLabel("WARNING");
+			WARNING_LABEL.setForeground(Color.red);
+			WARNING_LABEL.setFont(WARNING_LABEL.getFont().deriveFont(
+					WARNING_LABEL.getFont().getStyle() | Font.BOLD));
+			contentPane.add(WARNING_LABEL);
+			WARNING_LABEL.setBounds(70, 285, 60,
+					WARNING_LABEL.getPreferredSize().height);
 			// ---- warningLabelB ----
-			final JLabel warningLabelB = new JLabel(
+			final JLabel WARNING_LABEL_B = new JLabel(
 					"Start in the Grand Exchange!");
-			contentPane.add(warningLabelB);
-			warningLabelB.setBounds(new Rectangle(new Point(40, 305),
-					warningLabelB.getPreferredSize()));
+			contentPane.add(WARNING_LABEL_B);
+			WARNING_LABEL_B.setBounds(new Rectangle(new Point(40, 305),
+					WARNING_LABEL_B.getPreferredSize()));
 			// chinLabelLeft
-			final Image chinPictureLeft = getImage("http://2c1c.net/images/faceRight.png");
-			final JLabel chinLabelLeft = new JLabel(new ImageIcon(
-					chinPictureLeft));
-			contentPane.add(chinLabelLeft);
-			chinLabelLeft.setBounds(10, 10, 24, 24);
+			final Image CHIN_PICTURE_LEFT = getImage("http://2c1c.net/images/faceRight.png");
+			final JLabel CHIN_LABEL_LEFT = new JLabel(new ImageIcon(
+					CHIN_PICTURE_LEFT));
+			contentPane.add(CHIN_LABEL_LEFT);
+			CHIN_LABEL_LEFT.setBounds(10, 10, 24, 24);
 			// chinLabelRight
-			final Image chinPictureRight = getImage("http://2c1c.net/images/faceLeft.png");
-			if (chinPictureRight == null) {
+			final Image CHIN_PICTURE_RIGHT = getImage("http://2c1c.net/images/faceLeft.png");
+			if (CHIN_PICTURE_RIGHT == null) {
 				Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
 			}
-			final JLabel chinLabelRight = new JLabel(new ImageIcon(
-					chinPictureRight));
-			if (chinPictureLeft == null) {
+			final JLabel CHIN_LABEL_RIGHT = new JLabel(new ImageIcon(
+					CHIN_PICTURE_RIGHT));
+			if (CHIN_PICTURE_LEFT == null) {
 				Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
 			}
-			contentPane.add(chinLabelRight);
-			chinLabelRight.setBounds(160, 10, 24, 24);
+			contentPane.add(CHIN_LABEL_RIGHT);
+			CHIN_LABEL_RIGHT.setBounds(160, 10, 24, 24);
 			// ---- greeLabel ----
-			final JLabel greeLabel = new JLabel("Are we using a greegree?");
-			greeLabel.setFont(greeLabel.getFont().deriveFont(
-					greeLabel.getFont().getStyle() | Font.BOLD));
-			contentPane.add(greeLabel);
-			greeLabel.setBounds(new Rectangle(new Point(25, 140), greeLabel
-					.getPreferredSize()));
+			final JLabel GREEGREE_LABEL = new JLabel("Are we using a greegree?");
+			GREEGREE_LABEL.setFont(GREEGREE_LABEL.getFont().deriveFont(
+					GREEGREE_LABEL.getFont().getStyle() | Font.BOLD));
+			contentPane.add(GREEGREE_LABEL);
+			GREEGREE_LABEL.setBounds(new Rectangle(new Point(25, 140),
+					GREEGREE_LABEL.getPreferredSize()));
 			// ---- titleLabel ----
-			final JLabel titleLabel = new JLabel("Epics Chinner" + version);
-			titleLabel.setFont(titleLabel.getFont().deriveFont(
-					titleLabel.getFont().getStyle() | Font.BOLD));
-			contentPane.add(titleLabel);
-			titleLabel.setBounds(45, 10, 110, 25);
+			final JLabel TITLE_LABEL = new JLabel("Epics Chinner" + version);
+			TITLE_LABEL.setFont(TITLE_LABEL.getFont().deriveFont(
+					TITLE_LABEL.getFont().getStyle() | Font.BOLD));
+			contentPane.add(TITLE_LABEL);
+			TITLE_LABEL.setBounds(45, 10, 110, 25);
 			// ---- reqTextPane ----
-			final JTextPane reqTextPane = new JTextPane();
-			reqTextPane.setBackground(new Color(212, 208, 200));
-			reqTextPane.setCursor(Cursor
+			final JTextPane REQ_TEXT_PANE = new JTextPane();
+			REQ_TEXT_PANE.setBackground(new Color(212, 208, 200));
+			REQ_TEXT_PANE.setCursor(Cursor
 					.getPredefinedCursor(Cursor.TEXT_CURSOR));
-			reqTextPane.setDisabledTextColor(new Color(240, 240, 240));
-			reqTextPane.setEditable(false);
-			reqTextPane.setText("Requirements:");
-			reqTextPane.setFont(reqTextPane.getFont().deriveFont(
-					reqTextPane.getFont().getStyle() | Font.BOLD));
-			contentPane.add(reqTextPane);
-			reqTextPane.setBounds(45, 40, 95, 20);
+			REQ_TEXT_PANE.setDisabledTextColor(new Color(240, 240, 240));
+			REQ_TEXT_PANE.setEditable(false);
+			REQ_TEXT_PANE.setText("Requirements:");
+			REQ_TEXT_PANE.setFont(REQ_TEXT_PANE.getFont().deriveFont(
+					REQ_TEXT_PANE.getFont().getStyle() | Font.BOLD));
+			contentPane.add(REQ_TEXT_PANE);
+			REQ_TEXT_PANE.setBounds(45, 40, 95, 20);
 			// ---- reqTextPaneB ----
-			final JTextPane reqTextPaneB = new JTextPane();
-			reqTextPaneB.setBackground(new Color(212, 208, 200));
-			reqTextPaneB
+			final JTextPane REQ_TEXT_PANE_B = new JTextPane();
+			REQ_TEXT_PANE_B.setBackground(new Color(212, 208, 200));
+			REQ_TEXT_PANE_B
 					.setText("- Access to Ape Atoll\n- 43 Prayer\n- 55 Ranged\n- 3+ Prayer renewal flasks\n- 3+ Ranged flasks");
-			reqTextPaneB.setEditable(false);
-			contentPane.add(reqTextPaneB);
-			reqTextPaneB.setBounds(25, 55, 135, 75);
+			REQ_TEXT_PANE_B.setEditable(false);
+			contentPane.add(REQ_TEXT_PANE_B);
+			REQ_TEXT_PANE_B.setBounds(25, 55, 135, 75);
 			// ---- greeBoxYes ----
-			final JCheckBox greeBoxYes = new JCheckBox("Yes");
-			greeBoxYes.setSelected(true);
-			if (greeBoxYes.isSelected()) {
+			final JCheckBox GREEGREE_BOX_YES = new JCheckBox("Yes");
+			GREEGREE_BOX_YES.setSelected(true);
+			if (GREEGREE_BOX_YES.isSelected()) {
 				usingGreegree = true;
 			}
-			contentPane.add(greeBoxYes);
-			greeBoxYes.setBounds(new Rectangle(new Point(45, 160), greeBoxYes
-					.getPreferredSize()));
+			contentPane.add(GREEGREE_BOX_YES);
+			GREEGREE_BOX_YES.setBounds(new Rectangle(new Point(45, 160),
+					GREEGREE_BOX_YES.getPreferredSize()));
 			// ---- greeBoxNo ----
-			final JCheckBox greeBoxNo = new JCheckBox("No");
-			greeBoxNo.setSelected(false);
-			if (greeBoxNo.isSelected()) {
+			final JCheckBox GREEGREE_BOX_NO = new JCheckBox("No");
+			GREEGREE_BOX_NO.setSelected(false);
+			if (GREEGREE_BOX_NO.isSelected()) {
 				usingGreegree = false;
 			}
-			contentPane.add(greeBoxNo);
-			greeBoxNo.setBounds(new Rectangle(new Point(100, 160), greeBoxNo
-					.getPreferredSize()));
+			contentPane.add(GREEGREE_BOX_NO);
+			GREEGREE_BOX_NO.setBounds(new Rectangle(new Point(100, 160),
+					GREEGREE_BOX_NO.getPreferredSize()));
 			// ---- foodCombo ----
-			final JComboBox<String> foodCombo = new JComboBox<>();
-			foodCombo.setModel(new DefaultComboBoxModel<>(new String[] {
+			final JComboBox<String> FOOD_COMBO_BOX = new JComboBox<>();
+			FOOD_COMBO_BOX.setModel(new DefaultComboBoxModel<>(new String[] {
 					"Select your food...", "Shark", "Rocktail", "Monkfish",
 					"Swordfish", "Lobster", "Tuna", "Trout", "Salmon" }));
-			contentPane.add(foodCombo);
-			foodCombo.setBounds(25, 210, 150,
-					foodCombo.getPreferredSize().height);
+			contentPane.add(FOOD_COMBO_BOX);
+			FOOD_COMBO_BOX.setBounds(25, 210, 150,
+					FOOD_COMBO_BOX.getPreferredSize().height);
 			// ---- poisonCombo ----
-			final JComboBox<String> poisonCombo = new JComboBox<String>();
-			poisonCombo.setModel(new DefaultComboBoxModel<>(new String[] {
+			final JComboBox<String> POISON_COMBO_BOX = new JComboBox<String>();
+			POISON_COMBO_BOX.setModel(new DefaultComboBoxModel<>(new String[] {
 					"Select an antipoison...", "Super antipoison flask",
 					"Antipoison++ flask", "Antipoison+ flask",
 					"Antipoison flask", "Super antipoison", "Antipoison++",
 					"Antipoison+", "Antipoison", "Antipoison mix",
 					"Antipoison elixir" }));
-			contentPane.add(poisonCombo);
-			poisonCombo.setBounds(25, 260, 150,
-					poisonCombo.getPreferredSize().height);
+			contentPane.add(POISON_COMBO_BOX);
+			POISON_COMBO_BOX.setBounds(25, 260, 150,
+					POISON_COMBO_BOX.getPreferredSize().height);
 			{
 				Dimension preferredSize = new Dimension();
 				for (int i = 0; i < contentPane.getComponentCount(); i++) {
@@ -1098,79 +1161,80 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			setSize(210, 395);
 			setLocationRelativeTo(null);
 			// ---- startButton ----
-			final JButton startButton = new JButton("Start");
-			contentPane.add(startButton);
-			startButton.setBounds(5, 330, 185, 25);
-			startButton.addActionListener(new ActionListener() {
+			final JButton START_BUTTON = new JButton("Start");
+			contentPane.add(START_BUTTON);
+			START_BUTTON.setBounds(5, 330, 185, 25);
+			START_BUTTON.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					startscript = true;
-					String chosenFood = foodCombo.getSelectedItem().toString();
-					if (chosenFood.equals("Select your food...")) {
+					START_SCRIPT = true;
+					final String USER_FOOD = FOOD_COMBO_BOX.getSelectedItem()
+							.toString();
+					if (USER_FOOD.equals("Select your food...")) {
 						Logger.getLogger("EpicsChins").info(
 								"No food selected, stopping script");
 						stop();
 					}
-					if (chosenFood.equals("Shark")) {
-						Food = 385;
+					if (USER_FOOD.equals("Shark")) {
+						foodUser = 385;
 					}
-					if (chosenFood.equals("Rocktail")) {
-						Food = 15272;
+					if (USER_FOOD.equals("Rocktail")) {
+						foodUser = 15272;
 					}
-					if (chosenFood.equals("Monkfish")) {
-						Food = 7946;
+					if (USER_FOOD.equals("Monkfish")) {
+						foodUser = 7946;
 					}
-					if (chosenFood.equals("Swordfish")) {
-						Food = 373;
+					if (USER_FOOD.equals("Swordfish")) {
+						foodUser = 373;
 					}
-					if (chosenFood.equals("Lobster")) {
-						Food = 379;
+					if (USER_FOOD.equals("Lobster")) {
+						foodUser = 379;
 					}
-					if (chosenFood.equals("Tuna")) {
-						Food = 361;
+					if (USER_FOOD.equals("Tuna")) {
+						foodUser = 361;
 					}
-					if (chosenFood.equals("Trout")) {
-						Food = 333;
+					if (USER_FOOD.equals("Trout")) {
+						foodUser = 333;
 					}
-					if (chosenFood.equals("Salmon")) {
-						Food = 329;
+					if (USER_FOOD.equals("Salmon")) {
+						foodUser = 329;
 					}
-					String chosenAntipoison = poisonCombo.getSelectedItem()
-							.toString();
-					if (chosenAntipoison.equals("Select an antipoison...")) {
+					final String USER_ANTIPOISON = POISON_COMBO_BOX
+							.getSelectedItem().toString();
+					if (USER_ANTIPOISON.equals("Select an antipoison...")) {
 						Logger.getLogger("EpicsChins").info(
 								"No antipoison selected, stopping script");
 						Game.logout(false);
 						stop();
 					}
-					if (chosenAntipoison.equals("Super antipoison flask")) {
-						Antipoison = FLASK_ANTIPOISON_SUPER;
+					if (USER_ANTIPOISON.equals("Super antipoison flask")) {
+						antipoisonUser = FLASK_ANTIPOISON_SUPER;
 					}
-					if (chosenAntipoison.equals("Antipoison++ flask")) {
-						Antipoison = FLASK_ANTIPOISON_PLUSPLUS;
+					if (USER_ANTIPOISON.equals("Antipoison++ flask")) {
+						antipoisonUser = FLASK_ANTIPOISON_PLUSPLUS;
 					}
-					if (chosenAntipoison.equals("Antipoison+ flask")) {
-						Antipoison = FLASK_ANTIPOISON_PLUS;
+					if (USER_ANTIPOISON.equals("Antipoison+ flask")) {
+						antipoisonUser = FLASK_ANTIPOISON_PLUS;
 					}
-					if (chosenAntipoison.equals("Antipoison Flask")) {
-						Antipoison = FLASK_ANTIPOISON;
+					if (USER_ANTIPOISON.equals("Antipoison Flask")) {
+						antipoisonUser = FLASK_ANTIPOISON;
 					}
-					if (chosenAntipoison.equals("Super Antipoison")) {
-						Antipoison = POT_ANTIPOISON_SUPER;
+					if (USER_ANTIPOISON.equals("Super Antipoison")) {
+						antipoisonUser = POT_ANTIPOISON_SUPER;
 					}
-					if (chosenAntipoison.equals("Antipoison++")) {
-						Antipoison = POT_ANTIPOISON_PLUSPLUS;
+					if (USER_ANTIPOISON.equals("Antipoison++")) {
+						antipoisonUser = POT_ANTIPOISON_PLUSPLUS;
 					}
-					if (chosenAntipoison.equals("Antipoison+")) {
-						Antipoison = POT_ANTIPOISON_PLUS;
+					if (USER_ANTIPOISON.equals("Antipoison+")) {
+						antipoisonUser = POT_ANTIPOISON_PLUS;
 					}
-					if (chosenAntipoison.equals("Antipoison")) {
-						Antipoison = POT_ANTIPOISON;
+					if (USER_ANTIPOISON.equals("Antipoison")) {
+						antipoisonUser = POT_ANTIPOISON;
 					}
-					if (chosenAntipoison.equals("Antipoison mix")) {
-						Antipoison = MIX_ANTIPOISON;
+					if (USER_ANTIPOISON.equals("Antipoison mix")) {
+						antipoisonUser = MIX_ANTIPOISON;
 					}
-					if (chosenAntipoison.equals("Antipoison elixir")) {
-						Antipoison = ELIXIR_ANTIPOISON;
+					if (USER_ANTIPOISON.equals("Antipoison elixir")) {
+						antipoisonUser = ELIXIR_ANTIPOISON;
 					}
 					gui.dispose();
 					log.info("GUI disposed, providing methods");
@@ -1187,28 +1251,28 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private final Color color1 = new Color(255, 255, 255);
-	private final Font font1 = new Font("Verdana", 0, 10);
-	private final Image img1 = getImage("http://2c1c.net/images/paint.png");
+	private final Color COLOR = new Color(255, 255, 255);
+	private final Font FONT = new Font("Verdana", 0, 10);
+	private final Image IMAGE_1 = getImage("http://2c1c.net/images/paint.png");
 
 	public void onRepaint(Graphics g1) {
 		mouseX = Mouse.getX();
 		mouseY = Mouse.getY();
-		rangegainedExp = Skills.getExperience(Skills.RANGE) - RANGEstartExp;
-		hpgainedExp = Skills.getExperience(Skills.CONSTITUTION) - HPstartExp;
-		expHour = (int) ((rangegainedExp) * 3600000D / (System
+		rangeGainedExp = Skills.getExperience(Skills.RANGE) - rangedStartExp;
+		hpGainedExp = Skills.getExperience(Skills.CONSTITUTION) - hpStartExp;
+		expHr = (int) ((rangeGainedExp) * 3600000D / (System
 				.currentTimeMillis() - startTime));
-		if (showpaint) {
+		if (SHOWPAINT) {
 			Graphics2D g = (Graphics2D) g1;
-			g.drawImage(img1, -4, 336, null);
-			g.setFont(font1);
-			g.setColor(color1);
-			g.drawString(runtime.toElapsedString(), 215, 444);
-			g.drawString(String.valueOf(rangegainedExp), 198, 460);
-			g.drawString(String.valueOf(hpgainedExp), 181, 480);
+			g.drawImage(IMAGE_1, -4, 336, null);
+			g.setFont(FONT);
+			g.setColor(COLOR);
+			g.drawString(RUNTIME.toElapsedString(), 215, 444);
+			g.drawString(String.valueOf(rangeGainedExp), 198, 460);
+			g.drawString(String.valueOf(hpGainedExp), 181, 480);
 			g.drawLine(mouseX, mouseY - 10, mouseX, mouseY + 10);
 			g.drawLine(mouseX - 10, mouseY, mouseX + 10, mouseY);
-			g.drawString(String.valueOf(expHour), 183, 497);
+			g.drawString(String.valueOf(expHr), 183, 497);
 			g.drawString(String.valueOf(chinsThrown), 351, 443);
 			g.drawString(String.valueOf(zombieKillCount), 359, 461);
 		} else {
@@ -1220,12 +1284,12 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (new Rectangle(502, 389, 14, 15).contains(e.getPoint())) {
-			if (showpaint) {
-				showpaint = false;
-			} else if (img1 == null) {
+			if (SHOWPAINT) {
+				SHOWPAINT = false;
+			} else if (IMAGE_1 == null) {
 				Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
 			}
-			showpaint = true;
+			SHOWPAINT = true;
 		}
 	}
 
