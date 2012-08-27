@@ -35,13 +35,13 @@ import org.powerbot.game.api.Manifest;
 import org.powerbot.game.api.methods.Calculations;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.Settings;
+import org.powerbot.game.api.methods.Tabs;
 import org.powerbot.game.api.methods.Walking;
 import org.powerbot.game.api.methods.Widgets;
 import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.SceneEntities;
-import org.powerbot.game.api.methods.tab.Attack;
 import org.powerbot.game.api.methods.tab.Equipment;
 import org.powerbot.game.api.methods.tab.Inventory;
 import org.powerbot.game.api.methods.tab.Prayer;
@@ -71,7 +71,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	// GUI variables
 	private int foodUser = 0; // user selected food
 	private int[] antipoisonUser = { 0 }; // user selected Antipoison
-	private boolean usingGreegree, START_SCRIPT, SHOWPAINT = true;
+	private boolean usingGreegree, START_SCRIPT, SHOWPAINT, runCheck = true;
 	String version = " v0.1";
 	// Paint variables
 	private long startTime;
@@ -98,16 +98,16 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			97, 99, 100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137,
 			138, 139 };
 	// Path details
-	public final static Area AREA_GE = new Area(new Tile(3135, 3464, 0), new Tile(
-			3203, 3516, 0));
+	public final static Area AREA_GE = new Area(new Tile(3135, 3464, 0),
+			new Tile(3203, 3516, 0));
 	private final static Area AREA_WAYDAR = new Area(new Tile(2642, 4525, 0),
 			new Tile(2652, 4515, 0));
-	private final static Area AREA_LUMDO = new Area(new Tile(2896, 2730, 0), new Tile(
-			2887, 2717, 0));
-	private final static Area AREA_INSIDE_TREE_DOOR = new Area(
-			new Tile(2896, 2730, 0), new Tile(2887, 2717, 0));
-	private final static Area AREA_GRAND_TELE = new Area(new Tile(3208, 3429, 0),
-			new Tile(2316, 3421, 0));
+	private final static Area AREA_LUMDO = new Area(new Tile(2896, 2730, 0),
+			new Tile(2887, 2717, 0));
+	private final static Area AREA_INSIDE_TREE_DOOR = new Area(new Tile(2896,
+			2730, 0), new Tile(2887, 2717, 0));
+	private final static Area AREA_GRAND_TELE = new Area(
+			new Tile(3208, 3429, 0), new Tile(2316, 3421, 0));
 	private final static Tile TILE_GRAND_BANK = new Tile(3181, 3502, 0);
 	private final static Tile TILE_GRAND_TREE = new Tile(3185, 3508, 0);
 	private final static Tile TILE_SPIRIT_MID = new Tile(2542, 3169, 0);
@@ -165,7 +165,6 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	// General IDs
 	Timer t = null;
 	private int chinNumber;
-	private boolean runCheck = true;
 	// Interaction IDs
 	private final static int ID_ANIMATION_TREE = 7082;
 	private final static int ID_ANIMATION_PRAY = 645;
@@ -209,21 +208,26 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
+			log.info("Running checks to get current count of chins and make sure autoretaliate is on!");
 			chinNumber = Equipment.getItem(10034).getStackSize();
+			log.info(String.valueOf(chinNumber));
 
-			while (!Attack.isAutoRetaliateEnabled()) {
-				Widgets.get(884).getChild(11).click(true);
+			if (Tabs.ATTACK.open()) {
+				if (Settings.get(172) != 0) {
+					log.info("Auto retaliate not on, setting");
+					Widgets.get(884).getChild(13).click(true);
+					Timer t = new Timer(2500);
+					while (Settings.get(172) != 0 && t.isRunning()) {
+						Time.sleep(50);
+					}
+				}
 			}
 			runCheck = false;
 		}
 
 		@Override
 		public boolean validate() {
-			final Timer CHECK_TIMER = new Timer(30000);
-			while (CHECK_TIMER.isRunning()) {
-				Time.sleep(50);
-			}
-			return runCheck && !CHECK_TIMER.isRunning();
+			return runCheck && START_SCRIPT && Game.isLoggedIn();
 		}
 	}
 
@@ -254,9 +258,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
 					log.info("You have the n00b varrock teleport. Walking to bank");
 					Walking.findPath(TILE_GRAND_BANK).traverse();
-					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 5) {
+					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
 						Time.sleep(50);
 					}
+					Camera.turnTo(TILE_GRAND_BANK);
 				}
 				log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
 				stop();
@@ -587,55 +592,75 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
+			log.info("Running banking code");
 			if (!AREA_GE.contains(Players.getLocal().getLocation())) {
 				if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
 					log.info("You have the n00b varrock teleport. Walking to bank");
 					Walking.findPath(TILE_GRAND_BANK).traverse();
-					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 5) {
+					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
 						Time.sleep(50);
 					}
+					Camera.turnTo(TILE_GRAND_BANK);
 					log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
 					stop();
 				}
-			}
-			log.info("Running banking code");
-			if (!AREA_GE.contains(Players.getLocal().getLocation())
-					&& Inventory.getCount(tab) >= 1) {
-				doBreakTab();
-			}
-			checkRun();
-			Bank.open();
-			Time.sleep(Random.nextInt(500, 700));
-			if (Bank.isOpen()) {
-				if (Bank.withdraw(10034, 2000)) {
-					return;
-				} else if (Bank.getItemCount(10034) <= 1500) {
-					log.info("Not enough chins to continue! Shutting down...");
-					Game.logout(true);
-					stop();
+			} else {
+				Walking.findPath(TILE_GRAND_BANK).traverse();
+				while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
+					Time.sleep(50);
 				}
-				if (Bank.close()) {
-					if (Inventory.getCount(10034) >= 0) {
-						Item chinItem = Inventory.getItem(10034);
-						chinItem.getWidgetChild().click(true);
-						if (Inventory.getCount(10034) < 1) {
-							chinNumber = Equipment.getItem(10034)
-									.getStackSize();
-						} else {
-							return;
+				Camera.turnTo(TILE_GRAND_BANK);
+				if (!AREA_GE.contains(Players.getLocal().getLocation())
+						&& !AREA_GRAND_TELE.contains(Players.getLocal()
+								.getLocation()) && Inventory.getCount(tab) >= 1) {
+					doBreakTab();
+				}
+				checkRun();
+
+				Bank.open();
+				Time.sleep(Random.nextInt(500, 700));
+				if (chinNumber <= 2000 && Bank.isOpen()) {
+					if (chinNumber == 0) {
+						log.info("NO chins detected. This means that you haven't set up your equipment right. Check it and try again!");
+						stop();
+						Game.logout(true);
+					}
+					if (chinNumber <= 2000 && Bank.withdraw(10034, 2000)) {
+						return;
+					} else if (Bank.getItemCount(10034) <= 1500
+							&& chinNumber <= 2000) {
+						log.info("Not enough chins to continue! Shutting down...");
+						Game.logout(true);
+						stop();
+					}
+					if (Bank.close()) {
+						if (Inventory.getCount(10034) >= 0) {
+							Item chinItem = Inventory.getItem(10034);
+							chinItem.getWidgetChild().click(true);
+							if (Inventory.getCount(10034) < 1) {
+								log.severe("d");
+								chinNumber = Equipment.getItem(10034)
+										.getStackSize();
+							} else {
+								return;
+							}
 						}
 					}
 				}
 				if (usingGreegree) {
 					log.info("Selected use a greegree, banking accordingly");
-					Bank.depositInventory();
+					if (Inventory.getCount() == 28 && Inventory.getCount(foodUser) < 1){
+						log.info("Supplies are done wrong, restarting...");
+						Bank.depositInventory();
+					}
 					if (Inventory.getCount(foodUser) == 0) {
 						if (Bank.withdraw(foodUser, 1)) {
-							return;
+							log.severe("food");
 						}
 					} else if (Inventory.getCount(GREEGREE_ITEM.getId()) == 0
 							&& usingGreegree) {
 						if (Bank.withdraw(GREEGREE_ITEM.getId(), 1)) {
+							log.severe("greegree");
 							return;
 						} else if (Bank.getItemCount(GREEGREE_ITEM.getId()) == 0
 								&& usingGreegree) {
@@ -905,9 +930,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		Logger.getLogger("EpicsChins").info("Running doPreEat code");
 		if (Players.getLocal().getHpPercent() < 30) {
 			Walking.findPath(TILE_GRAND_BANK).traverse();
-			while (Calculations.distanceTo(TILE_GRAND_BANK) >= 5) {
+			while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
 				Time.sleep(50);
 			}
+			Camera.turnTo(TILE_GRAND_BANK);
 			Bank.open();
 			if (Bank.isOpen()) {
 				if (Inventory.isFull()) {
@@ -1025,22 +1051,22 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			Container contentPane = getContentPane();
 			contentPane.setLayout(null);
 			// ---- foodLabel ----
-			final JLabel foodLabel = new JLabel("What food should we use?");
-			foodLabel.setBackground(new Color(212, 208, 200));
-			foodLabel.setFont(foodLabel.getFont().deriveFont(
-					foodLabel.getFont().getStyle() | Font.BOLD));
-			contentPane.add(foodLabel);
-			foodLabel.setBounds(20, 185, 155,
-					foodLabel.getPreferredSize().height);
+			final JLabel FOOD_LABEL = new JLabel("What food should we use?");
+			FOOD_LABEL.setBackground(new Color(212, 208, 200));
+			FOOD_LABEL.setFont(FOOD_LABEL.getFont().deriveFont(
+					FOOD_LABEL.getFont().getStyle() | Font.BOLD));
+			contentPane.add(FOOD_LABEL);
+			FOOD_LABEL.setBounds(20, 185, 155,
+					FOOD_LABEL.getPreferredSize().height);
 			// ---- antiLabel ----
-			final JTextPane antiLabel = new JTextPane();
-			antiLabel.setBackground(new Color(212, 208, 200));
-			antiLabel.setText("What antipoison should we use?");
-			antiLabel.setFont(antiLabel.getFont().deriveFont(
-					antiLabel.getFont().getStyle() | Font.BOLD));
-			antiLabel.setEditable(false);
-			contentPane.add(antiLabel);
-			antiLabel.setBounds(5, 235, 190, 25);
+			final JLabel ANTI_LABEL = new JLabel(
+					"What antipoison should we use?");
+			ANTI_LABEL.setBackground(new Color(212, 208, 200));
+			ANTI_LABEL.setText("What antipoison should we use?");
+			ANTI_LABEL.setFont(ANTI_LABEL.getFont().deriveFont(
+					ANTI_LABEL.getFont().getStyle() | Font.BOLD));
+			contentPane.add(ANTI_LABEL);
+			ANTI_LABEL.setBounds(5, 235, 190, 25);
 			// ---- warningLabel ----
 			final JLabel WARNING_LABEL = new JLabel("WARNING");
 			WARNING_LABEL.setForeground(Color.red);
