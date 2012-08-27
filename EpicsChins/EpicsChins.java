@@ -70,7 +70,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private GUI gui;
 	// GUI variables
 	private int foodUser = 0; // user selected food
-	private int[] antipoisonUser = { 0 }; // user selected Antipoison
+	private int antipoisonUser = 0; // user selected Antipoison
 	private boolean usingGreegree, START_SCRIPT, SHOWPAINT, runCheck = true;
 	String version = " v0.1";
 	// Paint variables
@@ -90,6 +90,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final int RANDOM_PITCH = Random.nextInt(350, 10);
 	private final int RANDOM_ANGLE = Random.nextInt(89, 50);
 	private int state;
+	// Logging ints
+	private int logWalkCode = 0;
+	private int logAttackCode = 0;
+	private int logBankingCode = 0;
 	// Members Worlds array
 	private final int[] WORLDS_MEMBER = { 5, 6, 9, 12, 15, 18, 21, 22, 23, 24,
 			25, 26, 27, 28, 31, 32, 36, 39, 40, 42, 44, 45, 46, 48, 49, 51, 52,
@@ -100,29 +104,37 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	// Path details
 	public final static Area AREA_GE = new Area(new Tile(3135, 3464, 0),
 			new Tile(3203, 3516, 0));
-	private final static Area AREA_WAYDAR = new Area(new Tile(2642, 4525, 0),
-			new Tile(2652, 4515, 0));
-	private final static Area AREA_LUMDO = new Area(new Tile(2896, 2730, 0),
-			new Tile(2887, 2717, 0));
-	private final static Area AREA_INSIDE_TREE_DOOR = new Area(new Tile(2896,
-			2730, 0), new Tile(2887, 2717, 0));
+	private final static Area AREA_BLINDFOND_ZONE = new Area(new Tile(2660,
+			4501, 0), new Tile(2641, 4531, 0));
+	private final static Area AREA_CRASH_ISLAND = new Area(new Tile(2880, 2735,
+			0), new Tile(2903, 2711, 0));
+	private final static Area AREA_INSIDE_TREE_DOOR = new Area(new Tile(2466,
+			3493, 0), new Tile(2465, 3495, 0));
 	private final static Area AREA_GRAND_TELE = new Area(
 			new Tile(3208, 3429, 0), new Tile(2316, 3421, 0));
+	private final static Area AREA_SPIRIT_MID = new Area(
+			new Tile(2544, 3172, 0), new Tile(2541, 3167, 0));
+	private final static Area AREA_GNOME_STRONGHOLD = new Area(new Tile(2470,
+			3440, 0), new Tile(2457, 3492, 0));
+	private final static Area AREA_APE_ATOLL = new Area(
+			new Tile(2809, 2690, 0), new Tile(2753, 2718, 0));
+	private final static Area AREA_GNOME_LEVEL_ONE = new Area(new Tile(2490,
+			3478, 1), new Tile(2440, 3512, 1));
+	public final static Area AREA_APE_ATOLL_DUNGEON = new Area(new Tile(2805,
+			9144, 0), new Tile(2704, 9043, 0));
 	private final static Tile TILE_GRAND_BANK = new Tile(3181, 3502, 0);
 	private final static Tile TILE_GRAND_TREE = new Tile(3185, 3508, 0);
-	private final static Tile TILE_SPIRIT_MID = new Tile(2542, 3169, 0);
-	private final static Tile TILE_SPIRIT_END = new Tile(2462, 3444, 0);
-	private final static Tile TILE_APE_START = new Tile(2802, 2707, 0);
-	private final static Tile TILE_GNOME_LADDER_MID = new Tile(2466, 3994, 1);
 	private final static Tile TILE_APE_LADDER_TOP = new Tile(2764, 2703, 0);
-	private final static Tile TILE_APE_LADDER_BOTTOM = new Tile(2764, 9103, 0);
 	private final static Tile TILE_CHIN_1 = new Tile(2715, 9127, 0);
 	private final static Tile TILE_CHIN_2 = new Tile(2746, 9122, 0);
 	private final static Tile TILE_CHIN_3 = new Tile(2709, 9116, 0);
 	private final static Tile TILE_CHIN_4 = new Tile(2701, 9111, 0);
 	private final static Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
 	private final static Tile TILE_TREE_DAERO = new Tile(2480, 3488, 1);
-	private final static Tile TILE_PRAYER = new Tile(3254, 3485, 0);
+	private final static Tile TILE_PRAYER = new Tile(3253, 3485, 0);
+	private final static Tile TILE_PRAYER_3 = new Tile(3245, 3464, 0);
+	private final static Tile TILE_PRAYER_2 = new Tile(3217, 3465, 0);
+	private final static Tile TILE_PRAYER_1 = new Tile(3197, 3484, 0);
 	private final static Area AREA_CHIN_3_4 = new Area(new Tile(2709, 9116, 0),
 			new Tile(2701, 9111, 0));
 	private final Tile[] CHIN_ARRAY = { TILE_CHIN_1, TILE_CHIN_2, TILE_CHIN_3,
@@ -131,27 +143,29 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final static int[] GREEGREE_IDS = { 4031, 4024, 4025, 40256, 4027,
 			4028, 4029, 4030 };
 	// Potion IDs
+	private final static int[] ANTIPOISON_ALL = { 23327, 23329, 23331, 23333,
+			23335, 23337, 23591, 23593, 23595, 23597, 23599, 23601, 23579,
+			23581, 23583, 23585, 23587, 23589, 23315, 23317, 23319, 23321,
+			23323, 23325, 11433, 11435, 2448, 181, 183, 185, 5952, 5954, 5956,
+			5958, 5943, 5945, 5947, 5949, 2446, 175, 177, 179, 20879 };
 	private final static int[] FLASK_RANGING = { 23303, 23305, 23307, 23309,
 			23311, 23313 };
+	private final static int FLASK_RANGING_FULL = 23303;
 	private final static int[] POT_PRAYER = { 2434, 139, 141, 143 };
 	private final static int POT_PRAYER_DOSE_4 = 2434;
 	private final static int[] FLASK_PRAYER_RENEWAL = { 23609, 23611, 23613,
 			23615, 23617, 23619 };
-	private final static int[] FLASK_ANTIPOISON_SUPER = { 23327, 23329, 23331,
-			23333, 23335, 23337 };
-	private final static int[] FLASK_ANTIPOISON_PLUSPLUS = { 23591, 23593,
-			23595, 23597, 23599, 23601 };
-	private final static int[] FLASK_ANTIPOISON_PLUS = { 23579, 23581, 23583,
-			23585, 23587, 23589 };
-	private final static int[] FLASK_ANTIPOISON = { 23315, 23317, 23319, 23321,
-			23323, 23325 };
-	private final static int[] MIX_ANTIPOISON = { 11433, 11435 };
-	private final static int[] POT_ANTIPOISON_SUPER = { 2448, 181, 183, 185 };
-	private final static int[] POT_ANTIPOISON_PLUSPLUS = { 5952, 5954, 5956,
-			5958 };
-	private final static int[] POT_ANTIPOISON_PLUS = { 5943, 5945, 5947, 5949 };
-	private final static int[] POT_ANTIPOISON = { 2446, 175, 177, 179 };
-	private final static int[] ELIXIR_ANTIPOISON = { 20879 };
+	private final static int FLASK_PRAYER_RENEWAL_FULL = 23609;
+	private final static int FLASK_ANTIPOISON_SUPER_FULL = 23327;
+	private final static int FLASK_ANTIPOISON_PLUSPLUS_FULL = 23591;
+	private final static int FLASK_ANTIPOISON_PLUS_FULL = 23579;
+	private final static int FLASK_ANTIPOISON_FULL = 23315;
+	private final static int MIX_ANTIPOISON_FULL = 11433;
+	private final static int POT_ANTIPOISON_SUPER_FULL = 2448;
+	private final static int POT_ANTIPOISON_PLUSPLUS_FULL = 5952;
+	private final static int POT_ANTIPOISON_PLUS_FULL = 5943;
+	private final static int POT_ANTIPOISON_FULL = 2446;
+	private final static int ELIXIR_ANTIPOISON = 20879;
 	// Tab IDs
 	private final static int TAB_VARROCK = 8007;
 	private final static int TAB_LUMBRIDGE = 8008;
@@ -168,11 +182,11 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	// Interaction IDs
 	private final static int ID_ANIMATION_TREE = 7082;
 	private final static int ID_ANIMATION_PRAY = 645;
-	private final static int[] ID_TREEDOOR = { 69197, 69198 };
+	private final static int ID_TREEDOOR = 69197;
 	private final static int ID_SPIRITTREE_GE = 1317;
 	private final static int ID_SPIRITTREE_MAIN = 68974;
 	private final static int ID_LADDER_GNOME = 69499;
-	private final static int ID_LADDER_APE = 4780;
+	private final static int ID_LADDER_APE = 2745; // or 4780
 	private final static int ID_ALTAR_VARROCK = 24343;
 	private final static int ID_ANIMATION_DEATH_ZOMBIE = 1384;
 	// NPC IDs
@@ -209,8 +223,12 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		@Override
 		public void run() {
 			log.info("Running checks to get current count of chins and make sure autoretaliate is on!");
-			chinNumber = Equipment.getItem(10034).getStackSize();
-			log.info(String.valueOf(chinNumber));
+			chinNumber = Equipment.getItem(10034).getStackSize();// TODO fix it
+																	// when a
+																	// greegree
+																	// is being
+																	// used
+			log.info("Number of chins equipped: " + String.valueOf(chinNumber));
 
 			if (Tabs.ATTACK.open()) {
 				if (Settings.get(172) != 0) {
@@ -228,61 +246,106 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		@Override
 		public boolean validate() {
 			return runCheck && START_SCRIPT && Game.isLoggedIn();
-		}
+		}// TODO getInteracting vs isInCombat
 	}
 
 	private class RunToChins extends Strategy implements Runnable {
 		@Override
 		public void run() {
 			// Interaction ID
-			final WidgetChild SPIRIT_TREE_INTERFACE = Widgets.get(6, 0);
-			log.info("Running walk there code");
-			final SceneObject SPIRIT_TREE_GE = SceneEntities
+			if (logWalkCode == 0) {
+				log.info("Running walk there code");
+				logWalkCode++;
+			}
+			SceneObject spiritTreeGe = SceneEntities
 					.getNearest(ID_SPIRITTREE_GE);
-			if (AREA_GE.contains(Players.getLocal().getLocation())) {
+			if (!CHIN_ARRAY.equals(Players.getLocal().getLocation())) {
 				final Item FOOD = Inventory.getItem(foodUser);
 				final Item PRAYER_POT = Inventory.getItem(POT_PRAYER_DOSE_4);
 				checkRun();
 				doPreEat(FOOD, PRAYER_POT);
-				doChargePrayer();
-				Walking.findPath(TILE_GRAND_TREE).traverse();
-				if (SPIRIT_TREE_GE != null && SPIRIT_TREE_GE.isOnScreen()
-						&& SPIRIT_TREE_GE.interact("Teleport")) {
+				while (Prayer.getPoints() < Skills.getRealLevel(Skills.PRAYER)
+						* 10 - (0.3 * (Skills.getRealLevel(Skills.PRAYER)))) {
+					if (logWalkCode == 1) {
+						log.info("Prayer is low, let's go charge up before we head out.");
+						logWalkCode++;
+					}
+					if (TILE_PRAYER != null
+							&& Calculations.distanceTo(TILE_PRAYER) >= 2) {
+						Walking.findPath(TILE_PRAYER).traverse();
+						SceneObject varrockAltar = SceneEntities
+								.getNearest(ID_ALTAR_VARROCK);
+						if (varrockAltar != null && varrockAltar.isOnScreen()) {
+							Camera.turnTo(varrockAltar);
+							Time.sleep(Random.nextInt(20, 50));
+							varrockAltar.click(true);
+							if (Players.getLocal().getAnimation() == ID_ANIMATION_PRAY) {
+								Time.sleep(100, 400);
+							}
+							if (Prayer.getPoints() == (Skills
+									.getRealLevel(Skills.PRAYER) * 10)) {
+								log.info("All charged up, let's get going.");
+							}
+						}
+					} else {
+						if (TILE_PRAYER == null && TILE_PRAYER_1 != null) {
+							Walking.findPath(TILE_PRAYER_1).traverse();
+							if (Calculations.distanceTo(TILE_PRAYER_1) >= 2) {
+								Walking.findPath(TILE_PRAYER_2).traverse();
+								if (Calculations.distanceTo(TILE_PRAYER_3) >= 2) {
+									Walking.findPath(TILE_PRAYER).traverse();
+								}
+							}
+						}
+					}
+				}
+				if (TILE_GRAND_TREE != null) {
+					Walking.findPath(TILE_GRAND_TREE).traverse();
+				} else if (TILE_GRAND_TREE == null && TILE_PRAYER_3 != null) {
+					Walking.findPath(TILE_PRAYER_3).traverse();
+					if (Calculations.distanceTo(TILE_PRAYER_3) >= 2) {
+						Walking.findPath(TILE_PRAYER_2).traverse();
+						if (Calculations.distanceTo(TILE_PRAYER_2) >= 2) {
+							Walking.findPath(TILE_PRAYER_1).traverse();
+							if (Calculations.distanceTo(TILE_PRAYER_1) >= 2) {
+								Walking.findPath(TILE_GRAND_TREE).traverse();
+							}
+						}
+					}
+				}
+				if (spiritTreeGe != null && spiritTreeGe.isOnScreen()
+						&& spiritTreeGe.interact("Teleport")) {
 					final Timer SPIRIT_TREE_TIMER = new Timer(2500);
 					while (SPIRIT_TREE_TIMER.isRunning()
-							&& SPIRIT_TREE_GE != null) {
+							&& spiritTreeGe != null) {
 						Time.sleep(50);
 					}
 				}
-			} else if (!AREA_GE.contains(Players.getLocal().getLocation())) {
-				if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
-					log.info("You have the n00b varrock teleport. Walking to bank");
+			}
+			if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
+				log.info("You have the n00b varrock teleport. Walking to bank");
+				if (TILE_GRAND_BANK != null
+						&& Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
 					Walking.findPath(TILE_GRAND_BANK).traverse();
-					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
-						Time.sleep(50);
-					}
-					Camera.turnTo(TILE_GRAND_BANK);
 				}
+				Camera.turnTo(TILE_GRAND_BANK);
 				log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
 				stop();
 			}
-			final SceneObject SPIRIT_TREE_MAIN = SceneEntities
+			SceneObject SpiritTreeMain = SceneEntities
 					.getNearest(ID_SPIRITTREE_MAIN);
-			if (SPIRIT_TREE_MAIN != null
-					&& TILE_SPIRIT_MID.equals(Players.getLocal().getLocation())
-					&& SPIRIT_TREE_MAIN.isOnScreen()
-					&& SPIRIT_TREE_MAIN.interact("Teleport")) {
+			if (SpiritTreeMain != null
+					&& AREA_SPIRIT_MID.contains(Players.getLocal()
+							.getLocation()) && SpiritTreeMain.isOnScreen()
+					&& SpiritTreeMain.interact("Teleport")) {
 				final Timer SPIRIT_TREE_MAIN_TIMER = new Timer(2500);
-				while (SPIRIT_TREE_MAIN_TIMER.isRunning()
-						&& SPIRIT_TREE_MAIN != null) {
+				while (SpiritTreeMain != null
+						&& SPIRIT_TREE_MAIN_TIMER.isRunning()) {
 					Time.sleep(50);
 				}
-				Time.sleep(50);
-				if (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
-				} else {
-					log.info("Tree animation is not present. Something has gone turribly wrong!");
-				}
 				Time.sleep(50, 400);
+				final WidgetChild SPIRIT_TREE_INTERFACE = Widgets.get(864)
+						.getChild(6).getChild(0);
 				if (SPIRIT_TREE_INTERFACE.validate()
 						&& SPIRIT_TREE_INTERFACE.click(true)) {
 					final Timer SPIRIT_TREE_INTERFACE_TIMER = new Timer(2500);
@@ -290,127 +353,141 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							&& SPIRIT_TREE_INTERFACE_TIMER.isRunning()) {
 						Time.sleep(50);
 					}
-				}
-			} else if (!SPIRIT_TREE_MAIN.isOnScreen()) {
-				Camera.turnTo(SPIRIT_TREE_MAIN);
-			}
-			if (TILE_SPIRIT_END.equals(Players.getLocal().getLocation())) {
-				final SceneObject TREE_DOOR = SceneEntities
-						.getNearest(ID_TREEDOOR);
-				Walking.findPath(TILE_TREE_DOOR).traverse();
-				if (TREE_DOOR != null && TREE_DOOR.isOnScreen()
-						&& TREE_DOOR.interact("Open")) {
-					final Timer TREE_DOOR_TIMER = new Timer(2500);
-					while (TREE_DOOR != null && TREE_DOOR_TIMER.isRunning()) {
+					while (Players.getLocal().getAnimation() == ID_ANIMATION_TREE) {
 						Time.sleep(50);
 					}
 				}
+			} else if (SpiritTreeMain != null && !SpiritTreeMain.isOnScreen()) {
+				Camera.turnTo(SpiritTreeMain);
+				Time.sleep(Random.nextInt(500, 1000));
 			}
-			if (AREA_INSIDE_TREE_DOOR
+			SceneObject treeDoor = SceneEntities.getNearest(ID_TREEDOOR);
+			if (AREA_GNOME_STRONGHOLD
 					.contains(Players.getLocal().getLocation())) {
-				final SceneObject GNOME_LADDER = SceneEntities
-						.getNearest(ID_LADDER_GNOME);
-				if (GNOME_LADDER != null
-						&& Players.getLocal().getAnimation() == -1
-						&& GNOME_LADDER.interact("Climb-up")) {
-					final Timer GNOME_LADDER_TIMER = new Timer(2500);
-					while (GNOME_LADDER != null
-							&& GNOME_LADDER_TIMER.isRunning()) {
-						Time.sleep(50);
+				Walking.findPath(TILE_TREE_DOOR).traverse();
+			}
+			if (TILE_TREE_DOOR.equals(Players.getLocal().getLocation())
+					&& treeDoor != null && treeDoor.isOnScreen()
+					&& treeDoor.interact("Open")) {
+				final Timer TREE_DOOR_TIMER = new Timer(2500);
+				while (treeDoor != null && TREE_DOOR_TIMER.isRunning()) {
+					Time.sleep(50);
+				}
+				if (AREA_INSIDE_TREE_DOOR.contains(Players.getLocal()
+						.getLocation())) {
+					SceneObject gnomeLadder = SceneEntities
+							.getNearest(ID_LADDER_GNOME);
+					if (gnomeLadder != null
+							&& Players.getLocal().getAnimation() == -1
+							&& gnomeLadder.interact("Climb-up")) {
+						final Timer GNOME_LADDER_TIMER = new Timer(2500);
+						while (gnomeLadder != null
+								&& GNOME_LADDER_TIMER.isRunning()) {
+							Time.sleep(50);
+						}
+					} else if (!gnomeLadder.isOnScreen()) {
+						Camera.turnTo(gnomeLadder);
 					}
-				} else if (!GNOME_LADDER.isOnScreen()) {
-					Camera.turnTo(GNOME_LADDER);
 				}
 			}
-			if (TILE_GNOME_LADDER_MID.equals(Players.getLocal().getLocation())) {
+
+			if (AREA_GNOME_LEVEL_ONE.contains(Players.getLocal().getLocation())) {
 				Walking.findPath(TILE_TREE_DAERO).traverse();
-				final NPC DAERO = NPCs.getNearest(ID_NPC_DAERO);
-				if (DAERO != null && DAERO.isOnScreen()
-						&& DAERO.getAnimation() == -1
-						&& DAERO.interact("Travel")) {
+				NPC daero = NPCs.getNearest(ID_NPC_DAERO);
+				if (daero != null && daero.isOnScreen()
+						&& daero.interact("Travel")) {
 					final Timer DAERO_TIMER = new Timer(2500);
-					while (DAERO != null && DAERO_TIMER.isRunning()) {
+					while (daero != null && DAERO_TIMER.isRunning()) {
+						yesInterfaceClicker();
 						Time.sleep(50);
 					}
-				} else if (!DAERO.isOnScreen()) {
-					Camera.turnTo(DAERO);
+				} else if (!daero.isOnScreen()) {
+					Camera.turnTo(daero);
 				}
 			}
-			if (AREA_WAYDAR.contains(Players.getLocal().getLocation())) {
-				final NPC WAYDAR = NPCs.getNearest(ID_NPC_WAYDAR);
-				if (WAYDAR != null && WAYDAR.isOnScreen()
-						&& WAYDAR.getAnimation() == -1
-						&& WAYDAR.interact("Travel")) {
+			if (AREA_BLINDFOND_ZONE.contains(Players.getLocal().getLocation())) {
+				NPC waydar = NPCs.getNearest(ID_NPC_WAYDAR);
+				Walking.findPath(waydar).traverse();
+				if (waydar != null && waydar.isOnScreen()
+						&& waydar.getAnimation() == -1
+						&& waydar.interact("Travel")) {
 					final Timer WAYDAR_TIMER = new Timer(2500);
-					while (WAYDAR != null && WAYDAR_TIMER.isRunning()) {
+					while (waydar != null && WAYDAR_TIMER.isRunning()) {
 						yesInterfaceClicker();
 						Time.sleep(50);
 					}
-				} else if (!WAYDAR.isOnScreen()) {
-					Camera.turnTo(WAYDAR);
+				} else if (!waydar.isOnScreen()) {
+					Camera.turnTo(waydar);
 				}
 			}
-			if (AREA_LUMDO.contains(Players.getLocal().getLocation())) {
-				final NPC LUMDO = NPCs.getNearest(ID_NPC_LUMBO);
-				if (LUMDO != null && LUMDO.isOnScreen()
-						&& LUMDO.getAnimation() == -1
-						&& LUMDO.interact("Travel")) {
+			if (AREA_CRASH_ISLAND.contains(Players.getLocal().getLocation())) {
+				NPC lumdo = NPCs.getNearest(ID_NPC_LUMBO);
+				if (lumdo != null && lumdo.isOnScreen()
+						&& lumdo.getAnimation() == -1
+						&& lumdo.interact("Travel")) {
 					final Timer LUMDO_TIMER = new Timer(2500);
-					while (LUMDO != null && LUMDO_TIMER.isRunning()) {
+					while (lumdo != null && LUMDO_TIMER.isRunning()) {
 						yesInterfaceClicker();
 						Time.sleep(50);
 					}
-				} else if (!LUMDO.isOnScreen()) {
-					Camera.turnTo(LUMDO);
+				} else if (!lumdo.isOnScreen()) {
+					Camera.turnTo(lumdo);
 				}
 			}
-			if (TILE_APE_START.equals(Players.getLocal().getLocation())
+			if (AREA_APE_ATOLL.contains(Players.getLocal().getLocation())
 					&& usingGreegree) {
 				equipGreegree();
 				Walking.findPath(TILE_APE_LADDER_TOP).traverse();
-				Time.sleep(Random.nextInt(50, 125));
-				final SceneObject APE_ATOLL_LADDER = SceneEntities
+				SceneObject apeAtollLadder = SceneEntities
 						.getNearest(ID_LADDER_APE);
-				if (APE_ATOLL_LADDER != null
-						&& APE_ATOLL_LADDER.isOnScreen()
+				if (apeAtollLadder != null
+						&& apeAtollLadder.isOnScreen()
 						&& TILE_APE_LADDER_TOP.equals(Players.getLocal()
 								.getLocation())
-						&& APE_ATOLL_LADDER.interact("Climb-down")) {
+						&& apeAtollLadder.interact("Climb-down")) {
 					Timer APE_ATOLL_LADDER_TIMER = new Timer(2500);
-					while (APE_ATOLL_LADDER != null
+					while (apeAtollLadder != null
 							&& APE_ATOLL_LADDER_TIMER.isRunning()) {
 						Time.sleep(50);
 					}
-				} else if (!APE_ATOLL_LADDER.isOnScreen()) {
-					Camera.turnTo(APE_ATOLL_LADDER);
+				} else if (!apeAtollLadder.isOnScreen()) {
+					Camera.turnTo(apeAtollLadder);
 				}
-			} else if (TILE_APE_START.equals(Players.getLocal().getLocation())
+			} else if (AREA_APE_ATOLL
+					.contains(Players.getLocal().getLocation())
 					&& !usingGreegree) {
 				checkRun();
 			}
-			if (TILE_APE_LADDER_BOTTOM.equals(Players.getLocal().getLocation())) {
+			if (AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal()
+					.getLocation())) {
+				logWalkCode = 0;
 				checkRenewal();
 				Prayer.setQuick();
-				if (Calculations.distanceTo(TILE_CHIN_1) >= 5) {
-					Walking.findPath(TILE_CHIN_1).traverse();
-					while (Calculations.distanceTo(TILE_CHIN_1) >= 5) {
+				if (TILE_CHIN_1 != null
+						&& Calculations.distanceTo(TILE_CHIN_1) >= 5) {
+					if (Calculations.distanceTo(TILE_CHIN_1) >= 5) {
+						Walking.findPath(TILE_CHIN_1).traverse();
 						Time.sleep(50);
 					}
-				} else if (Calculations.distanceTo(TILE_CHIN_1) <= 5) {
-					if (tileContainsTwoOrMore(TILE_CHIN_1)
+				} else if (TILE_CHIN_1 != null
+						&& Calculations.distanceTo(TILE_CHIN_1) <= 5) {
+					if (TILE_CHIN_2 != null
+							&& tileContainsTwoOrMore(TILE_CHIN_1)
 							&& Calculations.distanceTo(TILE_CHIN_2) >= 5) {
-						Walking.findPath(TILE_CHIN_2).traverse();
-						while (Calculations.distanceTo(TILE_CHIN_2) >= 5) {
+						if (Calculations.distanceTo(TILE_CHIN_2) >= 5) {
+							Walking.findPath(TILE_CHIN_2).traverse();
 							Time.sleep(50);
 						}
 					} else if (Calculations.distanceTo(TILE_CHIN_2) <= 5) {
-						if (tileContainsTwoOrMore(TILE_CHIN_2)
+						if (TILE_CHIN_3 != null
+								&& tileContainsTwoOrMore(TILE_CHIN_2)
 								&& Calculations.distanceTo(TILE_CHIN_3) >= 5) {
-							Walking.findPath(TILE_CHIN_3).traverse();
-							while (Calculations.distanceTo(TILE_CHIN_3) >= 5) {
+							if (Calculations.distanceTo(TILE_CHIN_3) >= 5) {
+								Walking.findPath(TILE_CHIN_3).traverse();
 								Time.sleep(50);
 							}
-						} else if (Calculations.distanceTo(TILE_CHIN_3) <= 5) {
+						} else if (AREA_CHIN_3_4 != null
+								&& Calculations.distanceTo(TILE_CHIN_3) <= 5) {
 							if (areaContainsTwoOrMore(AREA_CHIN_3_4)) {
 								changeWorlds();
 							}
@@ -448,19 +525,26 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			}
 			int antiPoisonData = 0;
 			for (Item y : Inventory.getItems()) {
-				for (int x : antipoisonUser) {
+				for (int x : ANTIPOISON_ALL) {
 					if (y.getId() == x) {
 						antiPoisonData++;
 					}
 				}
 			}
-			return AREA_GE.contains(Players.getLocal().getLocation())
-					&& !isPoisoned() && Inventory.getCount(foodUser) >= 1
-					&& flaskRenewalCountData == 3 && prayerPotCountData == 18
-					&& rangingFlaskData == 3 && antiPoisonData == 1
-					&& TAB_VARROCK > 0 && chinNumber >= 500
-					&& !CHIN_ARRAY.equals(Players.getLocal().getLocation())
-					&& START_SCRIPT && Game.isLoggedIn();
+			return !AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal()
+					.getLocation())
+					&& !isPoisoned()
+					&& Inventory.getCount(foodUser) >= 1
+					&& flaskRenewalCountData == 3
+					&& prayerPotCountData == 18
+					&& rangingFlaskData == 3
+					&& antiPoisonData == 1
+					&& TAB_VARROCK > 0
+					&& chinNumber >= 500
+					&& !AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal()
+							.getLocation())
+					&& START_SCRIPT
+					&& Game.isLoggedIn();
 		}
 	}
 
@@ -469,6 +553,10 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
+			if (logAttackCode == 0) {
+				log.info("Running attack code");
+				logAttackCode++;
+			}
 			log.info("Running attack code");
 			final Item RANGE_POT_ITEM = Inventory.getItem(FLASK_RANGING);
 			final int REAL_RANGE = Skills.getRealLevel(Skills.RANGE);
@@ -528,6 +616,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			if (Inventory.getItem() == VIAL) {
 				VIAL.getWidgetChild().interact("Drop");
 			}
+			logAttackCode = 0;
 		}
 
 		@Override
@@ -549,195 +638,191 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private class Banking extends Strategy implements Runnable {
-		final Item ANTIPOISON_ITEM = Bank.getItem(new Filter<Item>() {
-			@Override
-			public boolean accept(final Item l) {
-				for (int id : antipoisonUser) {
-					if (l.getId() == id)
-						return true;
-				}
-				return false;
-			}
-		});
-		final Item GREEGREE_ITEM = Bank.getItem(new Filter<Item>() {
-			@Override
-			public boolean accept(final Item m) {
-				for (int id : GREEGREE_IDS) {
-					if (m.getId() == id)
-						return true;
-				}
-				return false;
-			}
-		});
-		final Item RANGE_FLASK_ITEM = Bank.getItem(new Filter<Item>() {
-			@Override
-			public boolean accept(final Item n) {
-				for (int id : FLASK_RANGING) {
-					if (n.getId() == id)
-						return true;
-				}
-				return false;
-			}
-		});
-		final Item PRAYER_RENEWAL_FLASK_ITEM = Bank.getItem(new Filter<Item>() {
-			@Override
-			public boolean accept(final Item p) {
-				for (int id : FLASK_PRAYER_RENEWAL) {
-					if (p.getId() == id)
-						return true;
-				}
-				return false;
-			}
-		});
-
 		@Override
 		public void run() {
-			log.info("Running banking code");
-			if (!AREA_GE.contains(Players.getLocal().getLocation())) {
-				if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
-					log.info("You have the n00b varrock teleport. Walking to bank");
-					Walking.findPath(TILE_GRAND_BANK).traverse();
-					while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
-						Time.sleep(50);
+			if (logBankingCode == 0) {
+				log.info("Running banking code");
+				logBankingCode++;
+			}
+			final Item GREEGREE_ITEM = Bank.getItem(new Filter<Item>() {
+				@Override
+				public boolean accept(final Item m) {
+					for (int id : GREEGREE_IDS) {
+						if (m.getId() == id)
+							return true;
 					}
-					Camera.turnTo(TILE_GRAND_BANK);
-					log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
+					return false;
+				}
+			});
+			final Item PRAYER_RENEWAL_FLASK_ITEM = Bank
+					.getItem(new Filter<Item>() {
+						@Override
+						public boolean accept(final Item p) {
+							for (int id : FLASK_PRAYER_RENEWAL) {
+								if (p.getId() == id)
+									return true;
+							}
+							return false;
+						}
+					});
+
+			if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
+				log.info("You have the n00b varrock teleport. Walking to bank");
+			}
+			if (TILE_GRAND_BANK != null
+					&& Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
+				Walking.findPath(TILE_GRAND_BANK).traverse();
+			}
+			Camera.turnTo(TILE_GRAND_BANK);
+			if (!AREA_GE.contains(Players.getLocal().getLocation())
+					&& !AREA_GRAND_TELE.contains(Players.getLocal()
+							.getLocation()) && Inventory.getCount(tab) >= 1) {
+				doBreakTab();
+			}
+			checkRun();
+			if (!Bank.open()) {
+				Bank.open();
+			}
+			Time.sleep(Random.nextInt(500, 700));
+			if (chinNumber < 2000 && Bank.isOpen()) {
+				if (chinNumber == 0) {
+					log.info("NO chins detected. This means that you haven't set up your equipment right. Check it and try again!");
+					stop();
+					Game.logout(true);
+				}
+				if (chinNumber < 2000 && Bank.withdraw(10034, 2000)) {
+					Time.sleep(80);
+					Bank.close();
+					if (!Bank.isOpen()) {
+						log.info("Recalculating chin count");
+						chinNumber = Equipment.getItem(10034).getStackSize();
+					}
+				} else if (Bank.getItem(10034).getStackSize() <= 1500
+						&& chinNumber < 2000) {
+					log.info("Not enough chins to continue! Shutting down...");
+					Game.logout(true);
 					stop();
 				}
-			} else {
-				Walking.findPath(TILE_GRAND_BANK).traverse();
-				while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
-					Time.sleep(50);
-				}
-				Camera.turnTo(TILE_GRAND_BANK);
-				if (!AREA_GE.contains(Players.getLocal().getLocation())
-						&& !AREA_GRAND_TELE.contains(Players.getLocal()
-								.getLocation()) && Inventory.getCount(tab) >= 1) {
-					doBreakTab();
-				}
-				checkRun();
-				if (!Bank.open()) {
-					Bank.open();
-				}
-				Time.sleep(Random.nextInt(500, 700));
-				if (chinNumber <= 2000 && Bank.isOpen()) {
-					if (chinNumber == 0) {
-						log.info("NO chins detected. This means that you haven't set up your equipment right. Check it and try again!");
-						stop();
-						Game.logout(true);
-					}
-					if (chinNumber <= 2000 && Bank.withdraw(10034, 2000)) {
-						Time.sleep(50);
-					} else if (Bank.getItemCount(10034) <= 1500
-							&& chinNumber <= 2000) {
-						log.info("Not enough chins to continue! Shutting down...");
-						Game.logout(true);
-						stop();
-					}
-					if (Bank.close()) {
-						if (Inventory.getCount(10034) >= 0) {
-							Item chinItem = Inventory.getItem(10034);
-							chinItem.getWidgetChild().click(true);
-							if (Inventory.getCount(10034) < 1) {
-								log.severe("d");
-								chinNumber = Equipment.getItem(10034)
-										.getStackSize();
-							}
+				if (Bank.close()) {
+					if (Inventory.getCount(10034) >= 0) {
+						Item chinItem = Inventory.getItem(10034);
+						chinItem.getWidgetChild().click(true);
+						if (Inventory.getCount(10034) < 1) {
+							chinNumber = Equipment.getItem(10034)
+									.getStackSize();
 						}
 					}
 				}
-				if (usingGreegree) {
-					log.info("Selected use a greegree, banking accordingly");
-					if (Inventory.getCount() == 28
-							&& Inventory.getCount(foodUser) < 1) {
-						log.info("Supplies are done wrong, restarting...");
-						Bank.depositInventory();
+			}
+			if (usingGreegree) {
+				log.info("Selected use a greegree, banking accordingly");
+				if (Inventory.getCount() == 28
+						&& Inventory.getCount(foodUser) < 1) {
+					log.info("Supplies are done wrong, restarting...");
+					Bank.depositInventory();
+				}
+				if (Inventory.getCount(foodUser) == 0
+						&& Bank.getItemCount(foodUser) >= 1) {
+					Bank.withdraw(foodUser, 1);
+					Time.sleep(80);
+					if (Inventory.getCount(foodUser) != 0) {
+						log.severe("Food withdrawn");
 					}
-					if (Inventory.getCount(foodUser) == 0
-							&& Bank.getItemCount(foodUser) >= 1) {
-						Bank.withdraw(foodUser, 1);
-						if (Inventory.getCount(foodUser) != 0) {
-							log.severe("Food withdrawn");
-						}
+				} else if (Bank.getItem(foodUser).getStackSize() <= 1
+						&& Inventory.getCount(foodUser) < 1) {
+					log.severe("Food isn't present, shutting down...");
+					Bank.close();
+					Game.logout(true);
+					stop();
+				}
+				if (GREEGREE_ITEM != null
+						&& Inventory.getCount(GREEGREE_ITEM.getId()) == 0
+						&& usingGreegree
+						&& Bank.getItemCount(GREEGREE_ITEM.getId()) >= 1) {
+					Bank.withdraw(GREEGREE_ITEM.getId(), 1);
+					Time.sleep(80);
+					if (Inventory.getCount(GREEGREE_ITEM.getId()) != 0) {
+						log.severe("Greegree withdrawn");
 					}
-					if (Inventory.getCount(GREEGREE_ITEM.getId()) == 0
-							&& usingGreegree
-							&& Bank.getItemCount(GREEGREE_ITEM.getId()) >= 1) {
-						Bank.withdraw(GREEGREE_ITEM.getId(), 1);
-						if (Inventory.getCount(GREEGREE_ITEM.getId()) != 0) {
-							log.severe("Greegree withdrawn");
-						}
-					} else if (Bank.getItemCount(GREEGREE_ITEM.getId()) == 0
-							&& usingGreegree
-							&& Inventory.getCount(GREEGREE_ITEM.getId()) == 0) {
-						log.info("No greegree is present. Shutting down...");
-						Game.logout(true);
-						stop();
-					}
-					if (!usingGreegree) {
-						log.info("Selected not to use a greegree, banking accordingly");
-					}
-					if (Inventory.getCount(POT_PRAYER_DOSE_4) == 0) {
-						Bank.withdraw(POT_PRAYER_DOSE_4, 18);
-						if (Inventory.getCount(POT_PRAYER_DOSE_4) != 0) {
-							log.severe("Prayer pots withdrawn");
-						} else if (Bank.getItemCount(POT_PRAYER_DOSE_4) < 18
-								&& Inventory.getCount(POT_PRAYER_DOSE_4) < 18) {
-							log.info("Not enough prayer pots. Shutting down...");
-							Game.logout(true);
-							stop();
-						}
-					}
-					if (Inventory.getCount(ANTIPOISON_ITEM.getId()) == 0
-							&& Bank.getItemCount(ANTIPOISON_ITEM.getId()) > 0) {
-						Bank.withdraw(ANTIPOISON_ITEM.getId(), 1);
-						if (Inventory.getCount(ANTIPOISON_ITEM.getId()) != 0) {
-							log.severe("Antipoison withdrawn");
-						} else if (Bank.getItemCount(ANTIPOISON_ITEM.getId()) < 1
-								&& Inventory.getCount(ANTIPOISON_ITEM.getId()) < 1) {
-							log.info("Not enough antipoison. Shutting down...");
-							Game.logout(true);
-							stop();
-						}
-					}
-					if (Inventory.getCount(TAB_VARROCK) == 0
-							&& Bank.getItemCount(TAB_VARROCK) > 0) {
-						Bank.withdraw(TAB_VARROCK, 1);
-						if (Inventory.getCount(TAB_VARROCK) != 0) {
-							log.severe("Varrock tab withdrawn");
-						} else if (Bank.getItemCount(TAB_VARROCK) == 0
-								&& Inventory.getCount(TAB_VARROCK) < 1) {
-							log.info("Not enough tabs. Shutting down...");
-							Game.logout(true);
-							stop();
-						}
-					}
-					if (Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM.getId()) == 0) {
-						Bank.withdraw(PRAYER_RENEWAL_FLASK_ITEM.getId(), 3);
-						if (Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM
-								.getId()) != 0) {
-							log.severe("Renewal flasks withdrawn");
-						} else if (Bank.getItemCount(PRAYER_RENEWAL_FLASK_ITEM
-								.getId()) < 3
-								&& Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM
-										.getId()) < 3) {
-							log.info("Not enough prayer renewal flasks. Shutting down...");
-							Game.logout(true);
-							stop();
-						}
-					}
-					if (Inventory.getCount(RANGE_FLASK_ITEM.getId()) == 0) {
-						Bank.withdraw(RANGE_FLASK_ITEM.getId(), 3);
-						if (Inventory.getCount(RANGE_FLASK_ITEM.getId()) != 0) {
-							log.severe("Range flasks withdrawn");
-						} else if (Bank.getItemCount(RANGE_FLASK_ITEM.getId()) < 3
-								&& Inventory.getCount(RANGE_FLASK_ITEM.getId()) < 3) {
-							log.info("Not enough ranged flasks. Shutting down...");
-							Game.logout(true);
-							stop();
-						}
+				} else if (Bank.getItemCount(GREEGREE_ITEM.getId()) == 0
+						&& usingGreegree
+						&& Inventory.getCount(GREEGREE_ITEM.getId()) == 0) {
+					log.info("No greegree is present. Shutting down...");
+					Bank.close();
+					Game.logout(true);
+					stop();
+				}
+				if (!usingGreegree) {
+					log.info("Selected not to use a greegree, banking accordingly");
+				}
+				if (Inventory.getCount(POT_PRAYER_DOSE_4) == 0) {
+					Bank.withdraw(POT_PRAYER_DOSE_4, 18);
+					Time.sleep(80);
+					if (Inventory.getCount(POT_PRAYER_DOSE_4) != 0) {
+						log.severe("Prayer pots withdrawn");
+					} else if (Bank.getItem(POT_PRAYER_DOSE_4).getStackSize() < 18
+							&& Inventory.getCount(POT_PRAYER_DOSE_4) < 18) {
+						log.info("Not enough prayer pots. Shutting down... ");
 						Bank.close();
+						Game.logout(true);
+						stop();
 					}
+				}
+				if (Inventory.getCount(antipoisonUser) == 0
+						&& Bank.getItemCount(antipoisonUser) > 0) {
+					Bank.withdraw(antipoisonUser, 1);
+					Time.sleep(80);
+					if (Inventory.getCount(antipoisonUser) != 0) {
+						log.severe("Antipoison withdrawn");
+					} else if (Bank.getItem(antipoisonUser).getStackSize() < 1
+							&& Inventory.getCount(antipoisonUser) < 1) {
+						log.info("Not enough antipoison. Shutting down...");
+						Bank.close();
+						Game.logout(true);
+						stop();
+					}
+				}
+				if (Inventory.getCount(TAB_VARROCK) == 0
+						&& Bank.getItemCount(TAB_VARROCK) > 0) {
+					Bank.withdraw(TAB_VARROCK, 1);
+					Time.sleep(80);
+					if (Inventory.getCount(TAB_VARROCK) != 0) {
+						log.severe("Varrock tab withdrawn");
+					} else if (Bank.getItem(TAB_VARROCK).getStackSize() == 0
+							&& Inventory.getCount(TAB_VARROCK) < 1) {
+						log.info("Not enough tabs. Shutting down...");
+						Bank.close();
+						Game.logout(true);
+						stop();
+					}
+				}
+				if (Inventory.getCount(FLASK_PRAYER_RENEWAL_FULL) == 0) {
+					Bank.withdraw(FLASK_PRAYER_RENEWAL_FULL, 3);
+					Time.sleep(80);
+					if (Inventory.getCount(PRAYER_RENEWAL_FLASK_ITEM.getId()) != 0) {
+						log.severe("Renewal flasks withdrawn");
+					} else if (Bank.getItem(FLASK_PRAYER_RENEWAL_FULL)
+							.getStackSize() < 3
+							&& Inventory.getCount(FLASK_PRAYER_RENEWAL_FULL) < 3) {
+						log.info("Not enough prayer renewal flasks. Shutting down...");
+						Bank.close();
+						Game.logout(true);
+						stop();
+					}
+				}
+				if (Inventory.getCount(FLASK_RANGING_FULL) == 0) {
+					Bank.withdraw(FLASK_RANGING_FULL, 3);
+					Time.sleep(80);
+					if (Inventory.getCount(FLASK_RANGING_FULL) != 0) {
+						log.severe("Range flasks withdrawn");
+					} else if (Bank.getItem(FLASK_RANGING_FULL).getStackSize() < 3
+							&& Inventory.getCount(FLASK_RANGING_FULL) < 3) {
+						log.info("Not enough ranged flasks. Shutting down...");
+						Bank.close();
+						Game.logout(true);
+						stop();
+					}
+					Bank.close();
 				}
 			}
 			if (Players.getLocal().getHpPercent() <= 70) {
@@ -754,21 +839,25 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					Time.sleep(Random.nextInt(900, 1200));
 				}
 			}
+			logBankingCode = 0;
 		}
 
 		@Override
 		public boolean validate() {
 			int antipoisonData = 0;
 			for (Item y : Inventory.getItems()) {
-				for (int x : antipoisonUser) {
+				for (int x : ANTIPOISON_ALL) {
 					if (y.getId() == x) {
 						antipoisonData++;
 					}
 				}
 			}
-			return (Inventory.getCount(POT_PRAYER) <= 1 || chinNumber <= 100
-					|| isPoisoned() && antipoisonData == 0 || Players
-					.getLocal().getHpPercent() <= 25)
+			return (Inventory.getCount(POT_PRAYER) <= 1 && START_SCRIPT
+					&& Game.isLoggedIn() || chinNumber <= 100 && START_SCRIPT
+					&& Game.isLoggedIn() || isPoisoned() && antipoisonData == 0
+					&& START_SCRIPT && Game.isLoggedIn() || Players.getLocal()
+					.getHpPercent() <= 25)
+					|| Inventory.getCount(TAB_VARROCK) == 0
 					&& START_SCRIPT
 					&& Game.isLoggedIn();
 		}
@@ -911,10 +1000,9 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void equipGreegree() {
-		log.info("Running equipGreegree code");
-		final Item GREEGREE = Inventory.getItem(GREEGREE_IDS);
-		if (GREEGREE != null && GREEGREE.getWidgetChild().interact("Equip")) {
-			final int ID = GREEGREE.getId();
+		Item greegree = Inventory.getItem(GREEGREE_IDS);
+		if (greegree != null && greegree.getWidgetChild().click(true)) {
+			final int ID = greegree.getId();
 			final int COUNT = Inventory.getCount(ID);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(ID) == COUNT) {
@@ -923,34 +1011,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		}
 	}
 
-	private static void doChargePrayer() {
-		final SceneObject VARROCK_ALTAR = SceneEntities
-				.getNearest(ID_ALTAR_VARROCK);
-		Logger.getLogger("EpicsChins").info("Running doChargePrayer code");
-		if (Prayer.getPoints() < 300) {
-			Logger.getLogger("EpicsChins").info(
-					"Prayer is low, let's go charge up before we head out.");
-			Walking.findPath(TILE_PRAYER).traverse();
-			if (VARROCK_ALTAR != null && VARROCK_ALTAR.isOnScreen()) {
-				Camera.turnTo(VARROCK_ALTAR);
-				Time.sleep(Random.nextInt(20, 50));
-				VARROCK_ALTAR.click(true);
-				if (Players.getLocal().getAnimation() == ID_ANIMATION_PRAY) {
-					Time.sleep(100, 400);
-				}
-				if (Players.getLocal().getPrayerIcon() == 100) {
-					Logger.getLogger("EpicsChins").info(
-							"All charged up, let's get going.");
-				}
-			} else {
-				Logger.getLogger("EpicsChins")
-						.info("Can't find the altar, we'll proceed without charging up I suppose...");
-			}
-		}
-	}
-
 	private static void doPreEat(final Item item, Item item2) {
-		Logger.getLogger("EpicsChins").info("Running doPreEat code");
 		if (Players.getLocal().getHpPercent() < 30) {
 			Walking.findPath(TILE_GRAND_BANK).traverse();
 			while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
@@ -1053,9 +1114,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	}
 
 	private void yesInterfaceClicker() {
-		Logger.getLogger("EpicsChins").info("Running yesInterfaceClicker code");
 		final WidgetChild YES_INTERFACE = Widgets.get(1188, 3);
-		if (YES_INTERFACE.validate() && YES_INTERFACE.click(true)) {
+		if (YES_INTERFACE.isOnScreen() && YES_INTERFACE.click(true)) {
 			final Timer YES_INTERFACE_TIMER = new Timer(2500);
 			while (YES_INTERFACE != null && YES_INTERFACE_TIMER.isRunning()) {
 				Time.sleep(50);
@@ -1256,31 +1316,31 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						stop();
 					}
 					if (USER_ANTIPOISON.equals("Super antipoison flask")) {
-						antipoisonUser = FLASK_ANTIPOISON_SUPER;
+						antipoisonUser = FLASK_ANTIPOISON_SUPER_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison++ flask")) {
-						antipoisonUser = FLASK_ANTIPOISON_PLUSPLUS;
+						antipoisonUser = FLASK_ANTIPOISON_PLUSPLUS_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison+ flask")) {
-						antipoisonUser = FLASK_ANTIPOISON_PLUS;
+						antipoisonUser = FLASK_ANTIPOISON_PLUS_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison Flask")) {
-						antipoisonUser = FLASK_ANTIPOISON;
+						antipoisonUser = FLASK_ANTIPOISON_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Super Antipoison")) {
-						antipoisonUser = POT_ANTIPOISON_SUPER;
+						antipoisonUser = POT_ANTIPOISON_SUPER_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison++")) {
-						antipoisonUser = POT_ANTIPOISON_PLUSPLUS;
+						antipoisonUser = POT_ANTIPOISON_PLUSPLUS_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison+")) {
-						antipoisonUser = POT_ANTIPOISON_PLUS;
+						antipoisonUser = POT_ANTIPOISON_PLUS_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison")) {
-						antipoisonUser = POT_ANTIPOISON;
+						antipoisonUser = POT_ANTIPOISON_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison mix")) {
-						antipoisonUser = MIX_ANTIPOISON;
+						antipoisonUser = MIX_ANTIPOISON_FULL;
 					}
 					if (USER_ANTIPOISON.equals("Antipoison elixir")) {
 						antipoisonUser = ELIXIR_ANTIPOISON;
