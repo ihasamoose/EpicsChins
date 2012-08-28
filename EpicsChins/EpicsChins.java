@@ -61,6 +61,7 @@ import org.powerbot.game.api.wrappers.node.Item;
 import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.wrappers.widget.WidgetChild;
 import org.powerbot.game.bot.Context;
+import org.powerbot.game.bot.event.MessageEvent;
 import org.powerbot.game.bot.event.listener.PaintListener;
 
 @Manifest(authors = { "Epics" }, name = "Epics Chinner", description = "Kills chins and banks when necessary.", version = 0.1)
@@ -72,6 +73,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private int foodUser = 0; // user selected food
 	private int antipoisonUser = 0; // user selected Antipoison
 	private boolean usingGreegree, START_SCRIPT, SHOWPAINT, runCheck = true;
+	private boolean moveNeeded = false;
 	String version = " v0.1";
 	// Paint variables
 	private long startTime;
@@ -102,26 +104,24 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			97, 99, 100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137,
 			138, 139 };
 	// Path details
-	public final static Area AREA_GE = new Area(new Tile(3135, 3464, 0),
-			new Tile(3203, 3516, 0));
-	private final static Area AREA_BLINDFOND_ZONE = new Area(new Tile(2660,
-			4501, 0), new Tile(2641, 4531, 0));
-	private final static Area AREA_CRASH_ISLAND = new Area(new Tile(2880, 2735,
-			0), new Tile(2903, 2711, 0));
-	private final static Area AREA_INSIDE_TREE_DOOR = new Area(new Tile(2466,
-			3493, 0), new Tile(2465, 3495, 0));
-	private final static Area AREA_GRAND_TELE = new Area(
-			new Tile(3208, 3429, 0), new Tile(2316, 3421, 0));
-	private final static Area AREA_SPIRIT_MID = new Area(
-			new Tile(2544, 3172, 0), new Tile(2541, 3167, 0));
-	private final static Area AREA_GNOME_STRONGHOLD = new Area(new Tile(2470,
-			3440, 0), new Tile(2457, 3492, 0));
-	private final static Area AREA_APE_ATOLL = new Area(
-			new Tile(2809, 2690, 0), new Tile(2753, 2718, 0));
-	private final static Area AREA_GNOME_LEVEL_ONE = new Area(new Tile(2490,
-			3478, 1), new Tile(2440, 3512, 1));
-	public final static Area AREA_APE_ATOLL_DUNGEON = new Area(new Tile(2805,
-			9144, 0), new Tile(2704, 9043, 0));
+	private final static Tile[] PATH_TO_PRAYER_FROM_GE = {
+			new Tile(3185, 3492, 0), new Tile(3197, 3480, 0),
+			new Tile(3196, 3462, 0), new Tile(3216, 3464, 0),
+			new Tile(3233, 3466, 0), new Tile(3245, 3480, 0) };
+	private final static Tile[] PATH_TO_PRAYER_FROM_TELE = {
+			new Tile(3216, 3464, 0), new Tile(3233, 3466, 0),
+			new Tile(3245, 3480, 0) };
+	private final static Tile[] PATH_TO_CHIN_TILE_1 = {
+			new Tile(2770, 9120, 0), new Tile(2758, 9133, 0),
+			new Tile(2740, 9137, 0), new Tile(2722, 9140, 0),
+			new Tile(2714, 9138, 0) };
+	private final static Tile[] PATH_TO_CHIN_TILE_2 = {
+			new Tile(2731, 9130, 0), new Tile(2744, 9125, 0) };
+	private final static Tile[] PATH_TO_CHIN_TILE_3 = {
+			new Tile(2743, 9120, 0), new Tile(2738, 9120, 0),
+			new Tile(2737, 9121, 0), new Tile(2720, 9118, 0) };
+	private final static Tile[] PATH_TO_BANK_TILE = { new Tile(3205, 3440, 0),
+			new Tile(3191, 3451, 0), new Tile(3175, 3459, 0) };
 	private final static Tile TILE_GRAND_BANK = new Tile(3181, 3502, 0);
 	private final static Tile TILE_GRAND_TREE = new Tile(3185, 3508, 0);
 	private final static Tile TILE_APE_LADDER_TOP = new Tile(2764, 2703, 0);
@@ -132,13 +132,31 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 	private final static Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
 	private final static Tile TILE_TREE_DAERO = new Tile(2480, 3488, 1);
 	private final static Tile TILE_PRAYER = new Tile(3253, 3485, 0);
-	private final static Tile TILE_PRAYER_3 = new Tile(3245, 3464, 0);
-	private final static Tile TILE_PRAYER_2 = new Tile(3217, 3465, 0);
-	private final static Tile TILE_PRAYER_1 = new Tile(3197, 3484, 0);
+	private final static Tile TILE_MOVE_1 = new Tile(2713, 9119, 0);
 	private final static Area AREA_CHIN_3_4 = new Area(new Tile(2709, 9116, 0),
 			new Tile(2701, 9111, 0));
-	private final Tile[] CHIN_ARRAY = { TILE_CHIN_1, TILE_CHIN_2, TILE_CHIN_3,
-			TILE_CHIN_4 };
+	public final static Area AREA_GE = new Area(new Tile(3135, 3464, 0),
+			new Tile(3203, 3516, 0));
+	private final static Area AREA_BLINDFOND_ZONE = new Area(new Tile(2660,
+			4501, 0), new Tile(2641, 4531, 0));
+	private final static Area AREA_CRASH_ISLAND = new Area(new Tile(2880, 2735,
+			0), new Tile(2903, 2711, 0));
+	private final static Area AREA_INSIDE_TREE_DOOR = new Area(new Tile(2466,
+			3493, 0), new Tile(2465, 3495, 0));
+	private final static Area AREA_GRAND_TELE = new Area(
+			new Tile(3208, 3430, 0), new Tile(3217, 2422, 0));
+	private final static Area AREA_SPIRIT_MID = new Area(
+			new Tile(2544, 3172, 0), new Tile(2541, 3167, 0));
+	private final static Area AREA_GNOME_STRONGHOLD = new Area(new Tile(2470,
+			3440, 0), new Tile(2457, 3492, 0));
+	private final static Area AREA_APE_ATOLL = new Area(
+			new Tile(2809, 2690, 0), new Tile(2753, 2718, 0));
+	private final static Area AREA_GNOME_LEVEL_ONE = new Area(new Tile(2490,
+			3478, 1), new Tile(2440, 3512, 1));
+	public final static Area AREA_APE_ATOLL_DUNGEON = new Area(new Tile(2805,
+			9144, 0), new Tile(2704, 9043, 0));
+	private final static Tile[] CHIN_ARRAY = { TILE_CHIN_1, TILE_CHIN_2,
+			TILE_CHIN_3, TILE_CHIN_4 };
 	// GREEGREE_IDS IDs
 	private final static int[] GREEGREE_IDS = { 4031, 4024, 4025, 40256, 4027,
 			4028, 4029, 4030 };
@@ -222,13 +240,27 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 
 		@Override
 		public void run() {
+			final Item GREEGREE_ITEM = Bank.getItem(new Filter<Item>() {
+				@Override
+				public boolean accept(final Item m) {
+					for (int id : GREEGREE_IDS) {
+						if (m.getId() == id)
+							return true;
+					}
+					return false;
+				}
+			});
 			log.info("Running checks to get current count of chins and make sure autoretaliate is on!");
-			chinNumber = Equipment.getItem(10034).getStackSize();// TODO fix it
-																	// when a
-																	// greegree
-																	// is being
-																	// used
-			log.info("Number of chins equipped: " + String.valueOf(chinNumber));
+			if (Equipment.getItem(10034) != null) {
+				chinNumber = Equipment.getItem(10034).getStackSize();
+				log.info("Number of chins equipped: "
+						+ String.valueOf(chinNumber));
+			} else if (Equipment.getItem(GREEGREE_ITEM.getId()) != null) {
+				log.info("Using greegree, counting chins in inventory...");
+				chinNumber = Inventory.getItem(10034).getStackSize();
+				log.info("Number of chins in inventory: "
+						+ String.valueOf(chinNumber));
+			}
 
 			if (Tabs.ATTACK.open()) {
 				if (Settings.get(172) != 0) {
@@ -246,7 +278,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		@Override
 		public boolean validate() {
 			return runCheck && START_SCRIPT && Game.isLoggedIn();
-		}// TODO getInteracting vs isInCombat
+		}
 	}
 
 	private class RunToChins extends Strategy implements Runnable {
@@ -264,20 +296,72 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				final Item PRAYER_POT = Inventory.getItem(POT_PRAYER_DOSE_4);
 				checkRun();
 				doPreEat(FOOD, PRAYER_POT);
-				while (Prayer.getPoints() < Skills.getRealLevel(Skills.PRAYER)
-						* 10 - (0.3 * (Skills.getRealLevel(Skills.PRAYER)))) {
+				if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {// TODO
+					log.info("You have the n00b varrock teleport. Walking to bank");
+					if (TILE_GRAND_BANK != null) {
+						while (Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
+							Walking.findPath(TILE_GRAND_BANK).traverse();
+						}
+					}
+					if (TILE_GRAND_BANK == null) {
+						Walking.newTilePath(PATH_TO_BANK_TILE).traverse();
+						while (TILE_GRAND_BANK != null
+								&& Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
+							Walking.findPath(TILE_GRAND_BANK).traverse();
+						}
+					}
+					Camera.turnTo(TILE_GRAND_BANK);
+					log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
+					stop();
+				}
+				double PRAYER_POINTS = (Skills.getRealLevel(Skills.PRAYER));
+				double PRAYER_DIFFERENCE = (PRAYER_POINTS * 0.3);
+				if (PRAYER_DIFFERENCE < PRAYER_POINTS) {
 					if (logWalkCode == 1) {
 						log.info("Prayer is low, let's go charge up before we head out.");
 						logWalkCode++;
 					}
+					if (AREA_GE.contains(Players.getLocal().getLocation())) {
+						Walking.newTilePath(PATH_TO_PRAYER_FROM_GE).traverse();
+						if (TILE_PRAYER == null) {
+							Walking.newTilePath(PATH_TO_PRAYER_FROM_GE)
+									.traverse();
+						}
+						if (TILE_PRAYER != null) {
+							while (Calculations.distanceTo(TILE_PRAYER) >= 5) {
+								Walking.findPath(TILE_PRAYER).traverse();
+							}
+						}
+					} else if (AREA_GRAND_TELE.contains(Players.getLocal()
+							.getLocation())) {
+						if (TILE_PRAYER == null) {
+							Walking.newTilePath(PATH_TO_PRAYER_FROM_TELE)
+									.traverse();
+						}
+						if (TILE_PRAYER != null) {
+							while (Calculations.distanceTo(TILE_PRAYER) >= 5) {
+								Walking.findPath(TILE_PRAYER).traverse();
+							}
+						}
+					} else if (!AREA_GRAND_TELE.contains(Players.getLocal()
+							.getLocation())
+							&& !AREA_GE.contains(Players.getLocal()
+									.getLocation())) {
+						if (TILE_PRAYER == null) {
+							Walking.newTilePath(PATH_TO_PRAYER_FROM_GE)
+									.traverse();
+						}
+						if (TILE_PRAYER != null) {
+							while (Calculations.distanceTo(TILE_PRAYER) >= 5) {
+								Walking.findPath(TILE_PRAYER).traverse();
+							}
+						}
+					}
 					if (TILE_PRAYER != null
-							&& Calculations.distanceTo(TILE_PRAYER) >= 2) {
-						Walking.findPath(TILE_PRAYER).traverse();
+							&& Calculations.distanceTo(TILE_PRAYER) <= 5) {
 						SceneObject varrockAltar = SceneEntities
 								.getNearest(ID_ALTAR_VARROCK);
 						if (varrockAltar != null && varrockAltar.isOnScreen()) {
-							Camera.turnTo(varrockAltar);
-							Time.sleep(Random.nextInt(20, 50));
 							varrockAltar.click(true);
 							if (Players.getLocal().getAnimation() == ID_ANIMATION_PRAY) {
 								Time.sleep(100, 400);
@@ -286,51 +370,30 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 									.getRealLevel(Skills.PRAYER) * 10)) {
 								log.info("All charged up, let's get going.");
 							}
-						}
-					} else {
-						if (TILE_PRAYER == null && TILE_PRAYER_1 != null) {
-							Walking.findPath(TILE_PRAYER_1).traverse();
-							if (Calculations.distanceTo(TILE_PRAYER_1) >= 2) {
-								Walking.findPath(TILE_PRAYER_2).traverse();
-								if (Calculations.distanceTo(TILE_PRAYER_3) >= 2) {
-									Walking.findPath(TILE_PRAYER).traverse();
-								}
-							}
+						} else {
+							Camera.turnTo(varrockAltar);
 						}
 					}
 				}
 				if (TILE_GRAND_TREE != null) {
 					Walking.findPath(TILE_GRAND_TREE).traverse();
-				} else if (TILE_GRAND_TREE == null && TILE_PRAYER_3 != null) {
-					Walking.findPath(TILE_PRAYER_3).traverse();
-					if (Calculations.distanceTo(TILE_PRAYER_3) >= 2) {
-						Walking.findPath(TILE_PRAYER_2).traverse();
-						if (Calculations.distanceTo(TILE_PRAYER_2) >= 2) {
-							Walking.findPath(TILE_PRAYER_1).traverse();
-							if (Calculations.distanceTo(TILE_PRAYER_1) >= 2) {
-								Walking.findPath(TILE_GRAND_TREE).traverse();
-							}
-						}
+				} else if (TILE_GRAND_TREE == null) {
+					while (TILE_GRAND_TREE == null) {
+						Walking.newTilePath(PATH_TO_PRAYER_FROM_GE).reverse()
+								.traverse();
+					}
+					if (TILE_GRAND_TREE != null) {
+						Walking.findPath(TILE_GRAND_TREE).traverse();
 					}
 				}
 				if (spiritTreeGe != null && spiritTreeGe.isOnScreen()
 						&& spiritTreeGe.interact("Teleport")) {
 					final Timer SPIRIT_TREE_TIMER = new Timer(2500);
-					while (SPIRIT_TREE_TIMER.isRunning()
-							&& spiritTreeGe != null) {
+					while (spiritTreeGe.validate()
+							&& SPIRIT_TREE_TIMER.isRunning()) {
 						Time.sleep(50);
 					}
 				}
-			}
-			if (AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
-				log.info("You have the n00b varrock teleport. Walking to bank");
-				if (TILE_GRAND_BANK != null
-						&& Calculations.distanceTo(TILE_GRAND_BANK) >= 2) {
-					Walking.findPath(TILE_GRAND_BANK).traverse();
-				}
-				Camera.turnTo(TILE_GRAND_BANK);
-				log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
-				stop();
 			}
 			SceneObject SpiritTreeMain = SceneEntities
 					.getNearest(ID_SPIRITTREE_MAIN);
@@ -339,7 +402,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							.getLocation()) && SpiritTreeMain.isOnScreen()
 					&& SpiritTreeMain.interact("Teleport")) {
 				final Timer SPIRIT_TREE_MAIN_TIMER = new Timer(2500);
-				while (SpiritTreeMain != null
+				while (SpiritTreeMain.validate()
 						&& SPIRIT_TREE_MAIN_TIMER.isRunning()) {
 					Time.sleep(50);
 				}
@@ -349,7 +412,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				if (SPIRIT_TREE_INTERFACE.validate()
 						&& SPIRIT_TREE_INTERFACE.click(true)) {
 					final Timer SPIRIT_TREE_INTERFACE_TIMER = new Timer(2500);
-					while (SPIRIT_TREE_INTERFACE != null
+					while (SPIRIT_TREE_INTERFACE.validate()
 							&& SPIRIT_TREE_INTERFACE_TIMER.isRunning()) {
 						Time.sleep(50);
 					}
@@ -370,7 +433,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 					&& treeDoor != null && treeDoor.isOnScreen()
 					&& treeDoor.interact("Open")) {
 				final Timer TREE_DOOR_TIMER = new Timer(2500);
-				while (treeDoor != null && TREE_DOOR_TIMER.isRunning()) {
+				while (treeDoor.validate() && TREE_DOOR_TIMER.isRunning()) {
 					Time.sleep(50);
 				}
 				if (AREA_INSIDE_TREE_DOOR.contains(Players.getLocal()
@@ -381,7 +444,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 							&& Players.getLocal().getAnimation() == -1
 							&& gnomeLadder.interact("Climb-up")) {
 						final Timer GNOME_LADDER_TIMER = new Timer(2500);
-						while (gnomeLadder != null
+						while (gnomeLadder.validate()
 								&& GNOME_LADDER_TIMER.isRunning()) {
 							Time.sleep(50);
 						}
@@ -397,7 +460,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				if (daero != null && daero.isOnScreen()
 						&& daero.interact("Travel")) {
 					final Timer DAERO_TIMER = new Timer(2500);
-					while (daero != null && DAERO_TIMER.isRunning()) {
+					while (daero.validate() && DAERO_TIMER.isRunning()) {
 						yesInterfaceClicker();
 						Time.sleep(50);
 					}
@@ -412,7 +475,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						&& waydar.getAnimation() == -1
 						&& waydar.interact("Travel")) {
 					final Timer WAYDAR_TIMER = new Timer(2500);
-					while (waydar != null && WAYDAR_TIMER.isRunning()) {
+					while (waydar.validate() && WAYDAR_TIMER.isRunning()) {
 						yesInterfaceClicker();
 						Time.sleep(50);
 					}
@@ -426,7 +489,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 						&& lumdo.getAnimation() == -1
 						&& lumdo.interact("Travel")) {
 					final Timer LUMDO_TIMER = new Timer(2500);
-					while (lumdo != null && LUMDO_TIMER.isRunning()) {
+					while (lumdo.validate() && LUMDO_TIMER.isRunning()) {
 						yesInterfaceClicker();
 						Time.sleep(50);
 					}
@@ -446,7 +509,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 								.getLocation())
 						&& apeAtollLadder.interact("Climb-down")) {
 					Timer APE_ATOLL_LADDER_TIMER = new Timer(2500);
-					while (apeAtollLadder != null
+					while (apeAtollLadder.validate()
 							&& APE_ATOLL_LADDER_TIMER.isRunning()) {
 						Time.sleep(50);
 					}
@@ -460,41 +523,54 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			}
 			if (AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal()
 					.getLocation())) {
-				logWalkCode = 0;
 				checkRenewal();
 				Prayer.setQuick();
-				if (TILE_CHIN_1 != null
-						&& Calculations.distanceTo(TILE_CHIN_1) >= 5) {
-					if (Calculations.distanceTo(TILE_CHIN_1) >= 5) {
-						Walking.findPath(TILE_CHIN_1).traverse();
-						Time.sleep(50);
-					}
-				} else if (TILE_CHIN_1 != null
-						&& Calculations.distanceTo(TILE_CHIN_1) <= 5) {
-					if (TILE_CHIN_2 != null
-							&& tileContainsTwoOrMore(TILE_CHIN_1)
-							&& Calculations.distanceTo(TILE_CHIN_2) >= 5) {
-						if (Calculations.distanceTo(TILE_CHIN_2) >= 5) {
-							Walking.findPath(TILE_CHIN_2).traverse();
+				while (Calculations.distanceTo(TILE_CHIN_1) >= 5) {
+					Walking.newTilePath(PATH_TO_CHIN_TILE_1).traverse();
+					Time.sleep(50);
+				}
+				if (tileContainsTwoOrMore(TILE_CHIN_1)) {
+					while (Calculations.distanceTo(TILE_CHIN_2) >= 5) {
+						Walking.newTilePath(PATH_TO_CHIN_TILE_2).traverse();
+						Timer t = new Timer(2500);
+						while (Players.getLocal().getSpeed() != 0
+								&& t.isRunning()) {
 							Time.sleep(50);
 						}
-					} else if (Calculations.distanceTo(TILE_CHIN_2) <= 5) {
-						if (TILE_CHIN_3 != null
-								&& tileContainsTwoOrMore(TILE_CHIN_2)
-								&& Calculations.distanceTo(TILE_CHIN_3) >= 5) {
-							if (Calculations.distanceTo(TILE_CHIN_3) >= 5) {
-								Walking.findPath(TILE_CHIN_3).traverse();
+						Walking.findPath(TILE_CHIN_2).traverse();
+					}
+					if (tileContainsTwoOrMore(TILE_CHIN_2)) {
+						while (Calculations.distanceTo(TILE_CHIN_3) >= 5) {
+							Walking.newTilePath(PATH_TO_CHIN_TILE_3).traverse();
+							Timer t = new Timer(2500);
+							while (Players.getLocal().getSpeed() != 0
+									&& t.isRunning()) {
 								Time.sleep(50);
 							}
-						} else if (AREA_CHIN_3_4 != null
-								&& Calculations.distanceTo(TILE_CHIN_3) <= 5) {
-							if (areaContainsTwoOrMore(AREA_CHIN_3_4)) {
-								changeWorlds();
+							Walking.findPath(TILE_CHIN_3).traverse();
+						}
+						if (areaContainsTwoOrMore(AREA_CHIN_3_4)) {
+							changeWorlds();
+						} else {
+							if (!TILE_CHIN_3.equals(Players.getLocal()
+									.getLocation())) {
+								Walking.findPath(TILE_CHIN_3).traverse();
 							}
 						}
+					} else {
+						while (!TILE_CHIN_2.equals(Players.getLocal()
+								.getLocation())) {
+							Walking.findPath(TILE_CHIN_2).traverse();
+						}
+					}
+				} else {
+					while (!TILE_CHIN_1
+							.equals(Players.getLocal().getLocation())) {
+						Walking.findPath(TILE_CHIN_1).traverse();
 					}
 				}
 			}
+			logWalkCode = 0;
 		}
 
 		@Override
@@ -557,13 +633,23 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				log.info("Running attack code");
 				logAttackCode++;
 			}
-			log.info("Running attack code");
+			if (Inventory.getCount(chinNumber) >= 1) {
+				log.severe("Chins are in inventory, that must mean greegree is equipped. Equipping...");
+				Item chinNumberItem = Inventory.getItem(10034);
+				chinNumberItem.getWidgetChild().click(true);
+				final int id = 10034;
+				final int count = Inventory.getCount(id);
+				final Timer t = new Timer(2500);
+				while (t.isRunning() && Inventory.getCount(id) == count) {
+					Time.sleep(50);
+				}
+			}
 			final Item RANGE_POT_ITEM = Inventory.getItem(FLASK_RANGING);
 			final int REAL_RANGE = Skills.getRealLevel(Skills.RANGE);
 			final int POTTED_RANGE = Skills.getLevel(Skills.RANGE);
 			final int RANGE_DIFFERENCE = POTTED_RANGE - REAL_RANGE;
 
-			if (Players.getLocal().isInCombat()) {
+			if (Players.getLocal().getInteracting() != null) {
 				Timer throwtimer = new Timer(5000);
 				while (Players.getLocal().getAnimation() == CHIN_THROW_ID
 						&& throwtimer.isRunning() && isRunning()) {
@@ -574,7 +660,8 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 				}
 			}
 			doAttackMonkey(monkeyZombie);
-			if (RANGE_POT_ITEM != null && Players.getLocal().isInCombat()
+			if (RANGE_POT_ITEM != null
+					&& Players.getLocal().getInteracting() != null
 					&& Prayer.getPoints() >= 42 && !isPoisoned()
 					&& Players.getLocal().getHpPercent() >= 90
 					&& RANGE_DIFFERENCE >= 3) {
@@ -879,6 +966,16 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			if (Game.isLoggedIn()) {
 				Prayer.setQuick();
 			}
+		} else {
+			if (Game.isLoggedIn() && moveNeeded) {
+				if (TILE_MOVE_1 != null) {
+					Walking.findPath(TILE_MOVE_1).traverse();
+					Timer t = new Timer(2500);
+					while (Players.getLocal().getSpeed() != 0 && t.isRunning()) {
+						Time.sleep(50);
+					}
+				}
+			}
 		}
 	}
 
@@ -985,8 +1082,7 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 		if (npc != null && npc.isOnScreen()) {
 			if (npc.interact("Attack")) {
 				Time.sleep(50);
-				if (!Players.getLocal().isInCombat()
-						&& Players.getLocal().getInteracting() == null) {
+				if (Players.getLocal().getInteracting() != null) {
 					Time.sleep(Random.nextInt(700, 800));
 				}
 				if (!npc.isOnScreen()) {
@@ -1119,6 +1215,21 @@ public class EpicsChins extends ActiveScript implements PaintListener,
 			final Timer YES_INTERFACE_TIMER = new Timer(2500);
 			while (YES_INTERFACE != null && YES_INTERFACE_TIMER.isRunning()) {
 				Time.sleep(50);
+			}
+		}
+	}
+
+	public void messageReceived(MessageEvent arg0) {
+		String message = arg0.getMessage().toLowerCase();
+		String messageSender = arg0.getSender();
+		if (messageSender == null) {
+			if (message
+					.equals("you can't log out until 10 seconds after the end of combat.")) {
+				Timer t = new Timer(10000);
+				while (t.isRunning()) {
+					Time.sleep(5);
+				}
+				moveNeeded = true;
 			}
 		}
 	}
