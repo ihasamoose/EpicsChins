@@ -98,7 +98,7 @@ public class ThrowChins extends Strategy implements Runnable {
 			Paint.chinsThrown++;
 			Time.sleep(Random.nextInt(20, 50));
 		}
-		if (monkeyZombie != null && monkeyZombie.getAnimation() == Data.ID_ANIMATION_DEATH_ZOMBIE) {
+		if (monkeyZombie.validate() && monkeyZombie.getAnimation() == Data.ID_ANIMATION_DEATH_ZOMBIE) {
 			Paint.zombieKillCount++;
 		}
 		final int VIAL_ID = 229;
@@ -119,6 +119,6 @@ public class ThrowChins extends Strategy implements Runnable {
 				}
 			}
 		}
-		return (monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE))!= null && Data.chinNumber >= 200 && prayPotCountData > 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && Data.atDestination;
+		return (monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE)) != null && Data.chinNumber >= 200 && prayPotCountData > 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && Data.atDestination;
 	}
 }
