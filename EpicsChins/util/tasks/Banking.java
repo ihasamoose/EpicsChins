@@ -215,6 +215,9 @@ public class Banking extends Strategy implements Runnable {
 	@Override
 	public boolean validate() {
 		int antipoisonData = 0;
+		int flaskRenewalCountData = 0;
+		int prayerPotCountData = 0;
+		int rangingFlaskData = 0;
 
 		for (Item y : Inventory.getItems()) {
 			for (int x : Data.ANTIPOISON_ALL) {
@@ -222,27 +225,26 @@ public class Banking extends Strategy implements Runnable {
 					antipoisonData++;
 				}
 			}
-		}
-
-		int prayerFlaskRenewalData = 0;
-
-		for (Item y : Inventory.getItems()) {
 			for (int x : Data.FLASK_PRAYER_RENEWAL) {
 				if (y.getId() == x) {
-					prayerFlaskRenewalData++;
+					flaskRenewalCountData++;
 				}
 			}
-		}
-
-		int prayerPotData = 0;
-
-		for (Item y : Inventory.getItems()) {
 			for (int x : Data.POT_PRAYER) {
 				if (y.getId() == x) {
-					prayerPotData++;
+					prayerPotCountData++;
+				}
+			}
+			for (int x : Data.FLASK_RANGING) {
+				if (y.getId() == x) {
+					rangingFlaskData++;
 				}
 			}
 		}
-		return prayerPotData == 0 && antipoisonData == 0 && prayerFlaskRenewalData == 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck || Data.chinNumber <= 100 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && prayerPotData == 0 && antipoisonData == 0 && prayerFlaskRenewalData == 0 || Method.isPoisoned() && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && prayerPotData == 0 && antipoisonData == 0 && prayerFlaskRenewalData == 0|| Players.getLocal().getHpPercent() <= 25 && !Data.runCheck && Data.START_SCRIPT && Game.isLoggedIn() && prayerPotData == 0 && antipoisonData == 0 && prayerFlaskRenewalData == 0|| Inventory.getCount(Data.TAB_VARROCK) == 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && prayerPotData == 0 && antipoisonData == 0 && prayerFlaskRenewalData == 0;
+		Context.get().getActiveScript().log.severe(String.valueOf(antipoisonData));
+		Context.get().getActiveScript().log.severe(String.valueOf(flaskRenewalCountData));
+		Context.get().getActiveScript().log.severe(String.valueOf(prayerPotCountData));
+		Context.get().getActiveScript().log.severe(String.valueOf(rangingFlaskData));
+		return (antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || rangingFlaskData == 0 || Data.chinNumber <= 100 || Method.isPoisoned() || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

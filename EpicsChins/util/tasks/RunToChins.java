@@ -317,18 +317,21 @@ public class RunToChins extends Strategy implements Runnable {
 						if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation())) {
 							Walking.findPath(Tiles.TILE_CHIN_3).traverse();
 							Method.getSpeedCheck();
+							Data.atDestination = true;
 						}
 					}
 				} else {
 					while (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation())) {
 						Walking.findPath(Tiles.TILE_CHIN_2).traverse();
 						Method.getSpeedCheck();
+						Data.atDestination = true;
 					}
 				}
 			} else {
 				while (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation())) {
 					Walking.findPath(Tiles.TILE_CHIN_1).traverse();
 					Method.getSpeedCheck();
+					Data.atDestination = true;
 				}
 			}
 		}
@@ -336,42 +339,33 @@ public class RunToChins extends Strategy implements Runnable {
 
 	@Override
 	public boolean validate() {
+		int antipoisonData = 0;
+		int flaskRenewalCountData = 0;
 		int prayerPotCountData = 0;
+		int rangingFlaskData = 0;
 
 		for (Item y : Inventory.getItems()) {
-			for (int x : Data.POT_PRAYER) {
+			for (int x : Data.ANTIPOISON_ALL) {
 				if (y.getId() == x) {
-					prayerPotCountData++;
+					antipoisonData++;
 				}
 			}
-		}
-		int flaskRenewalCountData = 0;
-
-		for (Item y : Inventory.getItems()) {
 			for (int x : Data.FLASK_PRAYER_RENEWAL) {
 				if (y.getId() == x) {
 					flaskRenewalCountData++;
 				}
 			}
-		}
-		int rangingFlaskData = 0;
-
-		for (Item y : Inventory.getItems()) {
+			for (int x : Data.POT_PRAYER) {
+				if (y.getId() == x) {
+					prayerPotCountData++;
+				}
+			}
 			for (int x : Data.FLASK_RANGING) {
 				if (y.getId() == x) {
 					rangingFlaskData++;
 				}
 			}
 		}
-		int antiPoisonData = 0;
-
-		for (Item y : Inventory.getItems()) {
-			for (int x : Data.ANTIPOISON_ALL) {
-				if (y.getId() == x) {
-					antiPoisonData++;
-				}
-			}
-		}
-		return !Method.isPoisoned() && Inventory.getCount(GUI.foodUser) >= 1 && flaskRenewalCountData == 3 && prayerPotCountData == 18 && rangingFlaskData == 3 && antiPoisonData == 1 && Data.chinNumber >= 500 && !Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && Data.START_SCRIPT && Game.isLoggedIn() && Inventory.getCount(Data.TAB_VARROCK) >= 1 && !Data.runCheck;
+		return antipoisonData >= 2 && flaskRenewalCountData >= 3 && prayerPotCountData >= 18 && rangingFlaskData >= 3 && Data.chinNumber >= 1500 && Inventory.getCount(Data.TAB_VARROCK) >= 1 && Inventory.getCount(GUI.foodUser) >= 1 && !Method.isPoisoned() && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

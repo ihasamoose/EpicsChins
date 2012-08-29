@@ -5,7 +5,6 @@ import org.powerbot.game.api.methods.Settings;
 import org.powerbot.game.api.methods.Walking;
 import org.powerbot.game.api.methods.Widgets;
 import org.powerbot.game.api.methods.interactive.Players;
-import org.powerbot.game.api.methods.tab.Equipment;
 import org.powerbot.game.api.methods.tab.Inventory;
 import org.powerbot.game.api.methods.tab.Prayer;
 import org.powerbot.game.api.methods.tab.Skills;
@@ -32,10 +31,7 @@ import java.util.logging.Logger;
  */
 public class Method {
 	public static boolean isPoisoned() {
-		if (Game.isLoggedIn()) {
-			return Settings.get(102) != 0;
-		}
-		return false;
+			return Game.isLoggedIn() && Settings.get(102) != 0;
 	}
 
 	public static void changeWorlds() {
@@ -152,16 +148,12 @@ public class Method {
 		if (npc != null && npc.isOnScreen()) {
 			if (npc.interact("Attack")) {
 				Time.sleep(50);
-				if (Players.getLocal().getInteracting() != null) {
+				if (Players.getLocal().getInteracting().equals(npc)) {
 					Time.sleep(Random.nextInt(700, 800));
 				}
-				if (!npc.isOnScreen()) {
-					Camera.turnTo(npc);
-					if (npc.interact("Attack")) {
-						Time.sleep(50);
-					}
-				}
 			}
+		} else {
+			Camera.turnTo(npc);
 		}
 	}
 
@@ -174,9 +166,6 @@ public class Method {
 			while (t.isRunning() && Inventory.getCount(ID) == COUNT) {
 				Time.sleep(50);
 			}
-		} else {
-			int greegreeTempId = Widgets.get(387, 15).getChildId();
-			greegree = Equipment.getItem(greegreeTempId);
 		}
 	}
 

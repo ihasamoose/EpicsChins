@@ -74,4 +74,5 @@ public class Data {
 	public static boolean checkChins = true;
 	public static boolean runCheck = true;
 	public static boolean SHOWPAINT;
+	public static boolean atDestination = false;
 }

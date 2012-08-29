@@ -3,7 +3,6 @@ package EpicsChins.util.tasks;
 import EpicsChins.util.Data;
 import EpicsChins.util.Method;
 import EpicsChins.util.Paint;
-import EpicsChins.util.Tiles;
 import org.powerbot.concurrent.strategy.Strategy;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.interactive.NPCs;
@@ -27,7 +26,7 @@ import java.util.logging.Logger;
  * To change this template use File | Settings | File Templates.
  */
 public class ThrowChins extends Strategy implements Runnable {
-	private NPC monkeyZombie;
+		NPC monkeyZombie;
 
 	@Override
 	public void run() {
@@ -47,7 +46,14 @@ public class ThrowChins extends Strategy implements Runnable {
 				Time.sleep(50);
 			}
 		}
-		Item rangePotItem = Inventory.getItem(Data.FLASK_RANGING);
+		int rangingFlaskData = 0;
+		for (Item y : Inventory.getItems()) {
+		for (int x : Data.FLASK_RANGING) {
+			if (y.getId() == x) {
+				rangingFlaskData++;
+			}
+		}
+		}
 
 		final int REAL_RANGE = Skills.getRealLevel(Skills.RANGE);
 		final int POTTED_RANGE = Skills.getLevel(Skills.RANGE);
@@ -64,7 +70,7 @@ public class ThrowChins extends Strategy implements Runnable {
 			}
 		}
 		Method.doAttackMonkey(monkeyZombie);
-		if (rangePotItem != null && Players.getLocal().getInteracting() != null && Prayer.getPoints() >= 42 && !Method.isPoisoned() && Players.getLocal().getHpPercent() >= 90 && RANGE_DIFFERENCE >= 3) {
+		if (rangingFlaskData > 0 && Players.getLocal().getInteracting().equals(monkeyZombie) && Prayer.getPoints() >= 42 && !Method.isPoisoned() && Players.getLocal().getHpPercent() >= 90 && RANGE_DIFFERENCE >= 3) {
 			Context.get().getActiveScript().log.info("Killing monkeys and nothing is needed. Using antiban...");
 			Method.antiban();
 		}
@@ -113,6 +119,6 @@ public class ThrowChins extends Strategy implements Runnable {
 				}
 			}
 		}
-		return (monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE)) != null && Tiles.CHIN_LIST.contains(Players.getLocal().getLocation()) && Data.chinNumber >= 200 && prayPotCountData >= 1 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck;
+		return (monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE))!= null && Data.chinNumber >= 200 && prayPotCountData > 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && Data.atDestination;
 	}
 }
