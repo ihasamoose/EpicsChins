@@ -118,37 +118,27 @@ public class RunToChins extends Strategy implements Runnable {
 				if (Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
 					Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).getNext();
 					Walking.walk(nextTile);
-					if (Tiles.TILE_PRAYER == null) {
-						Tile nextTileTwo = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).getNext();
-						Walking.walk(nextTileTwo);
-					}
-					if (Tiles.TILE_PRAYER != null) {
-						while (Calculations.distanceTo(Tiles.TILE_PRAYER) >= 5) {
-							Walking.findPath(Tiles.TILE_PRAYER).traverse();
-						}
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
 					}
 				} else if (Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
-					if (Tiles.TILE_PRAYER == null) {
-						Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_TELE).getNext();
-						Walking.walk(nextTile);
-					}
-					if (Tiles.TILE_PRAYER != null) {
-						while (Calculations.distanceTo(Tiles.TILE_PRAYER) >= 5) {
-							Walking.findPath(Tiles.TILE_PRAYER).traverse();
-						}
+					Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_TELE).getNext();
+					Walking.walk(nextTile);
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
 					}
 				} else if (!Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation()) && !Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
-					if (Tiles.TILE_PRAYER == null) {
-						Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).getNext();
+					Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).getNext();
+					if (nextTile != null) {
 						Walking.walk(nextTile);
-					}
-					if (Tiles.TILE_PRAYER != null) {
-						while (Calculations.distanceTo(Tiles.TILE_PRAYER) >= 5) {
-							Walking.findPath(Tiles.TILE_PRAYER).traverse();
+						while (Players.getLocal().isMoving()) {
+							Time.sleep(50);
 						}
+					} else {
+						Context.get().getActiveScript().log.severe("Not in GE and can't find path to charge up. Continuing without charging..");
 					}
 				}
-				if (Tiles.TILE_PRAYER != null && Calculations.distanceTo(Tiles.TILE_PRAYER) <= 5) {
+				if (Tiles.TILE_PRAYER.validate() && Calculations.distanceTo(Tiles.TILE_PRAYER) <= 5) {
 					SceneObject varrockAltar = SceneEntities.getNearest(Data.ID_ALTAR_VARROCK);
 
 					if (varrockAltar != null && varrockAltar.isOnScreen()) {
@@ -166,13 +156,22 @@ public class RunToChins extends Strategy implements Runnable {
 			}
 			if (Tiles.TILE_GRAND_TREE.validate()) {
 				Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
+				while (Players.getLocal().isMoving()) {
+					Time.sleep(50);
+				}
 			} else if (Tiles.TILE_GRAND_TREE == null) {
 				if (!Tiles.TILE_GRAND_TREE.validate()) {
 					Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).getNext();
 					Walking.walk(nextTile);
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
 				}
 				if (Tiles.TILE_GRAND_TREE.validate()) {
 					Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
 				}
 			}
 			if (spiritTreeGe != null && spiritTreeGe.isOnScreen() && spiritTreeGe.interact("Teleport")) {
@@ -213,6 +212,9 @@ public class RunToChins extends Strategy implements Runnable {
 
 		if (Tiles.AREA_GNOME_STRONGHOLD.contains(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_TREE_DOOR).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
 		}
 		if (Calculations.distanceTo(Tiles.TILE_TREE_DOOR) <= 10 && treeDoor != null && treeDoor.isOnScreen() && !Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation()) && treeDoor.interact("Open")) {
 			final Timer t = new Timer(2500);
@@ -235,6 +237,9 @@ public class RunToChins extends Strategy implements Runnable {
 
 		if (Tiles.AREA_GNOME_LEVEL_ONE.contains(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_TREE_DAERO).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
 			NPC daero = NPCs.getNearest(Data.ID_NPC_DAERO);
 
 			if (daero != null && daero.isOnScreen() && daero.interact("Travel")) {
@@ -251,6 +256,9 @@ public class RunToChins extends Strategy implements Runnable {
 			NPC waydar = NPCs.getNearest(Data.ID_NPC_WAYDAR);
 
 			Walking.findPath(waydar).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
 			if (waydar != null && waydar.isOnScreen() && waydar.getAnimation() == -1 && waydar.interact("Travel")) {
 				final Timer t = new Timer(2500);
 				while (waydar.validate() && t.isRunning()) {
@@ -281,6 +289,9 @@ public class RunToChins extends Strategy implements Runnable {
 			Data.runCheck = true;
 
 			Walking.findPath(Tiles.TILE_APE_LADDER_TOP).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
 			SceneObject apeAtollLadder = SceneEntities.getNearest(Data.ID_LADDER_APE);
 
 			if (apeAtollLadder != null && apeAtollLadder.isOnScreen() && Calculations.distanceTo(Tiles.TILE_APE_LADDER_TOP) <= 5 && apeAtollLadder.interact("Climb-down")) {
@@ -309,39 +320,57 @@ public class RunToChins extends Strategy implements Runnable {
 			if (Calculations.distanceTo(Tiles.TILE_CHIN_1) >= 5) {
 				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext();
 				Walking.walk(nextTile);
+				while (Players.getLocal().isMoving()) {
+					Time.sleep(50);
+				}
+			} else {
+				Walking.findPath(Tiles.TILE_CHIN_1).traverse();
+				while (Players.getLocal().isMoving()) {
+					Time.sleep(50);
+				}
 			}
 			if (Method.tileContainsTwoOrMore(Tiles.TILE_CHIN_1)) {
 				if (Calculations.distanceTo(Tiles.TILE_CHIN_2) >= 5) {
 					Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).traverse();
-					Players.getLocal().isMoving();
 					Walking.findPath(Tiles.TILE_CHIN_2).traverse();
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
 				}
 				if (Method.tileContainsTwoOrMore(Tiles.TILE_CHIN_2)) {
 					if (Calculations.distanceTo(Tiles.TILE_CHIN_3) >= 5) {
 						Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).traverse();
-						Players.getLocal().isMoving();
 						Walking.findPath(Tiles.TILE_CHIN_3).traverse();
+						while (Players.getLocal().isMoving()) {
+							Time.sleep(50);
+						}
 					}
 					if (Method.areaContainsTwoOrMore()) {
 						Method.changeWorlds();
 					} else {
 						if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation())) {
 							Walking.findPath(Tiles.TILE_CHIN_3).traverse();
-							Players.getLocal().isMoving();
+							while (Players.getLocal().isMoving()) {
+								Time.sleep(50);
+							}
 							Data.atDestination = true;
 						}
 					}
 				} else {
 					while (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation())) {
 						Walking.findPath(Tiles.TILE_CHIN_2).traverse();
-						Players.getLocal().isMoving();
+						while (Players.getLocal().isMoving()) {
+							Time.sleep(50);
+						}
 						Data.atDestination = true;
 					}
 				}
 			} else {
 				while (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation())) {
 					Walking.findPath(Tiles.TILE_CHIN_1).traverse();
-					Players.getLocal().isMoving();
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
 					Data.atDestination = true;
 				}
 			}

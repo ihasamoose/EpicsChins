@@ -48,6 +48,9 @@ public class Banking extends Strategy implements Runnable {
 		if (!Bank.isOpen()) {
 			if (Tiles.TILE_GRAND_BANK != null && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 4) {
 				Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
+				while (Players.getLocal().isMoving()) {
+					Time.sleep(50);
+				}
 				Camera.turnTo(Tiles.TILE_GRAND_BANK);
 				Players.getLocal().isMoving();
 			} else if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) <= 8) {

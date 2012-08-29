@@ -17,7 +17,9 @@ public class Data {
 
 	public static int chinNumber;
 	public static Timer t = null;
-	public final static int[] WORLDS_MEMBER =
+	public final static
+	int[]
+			WORLDS_MEMBER =
 			{5, 6, 9, 12, 15, 18, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 36, 39, 40, 42, 44, 45, 46, 48, 49, 51, 52,
 			 53, 54, 56, 58, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 76, 77, 78, 79, 82, 83, 84, 85,
 			 86, 87, 88, 89, 91, 92, 96, 97, 99, 100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137, 138, 139};
@@ -41,7 +43,9 @@ public class Data {
 	public final static int TAB_VARROCK = 8007;
 
 	//Item arrays
-	public final static int[] ANTIPOISON_ALL =
+	public final static
+	int[]
+			ANTIPOISON_ALL =
 			{23327, 23329, 23331, 23333, 23335, 23337, 23591, 23593, 23595, 23597, 23599, 23601, 23579, 23581, 23583,
 			 23585, 23587, 23589, 23315, 23317, 23319, 23321, 23323, 23325, 11433, 11435, 2448, 181, 183, 185, 5952,
 			 5954, 5956, 5958, 5943, 5945, 5947, 5949, 2446, 175, 177, 179, 20879};

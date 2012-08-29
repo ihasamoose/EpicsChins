@@ -167,7 +167,7 @@ public class Method {
 				Time.sleep(50);
 			}
 		} else {
-			if(greegree == null){
+			if (greegree == null) {
 				Data.runCheck = true;
 			}
 		}

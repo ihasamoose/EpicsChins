@@ -119,7 +119,8 @@ public class ThrowChins extends Strategy implements Runnable {
 				}
 			}
 		}
-		return (monkeyZombie =
-				        NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE)) != null && Data.chinNumber >= 200 && prayPotCountData > 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && Data.atDestination;
+		return (
+				       monkeyZombie =
+						       NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE)) != null && Data.chinNumber >= 200 && prayPotCountData > 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && Data.atDestination;
 	}
 }
