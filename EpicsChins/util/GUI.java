@@ -19,7 +19,7 @@ public class GUI extends JFrame {
 	public static int antipoisonUser = 0; // user selected Antipoison
 
 	public GUI() {
-
+		setVisible(true);
 		// Title
 		String version = " v0.1";
 		setTitle("EC" + version);
@@ -214,11 +214,9 @@ public class GUI extends JFrame {
 				if (USER_ANTIPOISON.equals("Antipoison elixir")) {
 					antipoisonUser = Data.ELIXIR_ANTIPOISON;
 				}
+				dispose();
 			}
 		});
-		this.setVisible(true);
-		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		Context.get().getActiveScript().log.info("GUI disposed, providing methods");
 	}
 
 	public static Image getImage(String url) {
