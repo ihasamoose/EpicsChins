@@ -88,9 +88,18 @@ public class ThrowChins extends Strategy implements Runnable {
 
 			}
 		}
-		if (Method.isPoisoned()) {
+		int antipoisonData = 0;
+
+		for (Item y : Inventory.getItems()) {
+			for (int x : Data.ANTIPOISON_ALL) {
+				if (y.getId() == x) {
+					antipoisonData++;
+				}
+			}
+		}
+		if (antipoisonData > 0 && Method.isPoisoned()) {
 			Method.doDrinkAntipoison();
-		} else {
+		} else if (antipoisonData == 0 && Method.isPoisoned()) {
 			Context.get().getActiveScript().log.info("We're out of antipoison & we're poisoned! Teleporting to safety to bank...");
 			Method.doBreakTab();
 		}

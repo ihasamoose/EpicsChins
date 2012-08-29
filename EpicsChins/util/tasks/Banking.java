@@ -152,6 +152,7 @@ public class Banking extends Strategy implements Runnable {
 					Game.logout(true);
 					Context.get().getActiveScript().stop();
 				}
+				return;
 			}
 			if (Inventory.getCount(Data.POT_PRAYER_DOSE_4) == 0) {
 				Bank.withdraw(Data.POT_PRAYER_DOSE_4, 18);
@@ -164,8 +165,10 @@ public class Banking extends Strategy implements Runnable {
 					Game.logout(true);
 					Context.get().getActiveScript().stop();
 				}
+				return;
 			}
 			if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) == 0) {
+				Context.get().getActiveScript().log.info(String.valueOf(Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL)));
 				Bank.withdraw(Data.FLASK_PRAYER_RENEWAL_FULL, 3);
 				Time.sleep(80);
 				if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) != 0) {
@@ -176,7 +179,8 @@ public class Banking extends Strategy implements Runnable {
 					Game.logout(true);
 					Context.get().getActiveScript().stop();
 				}
-			}
+				return;
+			}//TODO Make banking better.
 			if (Inventory.getCount(Data.FLASK_RANGING_FULL) == 0) {
 				Bank.withdraw(Data.FLASK_RANGING_FULL, 3);
 				Time.sleep(80);
@@ -188,6 +192,7 @@ public class Banking extends Strategy implements Runnable {
 					Game.logout(true);
 					Context.get().getActiveScript().stop();
 				}
+				return;
 			}
 			if (Inventory.getCount() == 28) {
 				Bank.close();
@@ -242,6 +247,6 @@ public class Banking extends Strategy implements Runnable {
 				}
 			}
 		}
-		return (antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || rangingFlaskData == 0 || Data.chinNumber <= 100 || Method.isPoisoned() || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
+		return (((antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || rangingFlaskData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber <= 100)) || Players.getLocal().getHpPercent() <= 25 || Method.isPoisoned()) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

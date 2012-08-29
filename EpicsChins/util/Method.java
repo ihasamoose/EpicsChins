@@ -1,23 +1,24 @@
 package EpicsChins.util;
 
-import org.powerbot.game.api.methods.Game;
-import org.powerbot.game.api.methods.Settings;
-import org.powerbot.game.api.methods.Walking;
-import org.powerbot.game.api.methods.Widgets;
+import org.powerbot.game.api.methods.*;
 import org.powerbot.game.api.methods.interactive.Players;
+import org.powerbot.game.api.methods.node.SceneEntities;
 import org.powerbot.game.api.methods.tab.Inventory;
 import org.powerbot.game.api.methods.tab.Prayer;
 import org.powerbot.game.api.methods.tab.Skills;
+import org.powerbot.game.api.methods.widget.Bank;
 import org.powerbot.game.api.methods.widget.Camera;
 import org.powerbot.game.api.methods.widget.Lobby;
 import org.powerbot.game.api.util.Filter;
 import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.util.Time;
 import org.powerbot.game.api.util.Timer;
+import org.powerbot.game.api.wrappers.Area;
 import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.api.wrappers.interactive.NPC;
 import org.powerbot.game.api.wrappers.interactive.Player;
 import org.powerbot.game.api.wrappers.node.Item;
+import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.wrappers.widget.WidgetChild;
 import org.powerbot.game.bot.Context;
 
@@ -234,6 +235,242 @@ public class Method {
 				Time.sleep(50);
 			}
 			Time.sleep(2000);
+		}
+	}
+
+	public static void preEat() {
+		Item food = Inventory.getItem(GUI.foodUser);
+		Item prayerPot = Inventory.getItem(Data.POT_PRAYER_DOSE_4);
+
+		if (Players.getLocal().getHpPercent() < 30) {
+			Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
+			Method.checkRun();
+			if (Tiles.TILE_GRAND_BANK.isOnScreen()) {
+				Camera.turnTo(Tiles.TILE_GRAND_BANK);
+			}
+			Bank.open();
+			if (Bank.isOpen()) {
+				if (Inventory.isFull()) {
+					Bank.deposit(Data.POT_PRAYER_DOSE_4, 3);
+				}
+				if (Bank.withdraw(food.getId(), 3)) {
+					Time.sleep(200, 400);
+				}
+				Bank.close();
+			}
+			if (!Bank.isOpen() && Players.getLocal().getHpPercent() > 75) {
+				food.getWidgetChild().interact("Eat");
+				Time.sleep(Random.nextInt(300, 400));
+			}
+			if (Bank.open()) {
+				Time.sleep(200, 400);
+			}
+			if (Bank.isOpen()) {
+				Bank.deposit(prayerPot.getId(), 5);
+				if (Inventory.getCount(prayerPot.getId()) == 0) {
+					Bank.getNearest();
+					Bank.open();
+					if (Bank.isOpen()) {
+						if (Bank.withdraw(food.getId(), 2)) {
+							Time.sleep(200, 300);
+						}
+						Bank.withdraw(prayerPot.getId(), 3);
+					}
+				}
+			}
+		}
+	}
+
+	public static void checkNoobTele() {
+		Context.get().getActiveScript().log.severe("a");
+		if (Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
+			Context.get().getActiveScript().log.info("You have the n00b varrock teleport. Walking to bank");
+			if (Tiles.TILE_GRAND_BANK.validate()) {
+				if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 2) {
+					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
+					Players.getLocal().isMoving();
+				}
+			}
+			if (!Tiles.TILE_GRAND_BANK.validate()) {
+				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_BANK_TILE).randomize(2, 4).getNext();
+				Walking.walk(nextTile);
+				if (!Tiles.TILE_GRAND_BANK.validate() && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 2) {
+					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
+					Players.getLocal().isMoving();
+				}
+			}
+			Camera.turnTo(Tiles.TILE_GRAND_BANK);
+			Context.get().getActiveScript().log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
+			Context.get().getActiveScript().stop();
+		}
+	}
+
+	public static void chargePrayer() {
+		Context.get().getActiveScript().log.severe("b");
+		final double PRAYER_POINTS = (Prayer.getPoints() * 10);
+		final double PRAYER_MINIMUM = (Skills.getLevel(Skills.PRAYER) * 0.5);
+
+		if (PRAYER_POINTS <= PRAYER_MINIMUM) {
+			if (Data.logWalkCode == 1) {
+				Context.get().getActiveScript().log.info("Prayer is low, let's go charge up before we head out.");
+				Data.logWalkCode++;
+			}
+			if (Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
+				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
+				if (Walking.walk(nextTile)) {
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
+				}
+			} else if (Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
+				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_TELE).randomize(2, 4).getNext();
+				Walking.walk(nextTile);
+				while (Players.getLocal().isMoving()) {
+					Time.sleep(50);
+				}
+			} else if (!Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation()) && !Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
+				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
+				if (nextTile != null) {
+					Walking.walk(nextTile);
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
+				} else {
+					Context.get().getActiveScript().log.severe("OH MY GOD LAGG");
+				}
+			}
+			if (Tiles.TILE_PRAYER.validate() && Calculations.distanceTo(Tiles.TILE_PRAYER) <= 5) {
+				SceneObject varrockAltar = SceneEntities.getNearest(Data.ID_ALTAR_VARROCK);
+
+				if (varrockAltar != null && varrockAltar.isOnScreen()) {
+					varrockAltar.click(true);
+					if (Players.getLocal().getAnimation() == Data.ID_ANIMATION_PRAY) {
+						Time.sleep(100, 400);
+					}
+					if (Prayer.getPoints() == (Skills.getRealLevel(Skills.PRAYER))) {
+						Context.get().getActiveScript().log.info("All charged up, let's get going.");
+						if (!Tiles.TILE_GRAND_TREE.validate() && Calculations.distanceTo(Tiles.TILE_GRAND_TREE) >= 20) {
+							Tile
+									nextTile =
+									Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2,
+											                                                           4).reverse().getNext();
+							Walking.walk(nextTile);
+							while (Players.getLocal().isMoving()) {
+								Time.sleep(50);
+							}
+						} else {
+							Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
+							while (Players.getLocal().isMoving()) {
+								Time.sleep(50);
+							}
+						}
+					} else {
+						Camera.turnTo(varrockAltar);
+					}
+				}
+			}
+		} else {
+			Context.get().getActiveScript().log.info("Charging prayer not needed");
+		}
+	}
+
+	public static void isInGE() {
+		if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
+			Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
+		} else if(!Tiles.TILE_GRAND_TREE.validate()){
+			Context.get().getActiveScript().log.severe("not validated");
+			} else {
+				Context.get().getActiveScript().log.severe("Validated but something else is wrong!");
+
+			}
+		}
+
+
+	public static void isInGnome() {
+		Context.get().getActiveScript().log.severe("d");
+		if (Tiles.TILE_TREE_DOOR.validate() && Tiles.AREA_GNOME_STRONGHOLD.contains(Players.getLocal().getLocation())) {
+			Walking.findPath(Tiles.TILE_TREE_DOOR).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
+		}
+	}
+
+	public static void openTreeDoor(final SceneObject se) {
+		Context.get().getActiveScript().log.severe("e");
+		if (se != null && Calculations.distanceTo(Tiles.TILE_TREE_DOOR) <= 10 && se.isOnScreen() && !Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation()) && se.interact("Open")) {
+			final Timer t = new Timer(2500);
+			while (se.validate() && t.isRunning()) {
+				Time.sleep(50);
+			}
+		}
+	}
+
+	public static void climbLadder(final SceneObject se) {
+		if (Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation())) {
+			if (se != null && Players.getLocal().getAnimation() == -1 && se.interact("Climb-up")) {
+				final Timer t = new Timer(2500);
+				while (se.validate() && t.isRunning()) {
+					Time.sleep(50);
+				}
+			} else if (se != null && !se.isOnScreen()) {
+				Camera.turnTo(se);
+			}
+		}
+	}
+
+	public static void doYesInteraction(final Area area, final NPC npc) {
+		if (area.contains(Players.getLocal().getLocation())) {
+			Walking.findPath(npc).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
+
+			if (npc != null && npc.isOnScreen() && npc.interact("Travel")) {
+				final Timer t = new Timer(2500);
+				while (npc.validate() && t.isRunning()) {
+					Method.yesInterfaceClicker();
+					Time.sleep(1500);
+				}
+			} else if (npc != null && !npc.isOnScreen()) {
+				Camera.turnTo(npc);
+			}
+		}
+	}
+
+	public static void clickSpiritTree(final Area area, final SceneObject se) {
+		if (area.contains(Players.getLocal().getLocation())) {
+			if (se != null && se.validate() && se.interact("Teleport")) {
+				while (Players.getLocal().getAnimation() == Data.ID_ANIMATION_TREE || Players.getLocal().getAnimation() == Data.ID_ANIMATION_TREE_2) {
+					Time.sleep(500);
+				}
+				final Timer spiritTreeTimer = new Timer(2500);
+				while (se.validate() && spiritTreeTimer.isRunning()) {
+					Time.sleep(50);
+				}
+			} else {
+				if (se != null && !se.isOnScreen()) {
+					Camera.turnTo(se);
+					Time.sleep(500);
+				}
+			}
+		}
+	}
+
+	public static void clickGnomeInterface() {
+		final WidgetChild spiritTreeInterface = Widgets.get(864).getChild(6).getChild(0);
+		if (spiritTreeInterface.validate() && spiritTreeInterface.click(true)) {
+			final Timer tt = new Timer(2500);
+
+			while (spiritTreeInterface.validate() && tt.isRunning()) {
+				Time.sleep(50);
+			}
+			if (Players.getLocal().getAnimation() == Data.ID_ANIMATION_TREE || Players.getLocal().getAnimation() == Data.ID_ANIMATION_TREE_2) {
+				Time.sleep(500);
+			}
 		}
 	}
 }

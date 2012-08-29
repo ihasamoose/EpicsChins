@@ -25,7 +25,6 @@ public class Data {
 			 86, 87, 88, 89, 91, 92, 96, 97, 99, 100, 103, 104, 105, 114, 115, 116, 117, 119, 123, 124, 137, 138, 139};
 
 	//Item IDs
-	public final static int FLASK_PRAYER_RENEWAL_FULL = 23609;
 	public final static int FLASK_ANTIPOISON_SUPER_FULL = 23327;
 	public final static int FLASK_ANTIPOISON_PLUSPLUS_FULL = 23591;
 	public final static int FLASK_ANTIPOISON_PLUS_FULL = 23579;
@@ -52,8 +51,11 @@ public class Data {
 
 	public final static int[] FLASK_RANGING = {23303, 23305, 23307, 23309, 23311, 23313};
 	public final static int FLASK_RANGING_FULL = 23303;
-	public final static int[] POT_PRAYER = {2434, 139, 141, 143};
+
 	public final static int POT_PRAYER_DOSE_4 = 2434;
+	public final static int[] POT_PRAYER = {2434, 139, 141, 143};
+
+	public final static int FLASK_PRAYER_RENEWAL_FULL = 23609;
 	public final static int[] FLASK_PRAYER_RENEWAL = {23609, 23611, 23613, 23615, 23617, 23619};
 
 	public final static int[] GREEGREE_IDS = {4031, 4024, 4025, 40256, 4027, 4028, 4029, 4030};
