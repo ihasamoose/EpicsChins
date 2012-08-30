@@ -247,6 +247,10 @@ public class Banking extends Strategy implements Runnable {
 				}
 			}
 		}
-		return (((antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || rangingFlaskData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber <= 100)) || Players.getLocal().getHpPercent() <= 25 || Method.isPoisoned()) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
+		return ((antipoisonData == 0 || Method.isPoisoned())|| flaskRenewalCountData == 0 || prayerPotCountData == 0
+		        || rangingFlaskData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1
+		        || Data.chinNumber <= 100
+		        || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn()
+		       && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

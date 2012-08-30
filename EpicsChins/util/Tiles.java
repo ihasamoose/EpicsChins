@@ -50,6 +50,7 @@ public class Tiles {
 	public final static Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
 	public final static Tile TILE_PRAYER = new Tile(3253, 3485, 0);
 	public final static Tile TILE_INSIDE_TREE_DOOR = new Tile(2466, 3493, 0);
+	public final static Tile TILE_DAERO = new Tile(2478,3488,1);
 
 	public final static
 	java.util.List<Tile>
