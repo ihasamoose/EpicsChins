@@ -29,6 +29,35 @@ public class Banking extends Strategy implements Runnable {
 
 	@Override
 	public void run() {
+
+		int antipoisonData = 0;
+		int flaskRenewalCountData = 0;
+		int prayerPotCountData = 0;
+		int rangingFlaskData = 0;
+
+		for (Item y : Inventory.getItems()) {
+			for (int x : Data.ANTIPOISON_ALL) {
+				if (y.getId() == x) {
+					antipoisonData++;
+				}
+			}
+			for (int x : Data.FLASK_PRAYER_RENEWAL) {
+				if (y.getId() == x) {
+					flaskRenewalCountData++;
+				}
+			}
+			for (int x : Data.POT_PRAYER) {
+				if (y.getId() == x) {
+					prayerPotCountData++;
+				}
+			}
+			for (int x : Data.FLASK_RANGING) {
+				if (y.getId() == x) {
+					rangingFlaskData++;
+				}
+			}
+		}
+
 		Item greegree = Inventory.getItem(Data.GREEGREE_IDS);
 
 		if (Data.logBankingCode == 0) {
@@ -117,6 +146,7 @@ public class Banking extends Strategy implements Runnable {
 				}
 
 			}
+
 			if (Inventory.getCount(Data.TAB_VARROCK) == 0 && Bank.getItem(Data.TAB_VARROCK).getStackSize() > 0) {
 				Bank.withdraw(Data.TAB_VARROCK, 1);
 				Time.sleep(80);
@@ -129,6 +159,7 @@ public class Banking extends Strategy implements Runnable {
 					Context.get().getActiveScript().stop();
 				}
 			}
+
 			if (Inventory.getCount(GUI.foodUser) == 0 && Bank.getItemCount(GUI.foodUser) >= 1) {
 				Bank.withdraw(GUI.foodUser, 1);
 				Time.sleep(80);
@@ -141,12 +172,13 @@ public class Banking extends Strategy implements Runnable {
 				Game.logout(true);
 				Context.get().getActiveScript().stop();
 			}
-			if (Inventory.getCount(GUI.antipoisonUser) == 0 && Bank.getItemCount(GUI.antipoisonUser) > 0) {
+
+			if (antipoisonData == 0 && Bank.getItemCount(GUI.antipoisonUser) > 0) {
 				Bank.withdraw(GUI.antipoisonUser, 1);
 				Time.sleep(80);
-				if (Inventory.getCount(GUI.antipoisonUser) != 0) {
+				if (Inventory.getCount(GUI.antipoisonUser) == 1) {
 					Context.get().getActiveScript().log.info("Antipoison withdrawn");
-				} else if (Bank.getItem(GUI.antipoisonUser).getStackSize() < 1 && Inventory.getCount(GUI.antipoisonUser) < 1) {
+				} else if (Bank.getItem(GUI.antipoisonUser).getStackSize() < 1 && antipoisonData < 1) {
 					Context.get().getActiveScript().log.info("Not enough antipoison. Shutting down...");
 					Bank.close();
 					Game.logout(true);
@@ -154,12 +186,12 @@ public class Banking extends Strategy implements Runnable {
 				}
 				return;
 			}
-			if (Inventory.getCount(Data.POT_PRAYER_DOSE_4) == 0) {
+			if (prayerPotCountData == 0) {
 				Bank.withdraw(Data.POT_PRAYER_DOSE_4, 18);
 				Time.sleep(80);
-				if (Inventory.getCount(Data.POT_PRAYER_DOSE_4) != 0) {
+				if (prayerPotCountData == 3) {
 					Context.get().getActiveScript().log.info("Prayer pots withdrawn");
-				} else if (Bank.getItem(Data.POT_PRAYER_DOSE_4).getStackSize() < 18 && Inventory.getCount(Data.POT_PRAYER_DOSE_4) < 18) {
+				} else if (Bank.getItem(Data.POT_PRAYER_DOSE_4).getStackSize() < 18 && prayerPotCountData < 18) {
 					Context.get().getActiveScript().log.info("Not enough prayer pots. Shutting down... ");
 					Bank.close();
 					Game.logout(true);
@@ -167,12 +199,12 @@ public class Banking extends Strategy implements Runnable {
 				}
 				return;
 			}
-			if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) == 0) {
+			if (flaskRenewalCountData == 0) {
 				Bank.withdraw(Data.FLASK_PRAYER_RENEWAL_FULL, 3);
 				Time.sleep(80);
-				if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) != 0) {
+				if (flaskRenewalCountData == 3) {
 					Context.get().getActiveScript().log.info("Renewal flasks withdrawn");
-				} else if (Bank.getItem(Data.FLASK_PRAYER_RENEWAL_FULL).getStackSize() < 3 && Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) < 3) {
+				} else if (Bank.getItem(Data.FLASK_PRAYER_RENEWAL_FULL).getStackSize() < 3 && flaskRenewalCountData < 3) {
 					Context.get().getActiveScript().log.info("Not enough prayer renewal flasks. Shutting down...");
 					Bank.close();
 					Game.logout(true);
@@ -180,12 +212,12 @@ public class Banking extends Strategy implements Runnable {
 				}
 				return;
 			}//TODO Make banking better.
-			if (Inventory.getCount(Data.FLASK_RANGING_FULL) == 0) {
+			if (rangingFlaskData == 0) {
 				Bank.withdraw(Data.FLASK_RANGING_FULL, 3);
 				Time.sleep(80);
-				if (Inventory.getCount(Data.FLASK_RANGING_FULL) != 0) {
+				if (rangingFlaskData == 3) {
 					Context.get().getActiveScript().log.info("Range flasks withdrawn");
-				} else if (Bank.getItem(Data.FLASK_RANGING_FULL).getStackSize() < 3 && Inventory.getCount(Data.FLASK_RANGING_FULL) < 3) {
+				} else if (Bank.getItem(Data.FLASK_RANGING_FULL).getStackSize() < 3 && rangingFlaskData < 3) {
 					Context.get().getActiveScript().log.info("Not enough ranged flasks. Shutting down...");
 					Bank.close();
 					Game.logout(true);

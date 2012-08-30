@@ -156,7 +156,12 @@ public class Method {
 				}
 			}
 		} else {
-			Camera.turnTo(npc);
+			if (npc == null) {
+				Context.get().getActiveScript().log.severe("MONKEY NULL!!");
+			}
+			if (npc != null && !npc.isOnScreen()) {
+				Camera.turnTo(npc);
+			}
 		}
 	}
 
@@ -268,7 +273,7 @@ public class Method {
 				if (!Inventory.isFull() && Bank.withdraw(food.getId(), 3)) {
 					Time.sleep(200, 400);
 				}
-				if (Inventory.getCount(food.getId()) == 3){
+				if (Inventory.getCount(food.getId()) == 3) {
 					Bank.close();
 				}
 				return;
@@ -296,16 +301,24 @@ public class Method {
 			if (Tiles.TILE_GRAND_BANK.validate()) {
 				if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 2) {
 					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
-					Players.getLocal().isMoving();
+					checkRun();
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
 				}
+				return;
 			}
 			if (!Tiles.TILE_GRAND_BANK.validate()) {
 				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_BANK_TILE).randomize(2, 4).getNext();
 				Walking.walk(nextTile);
 				if (!Tiles.TILE_GRAND_BANK.validate() && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 2) {
 					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
-					Players.getLocal().isMoving();
+					checkRun();
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
 				}
+				return;
 			}
 			Camera.turnTo(Tiles.TILE_GRAND_BANK);
 			Context.get().getActiveScript().log.info("You aren't in the Grand Exchange or the n00b teleport zone! Shutting down...");
@@ -314,7 +327,6 @@ public class Method {
 	}
 
 	public static void chargePrayer() {
-
 		if (prayerIsLow()) {
 			if (Data.logWalkCode == 1) {
 				Context.get().getActiveScript().log.info("Prayer is low, let's go charge up before we head out.");
@@ -384,6 +396,7 @@ public class Method {
 			while (Players.getLocal().isMoving()) {
 				Time.sleep(50);
 			}
+			return;
 		}
 	}
 
@@ -395,6 +408,7 @@ public class Method {
 				Time.sleep(50);
 			}
 		}
+		return;
 	}
 
 	public static void openTreeDoor(final SceneObject se) {
@@ -413,8 +427,13 @@ public class Method {
 				while (se.validate() && t.isRunning()) {
 					Time.sleep(50);
 				}
-			} else if (se != null && !se.isOnScreen()) {
-				Camera.turnTo(se);
+			} else {
+				if (se == null) {
+					Context.get().getActiveScript().log.severe("LADDER IS NULL!!");
+				}
+				if (se != null && !se.isOnScreen()) {
+					Camera.turnTo(se);
+				}
 			}
 		}
 	}
