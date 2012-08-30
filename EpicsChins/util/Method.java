@@ -137,8 +137,8 @@ public class Method {
 				Time.sleep(50);
 			}
 		} else {
-			if(RANGE_POT_ITEM == null){
-			Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
+			if (RANGE_POT_ITEM == null) {
+				Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
 			}
 		}
 	}
@@ -234,29 +234,47 @@ public class Method {
 		Item prayerPot = Inventory.getItem(Data.POT_PRAYER_DOSE_4);
 
 		if (Players.getLocal().getHpPercent() < 30) {
-			Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
-			Method.checkRun();
+			Context.get().getActiveScript().log.info("HP is low, pre-eat triggered");
+			if (Tiles.TILE_GRAND_BANK.validate()) {
+				Method.checkRun();
+				Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
+			}
 			if (Tiles.TILE_GRAND_BANK.isOnScreen()) {
 				Camera.turnTo(Tiles.TILE_GRAND_BANK);
 			}
-			Bank.open();
+
+			if (!Bank.isOpen()) {
+				if (Tiles.TILE_GRAND_BANK != null && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 4) {
+					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
+					while (Players.getLocal().isMoving()) {
+						Time.sleep(50);
+					}
+					Camera.turnTo(Tiles.TILE_GRAND_BANK);
+					Players.getLocal().isMoving();
+				} else if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) <= 8) {
+					Bank.open();
+				} else if (Inventory.getCount(food.getId()) > 0) {
+					food.getWidgetChild().interact("Eat");
+					Time.sleep(Random.nextInt(300, 400));
+					return;
+				}
+				return;
+			}
+
 			if (Bank.isOpen()) {
 				if (Inventory.isFull()) {
 					Bank.deposit(Data.POT_PRAYER_DOSE_4, 3);
 				}
-				if (Bank.withdraw(food.getId(), 3)) {
+				if (!Inventory.isFull() && Bank.withdraw(food.getId(), 3)) {
 					Time.sleep(200, 400);
 				}
-				Bank.close();
+				if (Inventory.getCount(food.getId()) == 3){
+					Bank.close();
+				}
+				return;
 			}
-			if (!Bank.isOpen() && Players.getLocal().getHpPercent() > 75) {
-				food.getWidgetChild().interact("Eat");
-				Time.sleep(Random.nextInt(300, 400));
-			}
-			if (Bank.open()) {
-				Time.sleep(200, 400);
-			}
-			if (Bank.isOpen()) {
+
+			if (Bank.isOpen() && Players.getLocal().getHpPercent() > 80) {
 				Bank.deposit(prayerPot.getId(), 5);
 				if (Inventory.getCount(prayerPot.getId()) == 0) {
 					Bank.getNearest();
