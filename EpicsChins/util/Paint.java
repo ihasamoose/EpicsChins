@@ -5,8 +5,6 @@ import org.powerbot.game.api.methods.tab.Skills;
 import org.powerbot.game.api.util.Timer;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.util.logging.Logger;
 
 /**
  * User: Epics
@@ -47,15 +45,6 @@ public class Paint {
 			g1.drawString(String.valueOf(expHr), 183, 497);
 			g1.drawString(String.valueOf(chinsThrown), 351, 443);
 			g1.drawString(String.valueOf(zombieKillCount), 359, 461);
-		}
-	}
-
-	public void mouseClicked(MouseEvent e) {
-		if (new Rectangle(502, 389, 14, 15).contains(e.getPoint())) {
-			if (IMAGE_1 == null) {
-				Logger.getLogger("EpicsChins").info("Image failed to load");
-			}
-			Data.SHOWPAINT = true;
 		}
 	}
 }

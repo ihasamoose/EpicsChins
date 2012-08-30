@@ -13,8 +13,6 @@ import java.net.URL;
 import java.util.logging.Logger;
 
 public class GUI extends JFrame {
-	private static final long serialVersionUID = 3853009753324932631L;
-
 	public static int foodUser = 0; // user selected food
 	public static int antipoisonUser = 0; // user selected Antipoison
 

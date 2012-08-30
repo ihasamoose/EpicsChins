@@ -57,7 +57,7 @@ public class Method {
 		}
 	}
 
-	public static void checkPrayer() {
+	private static void checkPrayer() {
 		Context.get().getActiveScript().log.info("Running checkPrayer code");
 		if (Prayer.getPoints() <= 250) {
 			final Item PRAYER_POT_ITEM = Inventory.getItem(Data.POT_PRAYER);
@@ -84,7 +84,7 @@ public class Method {
 		}
 	}
 
-	public static void doDrinkRenewal() {
+	private static void doDrinkRenewal() {
 		Context.get().getActiveScript().log.info("Running doDrinkRenewal code");
 		final Item PRAYER_RENEWAL_ITEM = Inventory.getItem(Data.FLASK_PRAYER_RENEWAL);
 		if (PRAYER_RENEWAL_ITEM != null && PRAYER_RENEWAL_ITEM.getWidgetChild().interact("Drink")) {
@@ -123,7 +123,7 @@ public class Method {
 		}
 	}
 
-	public static void doDrinkRangePotion() {
+	private static void doDrinkRangePotion() {
 		Context.get().getActiveScript().log.info("Running doDrinkRangePotion code");
 		final Item RANGE_POT_ITEM = Inventory.getItem(Data.FLASK_RANGING);
 		final int REAL_RANGE = Skills.getRealLevel(Skills.RANGE);
@@ -158,7 +158,7 @@ public class Method {
 		}
 	}
 
-	public static void equipGreegree() {
+	private static void equipGreegree() {
 		Item greegree = Inventory.getItem(Data.GREEGREE_IDS);
 		if (greegree != null && greegree.getWidgetChild().click(true)) {
 			final int ID = greegree.getId();
@@ -174,23 +174,12 @@ public class Method {
 		}
 	}
 
-	public static boolean tileContainsTwoOrMore(final Tile tile) {
-		Logger.getLogger("EpicsChins").info("Running tileContainsTwoOrMore code");
-		final Player[] PLAYERS_ON_TILE = Players.getLoaded(new Filter<Player>() {
-			@Override
-			public boolean accept(Player t) {
-				return t.getLocation().equals(tile);
-			}
-		});
-		return Game.getClientState() != Game.INDEX_MAP_LOADING && PLAYERS_ON_TILE.length >= 2;
-	}
-
-	public static boolean areaContainsTwoOrMore() {
+	public static boolean areaContainsTwoOrMore(final Area area) {
 		Logger.getLogger("EpicsChins").info("Running areaContainsTwoOrMore code");
 		final Player[] PLAYERS_IN_AREA = Players.getLoaded(new Filter<Player>() {
 			@Override
 			public boolean accept(Player t) {
-				return Tiles.AREA_CHIN_3_4.contains(t);
+				return area.contains(t) && t.getName().equals(Players.getLocal().getName());
 			}
 		});
 		return Game.getClientState() != Game.INDEX_MAP_LOADING && PLAYERS_IN_AREA.length >= 2;
@@ -226,7 +215,7 @@ public class Method {
 		}
 	}
 
-	public static void yesInterfaceClicker() {
+	private static void yesInterfaceClicker() {
 		WidgetChild yesInterface = Widgets.get(1188, 3);
 
 		if (yesInterface != null && yesInterface.click(true)) {
@@ -305,10 +294,10 @@ public class Method {
 	}
 
 	public static void chargePrayer() {
-		final double PRAYER_POINTS = (Prayer.getPoints() * 10);
-		final double PRAYER_MINIMUM = (Skills.getLevel(Skills.PRAYER) * 0.5);
+		final double prayerPoints = (Prayer.getPoints());
+		final double prayerMinimum = ((Skills.getLevel(Skills.PRAYER) * 10)* 0.5);
 
-		if (PRAYER_POINTS <= PRAYER_MINIMUM) {
+		if (prayerPoints <= prayerMinimum) {
 			if (Data.logWalkCode == 1) {
 				Context.get().getActiveScript().log.info("Prayer is low, let's go charge up before we head out.");
 				Data.logWalkCode++;
@@ -371,7 +360,10 @@ public class Method {
 	}
 
 	public static void isInGE() {
-		if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
+		double prayerPoints = (Prayer.getPoints());
+		double prayerMinimum = ((Skills.getLevel(Skills.PRAYER) * 10)* 0.5);
+
+		if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation()) && prayerPoints >= prayerMinimum) {
 			Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
 			while (Players.getLocal().isMoving()) {
 				Time.sleep(50);
@@ -500,97 +492,96 @@ public class Method {
 		}
 	}
 
-	public static void checkSpots() {
-		if (Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation())) {
-			Data.logWalkCode = 0;
+	public static void checkSpotOne() {
+		if (Calculations.distanceTo(Tiles.TILE_CHIN_1) >= 5) {
+			Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext();
+			Walking.walk(nextTile);
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
+		} else {
+			Walking.findPath(Tiles.TILE_CHIN_1).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
+		}
+	}
 
-			Method.checkRenewal();
-			if (!Prayer.isQuickOn()) {
-				Prayer.toggleQuick(true);
-				Timer t = new Timer(2500);
-				while (!Prayer.isQuickOn() && t.isRunning()) {
-					Time.sleep(50);
-				}
-			}
-			if (Calculations.distanceTo(Tiles.TILE_CHIN_1) >= 5) {
-				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext();
-				Walking.walk(nextTile);
-				while (Players.getLocal().isMoving()) {
-					Time.sleep(50);
-				}
-				return;
-			} else {
-				Walking.findPath(Tiles.TILE_CHIN_1).traverse();
-				while (Players.getLocal().isMoving()) {
-					Time.sleep(50);
-				}
-			}
-			if (Method.tileContainsTwoOrMore(Tiles.TILE_CHIN_1)) {
-				if (Calculations.distanceTo(Tiles.TILE_CHIN_2) >= 5) {
-					Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).traverse();
-					Walking.findPath(Tiles.TILE_CHIN_2).traverse();
-					while (Players.getLocal().isMoving()) {
-						if (Method.isPoisoned()) {
-							Method.doDrinkAntipoison();
-							return;
-						}
-						Time.sleep(50);
-					}
+	public static void checkSpotTwo() {
+		if (Calculations.distanceTo(Tiles.TILE_CHIN_2) >= 5) {
+			Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).traverse();
+			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
 					return;
 				}
-				if (Method.tileContainsTwoOrMore(Tiles.TILE_CHIN_2)) {
-					if (Calculations.distanceTo(Tiles.TILE_CHIN_3) >= 5) {
-						Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).traverse();
-						Walking.findPath(Tiles.TILE_CHIN_3).traverse();
-						while (Players.getLocal().isMoving()) {
-							if (Method.isPoisoned()) {
-								Method.doDrinkAntipoison();
-								return;
-							}
-							Time.sleep(50);
-						}
-						return;
-					}
-					if (Method.areaContainsTwoOrMore()) {
-						Method.changeWorlds();
-					} else {
-						if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation())) {
-							Walking.findPath(Tiles.TILE_CHIN_3).traverse();
-							while (Players.getLocal().isMoving()) {
-								if (Method.isPoisoned()) {
-									Method.doDrinkAntipoison();
-									return;
-								}
-								Time.sleep(50);
-							}
-							Data.atDestination = true;
-						}
-					}
-				} else {
-					while (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation())) {
-						Walking.findPath(Tiles.TILE_CHIN_2).traverse();
-						while (Players.getLocal().isMoving()) {
-							if (Method.isPoisoned()) {
-								Method.doDrinkAntipoison();
-								return;
-							}
-							Time.sleep(50);
-						}
-						Data.atDestination = true;
-					}
+				Time.sleep(50);
+			}
+		}
+	}
+
+	public static void checkSpotThree() {
+		if (Calculations.distanceTo(Tiles.TILE_CHIN_3) >= 5) {
+			Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).traverse();
+			Walking.findPath(Tiles.TILE_CHIN_3).traverse();
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
 				}
-			} else {
-				while (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation())) {
-					Walking.findPath(Tiles.TILE_CHIN_1).traverse();
-					while (Players.getLocal().isMoving()) {
-						if (Method.isPoisoned()) {
-							Method.doDrinkAntipoison();
-							return;
-						}
-						Time.sleep(50);
-					}
-					Data.atDestination = true;
+				Time.sleep(50);
+			}
+		}
+	}
+	public static void chinSpotOne() {
+		while (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation())) {
+			Walking.findPath(Tiles.TILE_CHIN_1).traverse();
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
 				}
+				Time.sleep(50);
+			}
+			Data.atDestination = true;
+		}
+	}
+
+	public static void chinSpotThwo() {
+		while (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation())) {
+			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
+				}
+				Time.sleep(50);
+			}
+			Data.atDestination = true;
+		}
+
+	}
+	public static void chinSpotThree() {
+		if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation())) {
+			Walking.findPath(Tiles.TILE_CHIN_3).traverse();
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
+				}
+				Time.sleep(50);
+			}
+			Data.atDestination = true;
+		}
+	}
+
+	public static void setQuickOn() {
+		if (Prayer.isQuickOn()) {
+			Prayer.toggleQuick(true);
+			Timer t = new Timer(2500);
+			while (!Prayer.isQuickOn() && t.isRunning()) {
+				Time.sleep(50);
 			}
 		}
 	}

@@ -168,7 +168,6 @@ public class Banking extends Strategy implements Runnable {
 				return;
 			}
 			if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) == 0) {
-				Context.get().getActiveScript().log.info(String.valueOf(Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL)));
 				Bank.withdraw(Data.FLASK_PRAYER_RENEWAL_FULL, 3);
 				Time.sleep(80);
 				if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) != 0) {

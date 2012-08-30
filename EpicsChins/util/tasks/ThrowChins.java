@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  * To change this template use File | Settings | File Templates.
  */
 public class ThrowChins extends Strategy implements Runnable {
-	NPC monkeyZombie;
+	private NPC monkeyZombie;
 
 	@Override
 	public void run() {

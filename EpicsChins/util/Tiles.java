@@ -46,7 +46,7 @@ public class Tiles {
 	public final static Tile TILE_CHIN_1 = new Tile(2715, 9127, 0);
 	public final static Tile TILE_CHIN_2 = new Tile(2746, 9122, 0);
 	public final static Tile TILE_CHIN_3 = new Tile(2709, 9116, 0);
-	public final static Tile TILE_CHIN_4 = new Tile(2701, 9111, 0);
+	private final static Tile TILE_CHIN_4 = new Tile(2701, 9111, 0);
 	public final static Tile TILE_TREE_DOOR = new Tile(2466, 3491, 0);
 	public final static Tile TILE_PRAYER = new Tile(3253, 3485, 0);
 	public final static Tile TILE_INSIDE_TREE_DOOR = new Tile(2466, 3493, 0);
@@ -56,7 +56,8 @@ public class Tiles {
 	java.util.List<Tile>
 			CHIN_LIST =
 			Arrays.asList(Tiles.TILE_CHIN_1, Tiles.TILE_CHIN_2, Tiles.TILE_CHIN_3, Tiles.TILE_CHIN_4);
-
+	public final static Area AREA_CHIN_1 = new Area(new Tile(2721,9132,0), new Tile(2712,9126,0));
+	public final static Area AREA_CHIN_2 = new Area(new Tile(2741,9129,0), new Tile(2746,9117,0));
 	public final static Area AREA_CHIN_3_4 = new Area(new Tile(2709, 9116, 0), new Tile(2701, 9111, 0));
 	public final static Area AREA_GE = new Area(new Tile(3135, 3464, 0), new Tile(3203, 3516, 0));
 	public final static Area AREA_BLINDFOLD_ZONE = new Area(new Tile(2660, 4501, 0), new Tile(2641, 4531, 0));
