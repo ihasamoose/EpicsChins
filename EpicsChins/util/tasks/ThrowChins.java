@@ -35,6 +35,8 @@ public class ThrowChins extends Strategy implements Runnable {
 			Data.logAttackCode++;
 		}
 		if (Inventory.getCount(Data.chinNumber) >= 1) {
+			Context.get().getActiveScript().log.info("Setting quick prayer before equipping chins...");
+			Method.setQuickOn();
 			Context.get().getActiveScript().log.info("Chins are in inventory, that must mean greegree is equipped. Equipping...");
 			Item chinNumberItem = Inventory.getItem(10034);
 			chinNumberItem.getWidgetChild().click(true);

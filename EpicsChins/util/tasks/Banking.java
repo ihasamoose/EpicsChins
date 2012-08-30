@@ -229,7 +229,7 @@ public class Banking extends Strategy implements Runnable {
 				if (y.getId() == x) {
 					antipoisonData++;
 				}
-			}
+			}//TODO banking if another flask is present in inventory with another dosage
 			for (int x : Data.FLASK_PRAYER_RENEWAL) {
 				if (y.getId() == x) {
 					flaskRenewalCountData++;

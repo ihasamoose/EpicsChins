@@ -137,7 +137,9 @@ public class Method {
 				Time.sleep(50);
 			}
 		} else {
+			if(RANGE_POT_ITEM == null){
 			Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
+			}
 		}
 	}
 
@@ -294,10 +296,8 @@ public class Method {
 	}
 
 	public static void chargePrayer() {
-		final double prayerPoints = (Prayer.getPoints());
-		final double prayerMinimum = ((Skills.getLevel(Skills.PRAYER) * 10)* 0.5);
 
-		if (prayerPoints <= prayerMinimum) {
+		if (prayerIsLow()) {
 			if (Data.logWalkCode == 1) {
 				Context.get().getActiveScript().log.info("Prayer is low, let's go charge up before we head out.");
 				Data.logWalkCode++;
@@ -360,10 +360,8 @@ public class Method {
 	}
 
 	public static void isInGE() {
-		double prayerPoints = (Prayer.getPoints());
-		double prayerMinimum = ((Skills.getLevel(Skills.PRAYER) * 10)* 0.5);
 
-		if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation()) && prayerPoints >= prayerMinimum) {
+		if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
 			while (Players.getLocal().isMoving()) {
 				Time.sleep(50);
@@ -468,7 +466,7 @@ public class Method {
 
 	public static void interactAndWalkToLadder() {
 		if (Tiles.AREA_APE_ATOLL.contains(Players.getLocal().getLocation())) {
-			if (Calculations.distanceTo(Tiles.TILE_APE_LADDER_TOP) <= 10) {
+			if (Calculations.distanceTo(Tiles.TILE_APE_LADDER_TOP) <= 2) {
 				Data.runCheck = true;
 			}
 
@@ -497,12 +495,23 @@ public class Method {
 			Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext();
 			Walking.walk(nextTile);
 			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
+				}
 				Time.sleep(50);
 			}
 		} else {
 			Walking.findPath(Tiles.TILE_CHIN_1).traverse();
 			while (Players.getLocal().isMoving()) {
 				Time.sleep(50);
+			}
+		}
+		if (Calculations.distanceTo(Tiles.TILE_CHIN_1) <= 10) {
+			if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_1)) {
+				Method.chinSpotTwo();
+			} else {
+				Method.chinSpotOne();
 			}
 		}
 	}
@@ -518,6 +527,18 @@ public class Method {
 				}
 				Time.sleep(50);
 			}
+		} else {
+			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
+		}
+		if (Calculations.distanceTo(Tiles.TILE_CHIN_2) <= 10) {
+			if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_2)) {
+				Method.chinSpotThree();
+			} else {
+				Method.chinSpotTwo();
+			}
 		}
 	}
 
@@ -532,8 +553,21 @@ public class Method {
 				}
 				Time.sleep(50);
 			}
+		} else {
+			Walking.findPath(Tiles.TILE_CHIN_3).traverse();
+			while (Players.getLocal().isMoving()) {
+				Time.sleep(50);
+			}
+		}
+		if (Calculations.distanceTo(Tiles.TILE_CHIN_3) <= 10) {
+			if (!Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_3_4)) {
+				Method.changeWorlds();
+			} else {
+				Method.chinSpotThree();
+			}
 		}
 	}
+
 	public static void chinSpotOne() {
 		while (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_CHIN_1).traverse();
@@ -548,7 +582,7 @@ public class Method {
 		}
 	}
 
-	public static void chinSpotThwo() {
+	public static void chinSpotTwo() {
 		while (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
 			while (Players.getLocal().isMoving()) {
@@ -562,6 +596,7 @@ public class Method {
 		}
 
 	}
+
 	public static void chinSpotThree() {
 		if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_CHIN_3).traverse();
@@ -584,5 +619,12 @@ public class Method {
 				Time.sleep(50);
 			}
 		}
+	}
+
+	public static boolean prayerIsLow() {
+		final double prayerPoints = (Prayer.getPoints());
+		final double prayerMinimum = ((Skills.getLevel(Skills.PRAYER) * 10) * 0.5);
+
+		return prayerPoints <= prayerMinimum;
 	}
 }

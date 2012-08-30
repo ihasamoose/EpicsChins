@@ -34,11 +34,17 @@ public class RunToChins extends Strategy implements Runnable {
 		}
 
 		if (!Tiles.CHIN_LIST.contains(Players.getLocal().getLocation())) {
+			if (Method.prayerIsLow()) {
+				Method.chargePrayer();
+			}
+
+			if (!Method.prayerIsLow()) {
+				Method.isInGE();
+			}
+
 			Method.checkRun();
 			Method.preEat();
 			Method.checkNoobTele();
-			Method.chargePrayer();
-			Method.isInGE();
 
 
 			SceneObject spiritTreeGe = SceneEntities.getNearest(Data.ID_SPIRITTREE_GE);
@@ -83,27 +89,10 @@ public class RunToChins extends Strategy implements Runnable {
 
 			if (Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation())) {
 				Method.checkRenewal();
-				Method.setQuickOn();
 
 				Method.checkSpotOne();
-				if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_1)) {
-					Method.chinSpotOne();
-				} else {
-					Method.chinSpotThree();
-				}
-
 				Method.checkSpotTwo();
-				if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_2)) {
-					Method.checkSpotThree();
-				} else {
-					Method.chinSpotThwo();
-				}
-
-				if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_3_4)) {
-					Method.changeWorlds();
-				} else {
-					Method.chinSpotThree();
-				}
+				Method.checkSpotThree();
 			}
 		}
 	}
