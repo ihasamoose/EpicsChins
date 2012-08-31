@@ -21,7 +21,6 @@ import org.powerbot.game.bot.Context;
  * User: Epics
  * Date: 8/28/12
  * Time: 8:07 PM
- * To change this template use File | Settings | File Templates.
  */
 public class RunToChins extends Strategy implements Runnable {
 
@@ -86,14 +85,6 @@ public class RunToChins extends Strategy implements Runnable {
 			Data.checkChins = true;
 			Method.utilizeGreegree();
 			Method.interactAndWalkToLadder();
-
-			if (Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation())) {
-				Method.checkRenewal();
-
-				Method.checkSpotOne();
-				Method.checkSpotTwo();
-				Method.checkSpotThree();
-			}
 		}
 	}
 
@@ -126,8 +117,6 @@ public class RunToChins extends Strategy implements Runnable {
 				}
 			}
 		}
-
-		return antipoisonData >= 1 && flaskRenewalCountData >= 3 && prayerPotCountData >= 18 && rangingFlaskData >= 3 && Data.chinNumber >= 1500 && Inventory.getCount(Data.TAB_VARROCK) >= 1 && Inventory.getCount(GUI.foodUser) >= 1 &&
-		       !Method.isPoisoned() && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
+		return !Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && antipoisonData >= 1 && flaskRenewalCountData >= 3 && prayerPotCountData >= 18 && rangingFlaskData >= 3 && Data.chinNumber >= 1500 && Inventory.getCount(Data.TAB_VARROCK) >= 1 && Inventory.getCount(GUI.foodUser) >= 1 && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

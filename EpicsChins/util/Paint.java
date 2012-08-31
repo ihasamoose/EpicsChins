@@ -25,38 +25,43 @@ public class Paint {
 	public final static Image IMAGE_1 = GUI.getImage("http://2c1c.net/images/paint.png");
 
 	public static void paintStuff(Graphics2D g) {
-		int mouseX = Mouse.getX();
-		int mouseY = Mouse.getY();
 
 		int rangeGainedExp = Skills.getExperience(Skills.RANGE) - rangedStartExp;
 		int hpGainedExp = Skills.getExperience(Skills.CONSTITUTION) - hpStartExp;
 		int expHr = (int) ((rangeGainedExp) * 3600000D / (System.currentTimeMillis() - startTime));
 
 		if (Data.SHOWPAINT) {
-			Graphics2D g1 = (Graphics2D) g;
-			g1.drawImage(IMAGE_1, -4, 336, null);
-			g1.setFont(FONT);
-			g1.setColor(COLOR);
-			g1.drawString(RUNTIME.toElapsedString(), 215, 444);
-			g1.drawString(String.valueOf(rangeGainedExp), 198, 460);
-			g1.drawString(String.valueOf(hpGainedExp), 181, 480);
-			g1.drawLine(mouseX, mouseY - 10, mouseX, mouseY + 10);
-			g1.drawLine(mouseX - 10, mouseY, mouseX + 10, mouseY);
-			g1.drawString(String.valueOf(expHr), 183, 497);
-			g1.drawString(String.valueOf(chinsThrown), 351, 443);
-			g1.drawString(String.valueOf(zombieKillCount), 359, 461);
+			g.drawImage(IMAGE_1, -4, 336, null);
+			g.setFont(FONT);
+			g.setColor(COLOR);
+			g.drawString(RUNTIME.toElapsedString(), 215, 444);
+			g.drawString(String.valueOf(rangeGainedExp), 198, 460);
+			g.drawString(String.valueOf(hpGainedExp), 181, 480);
+			g.drawString(String.valueOf(expHr), 183, 497);
+			g.drawString(String.valueOf(chinsThrown), 351, 443);
+			g.drawString(String.valueOf(zombieKillCount), 359, 461);
 
 			Point centralPoint = Mouse.getLocation();
 			Point ovalPoint = new Point((int) centralPoint.getX() - 5, (int) centralPoint.getY() - 5);
-			Color malk = new Color(136, 0, 0, 48);
-			g1.setColor(malk);
 			final long mpt = System.currentTimeMillis() - Mouse.getPressTime();
+
 			if (Mouse.getPressTime() == -1 || mpt >= 200) {
-				g1.fillOval((int) ovalPoint.getX(), (int) ovalPoint.getY(), 10, 10);
+				Color malk = new Color(0, 136, 0, 50);
+				g.setColor(malk);
+				g.fillOval((int) ovalPoint.getX() - 2, (int) ovalPoint.getY() - 2, 15, 15);
+				Color malk1 = new Color(0, 136, 0, 100);
+				g.setColor(malk1);
+				g.drawOval((int) ovalPoint.getX() - 2, (int) ovalPoint.getY() - 2, 15, 15);
+
+				if (mpt < 200) {
+					Color ralk = new Color(136, 0, 0, 50);
+					g.setColor(ralk);
+					g.fillOval((int) ovalPoint.getX() - 2, (int) ovalPoint.getY() - 2, 15, 15);
+					Color ralk1 = new Color(136, 0, 0, 100);
+					g.setColor(ralk1);
+					g.drawOval((int) ovalPoint.getX() - 2, (int) ovalPoint.getY() - 2, 15, 15);
+				}
 			}
-			if (mpt < 200) {
-				g1.drawOval((int) ovalPoint.getX(), (int) ovalPoint.getY(), 10, 10);
-			}
+		}
 	}
-}
 }

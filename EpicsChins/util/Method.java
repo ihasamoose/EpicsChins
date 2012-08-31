@@ -22,8 +22,6 @@ import org.powerbot.game.api.wrappers.node.SceneObject;
 import org.powerbot.game.api.wrappers.widget.WidgetChild;
 import org.powerbot.game.bot.Context;
 
-import java.util.logging.Logger;
-
 /**
  * User: Epics
  * Date: 8/28/12
@@ -41,7 +39,7 @@ public class Method {
 		if (Game.logout(true)) {
 			Time.sleep(Random.nextInt(2000, 5000));
 			if (Lobby.isOpen() && Game.getClientState() != Lobby.STATE_LOBBY_IDLE) {
-				int randomWorld = Data.WORLDS_MEMBER[Random.nextInt(0, Data.WORLDS_MEMBER.length) - 1];
+				final int randomWorld = Data.WORLDS_MEMBER[Random.nextInt(0, Data.WORLDS_MEMBER.length) - 1];
 				Context.setLoginWorld(randomWorld);
 				Time.sleep(Random.nextInt(200, 400));
 				if (Game.isLoggedIn()) {
@@ -58,37 +56,32 @@ public class Method {
 	}
 
 	private static void checkPrayer() {
-		Context.get().getActiveScript().log.info("Running checkPrayer code");
 		if (Prayer.getPoints() <= 250) {
-			final Item PRAYER_POT_ITEM = Inventory.getItem(Data.POT_PRAYER);
-			if (PRAYER_POT_ITEM != null && PRAYER_POT_ITEM.getWidgetChild().interact("Drink")) {
-				final int id = PRAYER_POT_ITEM.getId();
+			final Item prayerPot = Inventory.getItem(Data.POT_PRAYER);
+			if (prayerPot != null && prayerPot.getWidgetChild().interact("Drink")) {
+				final int id = prayerPot.getId();
 				final int count = Inventory.getCount(id);
 				final Timer t = new Timer(2500);
 				while (t.isRunning() && Inventory.getCount(id) == count) {
 					Time.sleep(50);
 				}
-			} else {
-				Context.get().getActiveScript().log.info("Prayer is above 25%, not using potion!");
 			}
 		}
 	}
 
 	public static void checkRenewal() {
-		Context.get().getActiveScript().log.info("Running checkRenewal code");
 		if (Data.t == null || !Data.t.isRunning()) {
-			doDrinkRenewal();
+			drinkRenewal();
 			Data.t = new Timer(300000);
 		} else {
 			Data.t.reset();
 		}
 	}
 
-	private static void doDrinkRenewal() {
-		Context.get().getActiveScript().log.info("Running doDrinkRenewal code");
-		final Item PRAYER_RENEWAL_ITEM = Inventory.getItem(Data.FLASK_PRAYER_RENEWAL);
-		if (PRAYER_RENEWAL_ITEM != null && PRAYER_RENEWAL_ITEM.getWidgetChild().interact("Drink")) {
-			final int id = PRAYER_RENEWAL_ITEM.getId();
+	private static void drinkRenewal() {
+		final Item prayerRenewal = Inventory.getItem(Data.FLASK_PRAYER_RENEWAL);
+		if (prayerRenewal != null && prayerRenewal.getWidgetChild().interact("Drink")) {
+			final int id = prayerRenewal.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -97,11 +90,11 @@ public class Method {
 		}
 	}
 
-	public static void doDrinkAntipoison() {
-		Context.get().getActiveScript().log.info("Running doDrinkAntipoison code");
-		final Item ANTIPOISON_ALL_ITEM = Inventory.getItem(GUI.antipoisonUser);
-		if (ANTIPOISON_ALL_ITEM != null && ANTIPOISON_ALL_ITEM.getWidgetChild().interact("Drink")) {
-			final int id = ANTIPOISON_ALL_ITEM.getId();
+	public static void checkAntipoison() {
+		final Item antipoisonAllItem = Inventory.getItem(GUI.antipoisonUser);
+		if (antipoisonAllItem != null && isPoisoned() && antipoisonAllItem.getWidgetChild().interact("Drink")) {
+			Context.get().getActiveScript().log.info("Running doDrinkAntipoison code");
+			final int id = antipoisonAllItem.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -110,11 +103,11 @@ public class Method {
 		}
 	}
 
-	public static void doBreakTab() {
+	public static void breakTab() {
 		Context.get().getActiveScript().log.info("Running doBreakTab code");
-		final Item TAB_ITEM = Inventory.getItem(Data.TAB_VARROCK);
-		if (TAB_ITEM != null && TAB_ITEM.getWidgetChild().interact("Break")) {
-			final int id = TAB_ITEM.getId();
+		final Item tabItem = Inventory.getItem(Data.TAB_VARROCK);
+		if (tabItem != null && tabItem.getWidgetChild().interact("Break")) {
+			final int id = tabItem.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
@@ -123,70 +116,110 @@ public class Method {
 		}
 	}
 
-	private static void doDrinkRangePotion() {
-		Context.get().getActiveScript().log.info("Running doDrinkRangePotion code");
-		final Item RANGE_POT_ITEM = Inventory.getItem(Data.FLASK_RANGING);
-		final int REAL_RANGE = Skills.getRealLevel(Skills.RANGE);
-		final int POTTED_RANGE = Skills.getLevel(Skills.RANGE);
-		final int RANGE_DIFFERENCE = POTTED_RANGE - REAL_RANGE;
-		if (RANGE_POT_ITEM != null && RANGE_DIFFERENCE <= 3 && RANGE_POT_ITEM.getWidgetChild().interact("Drink")) {
-			final int id = RANGE_POT_ITEM.getId();
+	private static void checkRange() {
+		final Item rangePotItem = Inventory.getItem(Data.FLASK_RANGING);
+		final int realRange = Skills.getRealLevel(Skills.RANGE);
+		final int pottedRange = Skills.getLevel(Skills.RANGE);
+		final int rangeDifference = pottedRange - realRange;
+		if (rangePotItem != null && rangeDifference <= 3 && rangePotItem.getWidgetChild().interact("Drink")) {
+			final int id = rangePotItem.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
 			while (t.isRunning() && Inventory.getCount(id) == count) {
 				Time.sleep(50);
 			}
 		} else {
-			if (RANGE_POT_ITEM == null) {
+			if (rangePotItem == null) {
 				Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
+				Data.outOfRangePots = true;
 			}
 		}
 	}
 
-	public static void doAttackMonkey(final NPC npc) {
-		Context.get().getActiveScript().log.info("Running doAttackMonkey code");
+	public static void attackMonkey(final NPC npc) {
+		if (Data.logAttackMoneyCode == 0) {
+			Context.get().getActiveScript().log.info("Running doAttackMonkey code");
+			Data.logAttackMoneyCode++;
+		}
+		setQuickOn();
 		checkPrayer();
 		checkRenewal();
-		doDrinkRangePotion();
+		checkAntipoison();
+		checkPrayer();
+		checkRange();
+		watchHp();
+		checkGreegreeState();
 		if (npc != null && npc.isOnScreen()) {
 			if (npc.interact("Attack")) {
-				Time.sleep(50);
-				if (Players.getLocal().getInteracting().equals(npc)) {
+				Context.get().getActiveScript().log.info("a");
+				final Timer t = new Timer(5000);
+				while (t.isRunning() && npc.interact("Attack")) {
+					Context.get().getActiveScript().log.info("Killing monkeys and nothing is needed. Using antiban...");
+					Method.antiban();
 					Time.sleep(Random.nextInt(700, 800));
+				}
+				return;
+			}
+
+			final Item vial = Inventory.getItem(229);
+			if (vial != null) {
+				if (vial.getWidgetChild().interact("Drop")) {
+					Time.sleep(1500);
+				}
+			}
+
+			if (Players.getLocal().getAnimation() == Data.ID_CHIN_THROW) {
+				Context.get().getActiveScript().log.info("Chins thrown: " + Paint.chinsThrown);
+				Paint.chinsThrown++;
+				Context.get().getActiveScript().log.info("Chin number:  " + Data.chinNumber);
+				Data.chinNumber--;
+			}
+
+			if (npc.validate() && npc.get().getAnimation() == Data.ID_ANIMATION_DEATH_ZOMBIE) {
+				Context.get().getActiveScript().log.info("Kill count: " + Paint.zombieKillCount);
+				Paint.zombieKillCount++;
+			}
+
+			if (Players.getLocal().getInteracting().equals(npc)) {
+				final Timer t = new Timer(5000);
+				while (t.isRunning() && npc.interact("Attack")) {
+					Time.sleep(50);
 				}
 			}
 		} else {
 			if (npc == null) {
 				Context.get().getActiveScript().log.severe("MONKEY NULL!!");
-			}
-			if (npc != null && !npc.isOnScreen()) {
+			} else if (!npc.isOnScreen()) {
 				Camera.turnTo(npc);
 			}
 		}
+
+		Data.logAttackCode = 0;
+		Data.logAttackMoneyCode = 0;
 	}
 
 	private static void equipGreegree() {
-		Item greegree = Inventory.getItem(Data.GREEGREE_IDS);
-		if (greegree != null && greegree.getWidgetChild().click(true)) {
+		final Item greegree = Inventory.getItem(Data.GREEGREE_IDS);
+		if (greegree != null) {
 			final int ID = greegree.getId();
 			final int COUNT = Inventory.getCount(ID);
-			final Timer t = new Timer(2500);
-			while (t.isRunning() && Inventory.getCount(ID) == COUNT) {
-				Time.sleep(50);
-			}
-		} else {
-			if (greegree == null) {
-				Data.runCheck = true;
+			if (greegree.getWidgetChild().click(true)) {
+				final Timer t = new Timer(2500);
+				while (t.isRunning()) {
+					if (Inventory.getCount(ID) == COUNT) {
+						return;
+					}
+					Time.sleep(50);
+				}
 			}
 		}
 	}
 
 	public static boolean areaContainsTwoOrMore(final Area area) {
-		Logger.getLogger("EpicsChins").info("Running areaContainsTwoOrMore code");
 		final Player[] PLAYERS_IN_AREA = Players.getLoaded(new Filter<Player>() {
 			@Override
 			public boolean accept(Player t) {
-				return area.contains(t) && t.getName().equals(Players.getLocal().getName());
+				return area.contains(t) && !t.getName().equals(Players.getLocal().getName());
 			}
 		});
 		return Game.getClientState() != Game.INDEX_MAP_LOADING && PLAYERS_IN_AREA.length >= 2;
@@ -195,16 +228,13 @@ public class Method {
 	public static void antiban() {
 		final int RANDOM_PITCH = Random.nextInt(350, 10);
 		final int RANDOM_ANGLE = Random.nextInt(89, 50);
-		Logger.getLogger("EpicsChins").info("Running antiban code");
 		int state = Random.nextInt(0, 3);
 		switch (state) {
 			case 1:
-				Logger.getLogger("EpicsChins").info("Setting random camera angle & pitch");
 				Camera.setAngle(RANDOM_ANGLE);
 				Camera.setPitch(RANDOM_PITCH);
 				break;
 			case 2:
-				Logger.getLogger("EpicsChins").info("Checking constitution leveling progress");
 				WidgetChild c = Widgets.get(1213).getChild(12);
 				if (c.validate()) {
 					c.hover();
@@ -212,7 +242,6 @@ public class Method {
 				}
 				break;
 			case 3:
-				Logger.getLogger("EpicsChins").info("Checking ranging leveling progress");
 				WidgetChild d = Widgets.get(1213).getChild(14);
 				if (d.validate()) {
 					d.hover();
@@ -223,11 +252,11 @@ public class Method {
 	}
 
 	private static void yesInterfaceClicker() {
-		WidgetChild yesInterface = Widgets.get(1188, 3);
+		final WidgetChild yesInterface = Widgets.get(1188, 3);
 
 		if (yesInterface != null && yesInterface.click(true)) {
-			final Timer YES_INTERFACE_TIMER = new Timer(2500);
-			while (YES_INTERFACE_TIMER.isRunning()) {
+			final Timer yesInterfaceTimer = new Timer(2500);
+			while (yesInterfaceTimer.isRunning()) {
 				Time.sleep(50);
 			}
 			Time.sleep(2000);
@@ -235,8 +264,8 @@ public class Method {
 	}
 
 	public static void preEat() {
-		Item food = Inventory.getItem(GUI.foodUser);
-		Item prayerPot = Inventory.getItem(Data.POT_PRAYER_DOSE_4);
+		final Item food = Inventory.getItem(GUI.foodUser);
+		final Item prayerPot = Inventory.getItem(Data.POT_PRAYER_DOSE_4);
 
 		if (Players.getLocal().getHpPercent() < 30) {
 			Context.get().getActiveScript().log.info("HP is low, pre-eat triggered");
@@ -251,9 +280,7 @@ public class Method {
 			if (!Bank.isOpen()) {
 				if (Tiles.TILE_GRAND_BANK != null && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 4) {
 					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
-					while (Players.getLocal().isMoving()) {
-						Time.sleep(50);
-					}
+					runState();
 					Camera.turnTo(Tiles.TILE_GRAND_BANK);
 					Players.getLocal().isMoving();
 				} else if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) <= 8) {
@@ -302,21 +329,18 @@ public class Method {
 				if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 2) {
 					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
 					checkRun();
-					while (Players.getLocal().isMoving()) {
-						Time.sleep(50);
-					}
+					runState();
+
 				}
 				return;
 			}
 			if (!Tiles.TILE_GRAND_BANK.validate()) {
-				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_BANK_TILE).randomize(2, 4).getNext();
+				final Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_BANK_TILE).randomize(2, 4).getNext();
 				Walking.walk(nextTile);
 				if (!Tiles.TILE_GRAND_BANK.validate() && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 2) {
 					Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
 					checkRun();
-					while (Players.getLocal().isMoving()) {
-						Time.sleep(50);
-					}
+					runState();
 				}
 				return;
 			}
@@ -333,53 +357,44 @@ public class Method {
 				Data.logWalkCode++;
 			}
 			if (Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
-				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
+				final Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
 				if (Walking.walk(nextTile)) {
-					while (Players.getLocal().isMoving()) {
-						Time.sleep(50);
-					}
+					runState();
 				}
 			} else if (Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation())) {
-				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_TELE).randomize(2, 4).getNext();
+				final Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_TELE).randomize(2, 4).getNext();
 				Walking.walk(nextTile);
-				while (Players.getLocal().isMoving()) {
-					Time.sleep(50);
-				}
+				runState();
 			} else if (!Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation()) && !Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
-				Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
+				final Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
 				if (nextTile != null) {
 					Walking.walk(nextTile);
-					while (Players.getLocal().isMoving()) {
-						Time.sleep(50);
-					}
+					runState();
 				} else {
 					Context.get().getActiveScript().log.severe("OH MY GOD LAGG");
 				}
 			}
 			if (Tiles.TILE_PRAYER.validate() && Calculations.distanceTo(Tiles.TILE_PRAYER) <= 5) {
-				SceneObject varrockAltar = SceneEntities.getNearest(Data.ID_ALTAR_VARROCK);
+				final SceneObject varrockAltar = SceneEntities.getNearest(Data.ID_ALTAR_VARROCK);
 
 				if (varrockAltar != null && varrockAltar.isOnScreen()) {
 					varrockAltar.click(true);
 					if (Players.getLocal().getAnimation() == Data.ID_ANIMATION_PRAY) {
 						Time.sleep(100, 400);
 					}
-					if (Prayer.getPoints() == (Skills.getRealLevel(Skills.PRAYER))) {
+					if (Prayer.getPoints() == (Skills.getRealLevel(Skills.PRAYER)) * 10) {
 						Context.get().getActiveScript().log.info("All charged up, let's get going.");
 						if (!Tiles.TILE_GRAND_TREE.validate() && Calculations.distanceTo(Tiles.TILE_GRAND_TREE) >= 20) {
+							final
 							Tile
 									nextTile =
 									Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2,
 											                                                           4).reverse().getNext();
 							Walking.walk(nextTile);
-							while (Players.getLocal().isMoving()) {
-								Time.sleep(50);
-							}
+							runState();
 						} else {
 							Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
-							while (Players.getLocal().isMoving()) {
-								Time.sleep(50);
-							}
+							runState();
 						}
 					} else {
 						Camera.turnTo(varrockAltar);
@@ -393,9 +408,7 @@ public class Method {
 
 		if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
-			while (Players.getLocal().isMoving()) {
-				Time.sleep(50);
-			}
+			runState();
 		}
 	}
 
@@ -403,14 +416,13 @@ public class Method {
 	public static void isInGnome() {
 		if (Tiles.TILE_TREE_DOOR.validate() && Tiles.AREA_GNOME_STRONGHOLD.contains(Players.getLocal().getLocation())) {
 			Walking.findPath(Tiles.TILE_TREE_DOOR).traverse();
-			while (Players.getLocal().isMoving()) {
-				Time.sleep(50);
-			}
+			runState();
 		}
 	}
 
 	public static void openTreeDoor(final SceneObject se) {
 		if (se != null && Calculations.distanceTo(Tiles.TILE_TREE_DOOR) <= 10 && se.isOnScreen() && !Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation()) && !Tiles.TILE_INSIDE_TREE_DOOR_2.equals(Players.getLocal().getLocation()) && se.interact("Open")) {
+			Camera.turnTo(se);
 			final Timer t = new Timer(2500);
 			while (se.validate() && t.isRunning()) {
 				Time.sleep(50);
@@ -419,7 +431,7 @@ public class Method {
 	}
 
 	public static void climbLadder(final SceneObject se) {
-		if (Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation())) {
+		if (Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation()) || Tiles.TILE_INSIDE_TREE_DOOR_2.equals(Players.getLocal().getLocation())) {
 			if (se != null && Players.getLocal().getAnimation() == -1 && se.interact("Climb-up")) {
 				final Timer t = new Timer(2500);
 				while (se.validate() && t.isRunning()) {
@@ -439,9 +451,7 @@ public class Method {
 	public static void doYesInteraction(final Area area, final NPC npc) {
 		if (area.contains(Players.getLocal().getLocation())) {
 			Walking.findPath(npc.getLocation()).traverse();
-			while (Players.getLocal().isMoving()) {
-				Time.sleep(50);
-			}
+			runState();
 
 			if (npc.isOnScreen() && npc.interact("Travel")) {
 				Time.sleep(1000);
@@ -476,7 +486,7 @@ public class Method {
 	}
 
 	public static void clickGnomeInterface() {
-		WidgetChild spiritTreeInterface = Widgets.get(864, 6).getChild(0);
+		final WidgetChild spiritTreeInterface = Widgets.get(864, 6).getChild(0);
 		if (spiritTreeInterface != null && spiritTreeInterface.click(true)) {
 			final Timer tt = new Timer(2500);
 
@@ -506,17 +516,17 @@ public class Method {
 				Data.runCheck = true;
 			}
 
-			Walking.findPath(Tiles.TILE_APE_LADDER_TOP).traverse();
-			while (Players.getLocal().isMoving()) {
-				Time.sleep(50);
+			if (Walking.findPath(Tiles.TILE_APE_LADDER_TOP).traverse()) {
+				runState();
 			}
-			SceneObject apeAtollLadder = SceneEntities.getNearest(Data.ID_LADDER_APE);
+			final SceneObject apeAtollLadder = SceneEntities.getNearest(Data.ID_LADDER_APE);
 
 			if (apeAtollLadder != null && apeAtollLadder.isOnScreen() && Calculations.distanceTo(Tiles.TILE_APE_LADDER_TOP) <= 5 && apeAtollLadder.interact("Climb-down")) {
-				final Timer t = new Timer(2500);
+				Timer t = new Timer(2500);
 				while (apeAtollLadder.validate() && t.isRunning()) {
 					Time.sleep(50);
 				}
+
 			} else if (apeAtollLadder == null) {
 				Context.get().getActiveScript().log.info("How did you manage to break me? apeAtollLadder is null!");
 			}
@@ -526,179 +536,10 @@ public class Method {
 		}
 	}
 
-	public static void checkSpotOne() {
-		if (Tiles.AREA_CHECK_TRAPS_1.contains(Players.getLocal().getLocation()) && Tiles.TRAP_TILE_LIST_AREA_1.contains(Players.getLocal().getLocation())) {
-			Tile
-					nextNontrapTile =
-					new Tile(Players.getLocal().getLocation().getX() + 1,
-							        Players.getLocal().getLocation().getY() + 1,
-							        0);
-			Walking.walk(nextNontrapTile);
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-			}
-		}
-		if (Calculations.distanceTo(Tiles.TILE_CHIN_1) >= 5) {
-			Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext();
-			Walking.walk(nextTile);
-			Method.doDrinkAntipoison();
-			if (nextTile == null) {
-				Context.get().getActiveScript().log.severe("NEXT TILE IS NULL!!");
-			}
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-				Time.sleep(50);
-			}
-		} else {
-			Method.doDrinkAntipoison();
-			Walking.findPath(Tiles.TILE_CHIN_1).traverse();
-			while (Players.getLocal().isMoving()) {
-				Time.sleep(50);
-			}
-		}
-		if (Calculations.distanceTo(Tiles.TILE_CHIN_1) <= 10) {
-			Method.doDrinkAntipoison();
-			if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_1)) {
-				Method.chinSpotTwo();
-			} else {
-				Method.chinSpotOne();
-			}
-		}
-	}
-
-	public static void checkSpotTwo() {
-		if (Tiles.AREA_CHECK_TRAPS_2.contains(Players.getLocal().getLocation()) && Tiles.TRAP_TILE_LIST_AREA_2.contains(Players.getLocal().getLocation())) {
-			Tile
-					nextNontrapTile =
-					new Tile(Players.getLocal().getLocation().getX() + 1,
-							        Players.getLocal().getLocation().getY() + 1,
-							        0);
-			Walking.walk(nextNontrapTile);
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-			}
-		}
-		if (Calculations.distanceTo(Tiles.TILE_CHIN_2) >= 5) {
-			Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).traverse();
-			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-				Time.sleep(50);
-			}
-		} else {
-			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
-			while (Players.getLocal().isMoving()) {
-				Time.sleep(50);
-			}
-		}
-		if (Calculations.distanceTo(Tiles.TILE_CHIN_2) <= 10) {
-			if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_2)) {
-				Method.chinSpotThree();
-			} else {
-				Method.chinSpotTwo();
-			}
-		}
-	}
-
-	public static void checkSpotThree() {
-		if (Tiles.AREA_CHECK_TRAPS_3.contains(Players.getLocal().getLocation()) && Tiles.TRAP_TILE_LIST_AREA_3.contains(Players.getLocal().getLocation())) {
-			Tile
-					nextNontrapTile =
-					new Tile(Players.getLocal().getLocation().getX() + 1,
-							        Players.getLocal().getLocation().getY() + 1,
-							        0);
-			Walking.walk(nextNontrapTile);
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-			}
-		}
-		if (Calculations.distanceTo(Tiles.TILE_CHIN_3) >= 5) {
-			Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).traverse();
-			Walking.findPath(Tiles.TILE_CHIN_3).traverse();
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-				Time.sleep(50);
-			}
-		} else {
-			Walking.findPath(Tiles.TILE_CHIN_3).traverse();
-			while (Players.getLocal().isMoving()) {
-				Time.sleep(50);
-			}
-		}
-		if (Calculations.distanceTo(Tiles.TILE_CHIN_3) <= 10) {
-			if (!Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_3_4)) {
-				Method.changeWorlds();
-			} else {
-				Method.chinSpotThree();
-			}
-		}
-	}
-
-	public static void chinSpotOne() {
-		while (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation())) {
-			Walking.findPath(Tiles.TILE_CHIN_1).traverse();
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-				Time.sleep(50);
-			}
-			Data.atDestination = true;
-		}
-	}
-
-	public static void chinSpotTwo() {
-		while (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation())) {
-			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-				Time.sleep(50);
-			}
-			Data.atDestination = true;
-		}
-
-	}
-
-	public static void chinSpotThree() {
-		if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation())) {
-			Walking.findPath(Tiles.TILE_CHIN_3).traverse();
-			while (Players.getLocal().isMoving()) {
-				if (Method.isPoisoned()) {
-					Method.doDrinkAntipoison();
-					return;
-				}
-				Time.sleep(50);
-			}
-			Data.atDestination = true;
-		}
-	}
-
 	public static void setQuickOn() {
-		if (Prayer.isQuickOn()) {
+		if (!Prayer.isQuickOn()) {
 			Prayer.toggleQuick(true);
-			Timer t = new Timer(2500);
+			final Timer t = new Timer(2500);
 			while (!Prayer.isQuickOn() && t.isRunning()) {
 				Time.sleep(50);
 			}
@@ -710,5 +551,53 @@ public class Method {
 		final double prayerMinimum = ((Skills.getLevel(Skills.PRAYER) * 10) * 0.5);
 
 		return prayerPoints <= prayerMinimum;
+	}
+
+	public static void watchHp() {
+		final WidgetChild hpWidget = Widgets.get(748, 8);
+		final String currentHpString = hpWidget.getText();
+		final double hpPointsTotal = (Skills.getRealLevel(Skills.CONSTITUTION) * 10);
+		final double hpMinimum = (hpPointsTotal / 2.5);
+		final double currentHp = Integer.parseInt(currentHpString);
+
+		if (currentHp < hpMinimum) {
+			final Item food = Inventory.getItem(GUI.foodUser);
+
+			if (Inventory.getCount(food.getId()) > 0) {
+				if (food.getWidgetChild().interact("Eat")) {
+					final int id = food.getId();
+					final int count = Inventory.getCount(id);
+					final Timer t = new Timer(2500);
+					while (t.isRunning() && Inventory.getCount(id) == count) {
+						Time.sleep(50);
+					}
+				}
+				Time.sleep(Random.nextInt(300, 400));
+			} else {
+				Context.get().getActiveScript().log.severe("NO FOOD AND LOW HP, SHUTTING DOWN!");
+				breakTab();
+				Game.logout(true);
+				Context.get().getActiveScript().stop();
+			}
+		}
+	}
+
+	public static void runState() {
+		final Timer t = new Timer(2500);
+		while (Players.getLocal().isMoving() && t.isRunning()) {
+			antiban();
+			Time.sleep(50);
+		}
+	}
+
+	public static void checkGreegreeState() {
+		if (Data.usingGreegree) {
+			final Item chin = Inventory.getItem(10034);
+			if (chin.getId() > 0) {
+				chin.getWidgetChild().click(true);
+			}
+		} else {
+			Context.get().getActiveScript().log.info("Not using greegree");
+		}
 	}
 }

@@ -16,6 +16,7 @@ import org.powerbot.game.api.methods.widget.Camera;
 import org.powerbot.game.api.util.Filter;
 import org.powerbot.game.api.util.Random;
 import org.powerbot.game.api.util.Time;
+import org.powerbot.game.api.util.Timer;
 import org.powerbot.game.api.wrappers.node.Item;
 import org.powerbot.game.bot.Context;
 
@@ -23,7 +24,6 @@ import org.powerbot.game.bot.Context;
  * User: Epics
  * Date: 8/28/12
  * Time: 8:21 PM
- * To change this template use File | Settings | File Templates.
  */
 public class Banking extends Strategy implements Runnable {
 
@@ -70,21 +70,19 @@ public class Banking extends Strategy implements Runnable {
 		}
 
 		if (!Tiles.AREA_GE.contains(Players.getLocal().getLocation()) && (!Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation()))) {
-			Method.doBreakTab();
+			Method.breakTab();
 		}
 
 		Method.checkRun();
 		if (!Bank.isOpen()) {
-			if (Inventory.getCount(10034) > 0){
+			if (Inventory.getCount(10034) > 0) {
 				Context.get().getActiveScript().log.info("Chins present in inventory, equipping...");
 				Item chinItem = Inventory.getItem(10034);
 				chinItem.getWidgetChild().click(true);
 			}
 			if (Tiles.TILE_GRAND_BANK != null && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 4) {
 				Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
-				while (Players.getLocal().isMoving()) {
-					Time.sleep(50);
-				}
+				Method.runState();
 				Camera.turnTo(Tiles.TILE_GRAND_BANK);
 				Players.getLocal().isMoving();
 			} else if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) <= 8) {
@@ -94,14 +92,17 @@ public class Banking extends Strategy implements Runnable {
 		if (Data.chinNumber < 2000 && Bank.isOpen()) {
 			if (Data.chinNumber == 0) {
 				Context.get().getActiveScript().log.info("NO chins detected. Let's get some.");
-				Context.get().getActiveScript().stop();
-				Game.logout(true);
-			} else if (Data.chinNumber < 2000 && Bank.withdraw(10034, 2000)) {
+			}
+			if (Data.chinNumber < 2000 && Bank.withdraw(10034, 2000)) {
 				Time.sleep(80);
 				Bank.close();
 				if (!Bank.isOpen()) {
 					Context.get().getActiveScript().log.info("Recalculating chin count");
 					Data.runCheck = true;
+					Timer t = new Timer(2500);
+					while (t.isRunning()) {
+						Time.sleep(50);
+					}
 				}
 			} else if (Bank.getItem(10034).getStackSize() <= 1500 && Data.chinNumber < 2000) {
 				Context.get().getActiveScript().log.info("Not enough chins to continue! Shutting down...");
@@ -119,11 +120,6 @@ public class Banking extends Strategy implements Runnable {
 			}
 		}
 		if (Bank.isOpen()) {
-			if (Data.usingGreegree) {
-				Context.get().getActiveScript().log.info("Selected use a greegree, banking accordingly");
-			} else {
-				Context.get().getActiveScript().log.info("Selected not to use a greegree, banking accordingly");
-			}
 			if (greegree == null && Bank.isOpen()) {
 				Item greegreeItem = Bank.getItem(new Filter<Item>() {
 					@Override
@@ -257,6 +253,7 @@ public class Banking extends Strategy implements Runnable {
 	public boolean validate() {
 		int antipoisonData = 0;
 		int flaskRenewalCountData = 0;
+		int flaskRangeCountData = 0;
 		int prayerPotCountData = 0;
 
 		for (Item y : Inventory.getItems()) {
@@ -270,12 +267,18 @@ public class Banking extends Strategy implements Runnable {
 					flaskRenewalCountData++;
 				}
 			}
+			for (int x : Data.FLASK_RANGING) {
+				if (y.getId() == x) {
+					flaskRangeCountData++;
+				}
+			}
 			for (int x : Data.POT_PRAYER) {
 				if (y.getId() == x) {
 					prayerPotCountData++;
 				}
 			}
 		}
+		/*
 		Context.get().getActiveScript().log.info("ANTIPOISON: " + antipoisonData);
 		Context.get().getActiveScript().log.info("Are we poisoned: " + Method.isPoisoned());
 		Context.get().getActiveScript().log.info("FLASK RENEWAL: " + flaskRenewalCountData);
@@ -284,7 +287,7 @@ public class Banking extends Strategy implements Runnable {
 		Context.get().getActiveScript().log.info("CHINS: " + Data.chinNumber);
 		Context.get().getActiveScript().log.info("Checking shit?: " + Data.runCheck);
 		Context.get().getActiveScript().log.info("Starting shit?: " + Data.START_SCRIPT);
-
-		return (((Method.isPoisoned() && antipoisonData == 0)) || antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber <= 100 || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn() && Data.runCheck && Data.START_SCRIPT;
+		*/
+		return (((Method.isPoisoned() && antipoisonData == 0)) || antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || flaskRangeCountData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber == 0 || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

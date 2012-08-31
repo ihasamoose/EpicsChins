@@ -26,16 +26,20 @@ public class Checks extends Strategy implements Runnable {
 		int greegreeTempId = Widgets.get(387, 15).getChildId();
 
 		if (Equipment.getItem(10034) != null && Data.checkChins) {
-			Context.get().getActiveScript().log.info("A");
 			Data.chinNumber = Equipment.getItem(10034).getStackSize();
 			Context.get().getActiveScript().log.info("Number of chins equipped: " + String.valueOf(Data.chinNumber));
 			if (Data.chinNumber != 0) {
 				Data.checkChins = false;
 			}
-		} else if(Equipment.getItem(10034) == null){
+		} else if (Equipment.getItem(10034) == null) {
+
+			if (Inventory.getItem(10034) == null) {
+				Data.runCheck = false;
+			}
 			if (Data.chinNumber < 2000) {
 				Data.chinNumber = Inventory.getItem(10034).getStackSize();
-				if(Data.chinNumber < 2000) {
+
+				if (Data.chinNumber < 2000) {
 					Data.chinNumber = 0;
 					Data.runCheck = false;
 				}

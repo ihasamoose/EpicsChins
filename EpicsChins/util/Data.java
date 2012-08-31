@@ -6,7 +6,6 @@ import org.powerbot.game.api.util.Timer;
  * User: Epics
  * Date: 8/28/12
  * Time: 7:19 PM
- * To change this template use File | Settings | File Templates.
  */
 public class Data {
 
@@ -14,6 +13,9 @@ public class Data {
 	public static int logWalkCode = 0;
 	public static int logAttackCode = 0;
 	public static int logBankingCode = 0;
+	public static int logWalkingToChinCode = 0;
+	public static int logCheckSpotsCode = 0;
+	public static int logAttackMoneyCode = 0;
 
 	public static int chinNumber;
 	public static Timer t = null;
@@ -64,13 +66,14 @@ public class Data {
 	public final static int ID_NPC_DAERO = 824;
 	public final static int ID_NPC_WAYDAR = 1407;
 	public final static int ID_NPC_LUMBO = 1408;
-	public final static int ID_NPC_MONKEY_ZOMBIE = 1465;
+	public final static int[] ID_NPC_MONKEY_ZOMBIE = {1471, 1465};
 
 	// Animation IDs
 	public final static int ID_ANIMATION_TREE = 7082;
 	public final static int ID_ANIMATION_TREE_2 = 7084;
 	public final static int ID_ANIMATION_PRAY = 645;
-	public final static int ID_ANIMATION_DEATH_ZOMBIE = 1384;
+	public final static int[] ID_ANIMATION_DEATH_ZOMBIE = {1384, 5521};
+	public final static int ID_CHIN_THROW = 2779;
 
 	//SceneObject IDs
 	public final static int ID_TREEDOOR = 69198;
@@ -83,8 +86,14 @@ public class Data {
 	//Booleans
 	public static boolean START_SCRIPT;
 	public static boolean usingGreegree;
+	public static boolean outOfRangePots = false;
 	public static boolean checkChins = true;
 	public static boolean runCheck = true;
 	public static boolean SHOWPAINT;
 	public static boolean atDestination = false;
+	public static boolean tempCheckRenewal = false;
+
+	public static boolean walkToArea1 = false;
+	public static boolean walkToArea2 = false;
+	public static boolean walkToArea3 = false;
 }
