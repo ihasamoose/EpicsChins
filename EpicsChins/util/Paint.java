@@ -24,7 +24,7 @@ public class Paint {
 	private final static Font FONT = new Font("Verdana", 0, 10);
 	public final static Image IMAGE_1 = GUI.getImage("http://2c1c.net/images/paint.png");
 
-	public static void paintStuff(Graphics g) {
+	public static void paintStuff(Graphics2D g) {
 		int mouseX = Mouse.getX();
 		int mouseY = Mouse.getY();
 
