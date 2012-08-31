@@ -136,68 +136,6 @@ public class Method {
 		}
 	}
 
-	public static void attackMonkey(final NPC npc) {
-		if (Data.logAttackMoneyCode == 0) {
-			Context.get().getActiveScript().log.info("Running doAttackMonkey code");
-			Data.logAttackMoneyCode++;
-		}
-		setQuickOn();
-		checkPrayer();
-		checkRenewal();
-		checkAntipoison();
-		checkPrayer();
-		checkRange();
-		watchHp();
-		checkGreegreeState();
-		if (npc != null && npc.isOnScreen()) {
-			if (npc.interact("Attack")) {
-				Context.get().getActiveScript().log.info("a");
-				final Timer t = new Timer(5000);
-				while (t.isRunning() && npc.interact("Attack")) {
-					Context.get().getActiveScript().log.info("Killing monkeys and nothing is needed. Using antiban...");
-					Method.antiban();
-					Time.sleep(Random.nextInt(700, 800));
-				}
-				return;
-			}
-
-			final Item vial = Inventory.getItem(229);
-			if (vial != null) {
-				if (vial.getWidgetChild().interact("Drop")) {
-					Time.sleep(1500);
-				}
-			}
-
-			if (Players.getLocal().getAnimation() == Data.ID_CHIN_THROW) {
-				Context.get().getActiveScript().log.info("Chins thrown: " + Paint.chinsThrown);
-				Paint.chinsThrown++;
-				Context.get().getActiveScript().log.info("Chin number:  " + Data.chinNumber);
-				Data.chinNumber--;
-			}
-
-			if (npc.validate() && npc.get().getAnimation() == Data.ID_ANIMATION_DEATH_ZOMBIE) {
-				Context.get().getActiveScript().log.info("Kill count: " + Paint.zombieKillCount);
-				Paint.zombieKillCount++;
-			}
-
-			if (Players.getLocal().getInteracting().equals(npc)) {
-				final Timer t = new Timer(5000);
-				while (t.isRunning() && npc.interact("Attack")) {
-					Time.sleep(50);
-				}
-			}
-		} else {
-			if (npc == null) {
-				Context.get().getActiveScript().log.severe("MONKEY NULL!!");
-			} else if (!npc.isOnScreen()) {
-				Camera.turnTo(npc);
-			}
-		}
-
-		Data.logAttackCode = 0;
-		Data.logAttackMoneyCode = 0;
-	}
-
 	private static void equipGreegree() {
 		final Item greegree = Inventory.getItem(Data.GREEGREE_IDS);
 		if (greegree != null) {
