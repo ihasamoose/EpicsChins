@@ -45,6 +45,18 @@ public class Paint {
 			g1.drawString(String.valueOf(expHr), 183, 497);
 			g1.drawString(String.valueOf(chinsThrown), 351, 443);
 			g1.drawString(String.valueOf(zombieKillCount), 359, 461);
-		}
+
+			Point centralPoint = Mouse.getLocation();
+			Point ovalPoint = new Point((int) centralPoint.getX() - 5, (int) centralPoint.getY() - 5);
+			Color malk = new Color(136, 0, 0, 48);
+			g1.setColor(malk);
+			final long mpt = System.currentTimeMillis() - Mouse.getPressTime();
+			if (Mouse.getPressTime() == -1 || mpt >= 200) {
+				g1.fillOval((int) ovalPoint.getX(), (int) ovalPoint.getY(), 10, 10);
+			}
+			if (mpt < 200) {
+				g1.drawOval((int) ovalPoint.getX(), (int) ovalPoint.getY(), 10, 10);
+			}
 	}
+}
 }

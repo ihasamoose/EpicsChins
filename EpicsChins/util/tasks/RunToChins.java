@@ -126,6 +126,7 @@ public class RunToChins extends Strategy implements Runnable {
 				}
 			}
 		}
+
 		return antipoisonData >= 1 && flaskRenewalCountData >= 3 && prayerPotCountData >= 18 && rangingFlaskData >= 3 && Data.chinNumber >= 1500 && Inventory.getCount(Data.TAB_VARROCK) >= 1 && Inventory.getCount(GUI.foodUser) >= 1 &&
 		       !Method.isPoisoned() && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
 	}

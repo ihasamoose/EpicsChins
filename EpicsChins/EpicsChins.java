@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 
 @Manifest(authors = {"Epics"}, name = "Epics Chinner", description = "Kills chins and banks when necessary.",
 		         version = 0.1)
-public class EpicsChins extends ActiveScript implements PaintListener, MouseListener {
+public class EpicsChins extends ActiveScript implements PaintListener {
 
 	@Override
 	protected void setup() {
@@ -45,34 +45,8 @@ public class EpicsChins extends ActiveScript implements PaintListener, MouseList
 		provide(new Banking());
 	}
 
-	@Override
 	public void onRepaint(Graphics g) {
+		Graphics2D Paint.g = (Graphics2D)Paint.g1;
 		Paint.paintStuff(g);
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		if (new Rectangle(502, 389, 14, 15).contains(e.getPoint())) {
-			if (Paint.IMAGE_1 == null) {
-				Logger.getLogger("EpicsChins").info("Image failed to load");
-			}
-			Data.SHOWPAINT = true;
-		}
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
 	}
 }

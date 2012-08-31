@@ -396,7 +396,6 @@ public class Method {
 			while (Players.getLocal().isMoving()) {
 				Time.sleep(50);
 			}
-			return;
 		}
 	}
 
@@ -408,11 +407,10 @@ public class Method {
 				Time.sleep(50);
 			}
 		}
-		return;
 	}
 
 	public static void openTreeDoor(final SceneObject se) {
-		if (se != null && Calculations.distanceTo(Tiles.TILE_TREE_DOOR) <= 10 && se.isOnScreen() && !Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation()) && se.interact("Open")) {
+		if (se != null && Calculations.distanceTo(Tiles.TILE_TREE_DOOR) <= 10 && se.isOnScreen() && !Tiles.TILE_INSIDE_TREE_DOOR.equals(Players.getLocal().getLocation()) && !Tiles.TILE_INSIDE_TREE_DOOR_2.equals(Players.getLocal().getLocation()) && se.interact("Open")) {
 			final Timer t = new Timer(2500);
 			while (se.validate() && t.isRunning()) {
 				Time.sleep(50);
@@ -446,6 +444,7 @@ public class Method {
 			}
 
 			if (npc.isOnScreen() && npc.interact("Travel")) {
+				Time.sleep(1000);
 				final Timer t = new Timer(2500);
 				while (npc.validate() && t.isRunning()) {
 					Method.yesInterfaceClicker();
@@ -528,9 +527,27 @@ public class Method {
 	}
 
 	public static void checkSpotOne() {
+		if (Tiles.AREA_CHECK_TRAPS_1.contains(Players.getLocal().getLocation()) && Tiles.TRAP_TILE_LIST_AREA_1.contains(Players.getLocal().getLocation())) {
+			Tile
+					nextNontrapTile =
+					new Tile(Players.getLocal().getLocation().getX() + 1,
+							        Players.getLocal().getLocation().getY() + 1,
+							        0);
+			Walking.walk(nextNontrapTile);
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
+				}
+			}
+		}
 		if (Calculations.distanceTo(Tiles.TILE_CHIN_1) >= 5) {
 			Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext();
 			Walking.walk(nextTile);
+			Method.doDrinkAntipoison();
+			if (nextTile == null) {
+				Context.get().getActiveScript().log.severe("NEXT TILE IS NULL!!");
+			}
 			while (Players.getLocal().isMoving()) {
 				if (Method.isPoisoned()) {
 					Method.doDrinkAntipoison();
@@ -539,12 +556,14 @@ public class Method {
 				Time.sleep(50);
 			}
 		} else {
+			Method.doDrinkAntipoison();
 			Walking.findPath(Tiles.TILE_CHIN_1).traverse();
 			while (Players.getLocal().isMoving()) {
 				Time.sleep(50);
 			}
 		}
 		if (Calculations.distanceTo(Tiles.TILE_CHIN_1) <= 10) {
+			Method.doDrinkAntipoison();
 			if (Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_1)) {
 				Method.chinSpotTwo();
 			} else {
@@ -554,6 +573,20 @@ public class Method {
 	}
 
 	public static void checkSpotTwo() {
+		if (Tiles.AREA_CHECK_TRAPS_2.contains(Players.getLocal().getLocation()) && Tiles.TRAP_TILE_LIST_AREA_2.contains(Players.getLocal().getLocation())) {
+			Tile
+					nextNontrapTile =
+					new Tile(Players.getLocal().getLocation().getX() + 1,
+							        Players.getLocal().getLocation().getY() + 1,
+							        0);
+			Walking.walk(nextNontrapTile);
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
+				}
+			}
+		}
 		if (Calculations.distanceTo(Tiles.TILE_CHIN_2) >= 5) {
 			Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).traverse();
 			Walking.findPath(Tiles.TILE_CHIN_2).traverse();
@@ -580,6 +613,20 @@ public class Method {
 	}
 
 	public static void checkSpotThree() {
+		if (Tiles.AREA_CHECK_TRAPS_3.contains(Players.getLocal().getLocation()) && Tiles.TRAP_TILE_LIST_AREA_3.contains(Players.getLocal().getLocation())) {
+			Tile
+					nextNontrapTile =
+					new Tile(Players.getLocal().getLocation().getX() + 1,
+							        Players.getLocal().getLocation().getY() + 1,
+							        0);
+			Walking.walk(nextNontrapTile);
+			while (Players.getLocal().isMoving()) {
+				if (Method.isPoisoned()) {
+					Method.doDrinkAntipoison();
+					return;
+				}
+			}
+		}
 		if (Calculations.distanceTo(Tiles.TILE_CHIN_3) >= 5) {
 			Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).traverse();
 			Walking.findPath(Tiles.TILE_CHIN_3).traverse();

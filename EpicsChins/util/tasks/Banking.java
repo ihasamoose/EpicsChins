@@ -75,6 +75,11 @@ public class Banking extends Strategy implements Runnable {
 
 		Method.checkRun();
 		if (!Bank.isOpen()) {
+			if (Inventory.getCount(10034) > 0){
+				Context.get().getActiveScript().log.info("Chins present in inventory, equipping...");
+				Item chinItem = Inventory.getItem(10034);
+				chinItem.getWidgetChild().click(true);
+			}
 			if (Tiles.TILE_GRAND_BANK != null && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 4) {
 				Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
 				while (Players.getLocal().isMoving()) {
@@ -88,11 +93,10 @@ public class Banking extends Strategy implements Runnable {
 		}
 		if (Data.chinNumber < 2000 && Bank.isOpen()) {
 			if (Data.chinNumber == 0) {
-				Context.get().getActiveScript().log.info("NO chins detected. This means that you haven't set up your equipment right. Check it and try again!");
+				Context.get().getActiveScript().log.info("NO chins detected. Let's get some.");
 				Context.get().getActiveScript().stop();
 				Game.logout(true);
-			}
-			if (Data.chinNumber < 2000 && Bank.withdraw(10034, 2000)) {
+			} else if (Data.chinNumber < 2000 && Bank.withdraw(10034, 2000)) {
 				Time.sleep(80);
 				Bank.close();
 				if (!Bank.isOpen()) {
@@ -173,7 +177,7 @@ public class Banking extends Strategy implements Runnable {
 				Context.get().getActiveScript().stop();
 			}
 
-			if (antipoisonData == 0 && Bank.getItemCount(GUI.antipoisonUser) > 0) {
+			if (antipoisonData == 0 && Bank.getItemCount(GUI.antipoisonUser) > 0) {//TODO fix it
 				Bank.withdraw(GUI.antipoisonUser, 1);
 				Time.sleep(80);
 				if (Inventory.getCount(GUI.antipoisonUser) == 1) {
@@ -254,14 +258,13 @@ public class Banking extends Strategy implements Runnable {
 		int antipoisonData = 0;
 		int flaskRenewalCountData = 0;
 		int prayerPotCountData = 0;
-		int rangingFlaskData = 0;
 
 		for (Item y : Inventory.getItems()) {
 			for (int x : Data.ANTIPOISON_ALL) {
 				if (y.getId() == x) {
 					antipoisonData++;
 				}
-			}//TODO banking if another flask is present in inventory with another dosage
+			}
 			for (int x : Data.FLASK_PRAYER_RENEWAL) {
 				if (y.getId() == x) {
 					flaskRenewalCountData++;
@@ -272,12 +275,16 @@ public class Banking extends Strategy implements Runnable {
 					prayerPotCountData++;
 				}
 			}
-			for (int x : Data.FLASK_RANGING) {
-				if (y.getId() == x) {
-					rangingFlaskData++;
-				}
-			}
 		}
-		return ((antipoisonData == 0 || Method.isPoisoned()) || flaskRenewalCountData == 0 || prayerPotCountData == 0 || rangingFlaskData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber <= 100 || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
+		Context.get().getActiveScript().log.info("ANTIPOISON: " + antipoisonData);
+		Context.get().getActiveScript().log.info("Are we poisoned: " + Method.isPoisoned());
+		Context.get().getActiveScript().log.info("FLASK RENEWAL: " + flaskRenewalCountData);
+		Context.get().getActiveScript().log.info("PRAYER POTS: " + prayerPotCountData);
+		Context.get().getActiveScript().log.info("TABS: " + Inventory.getCount(Data.TAB_VARROCK));
+		Context.get().getActiveScript().log.info("CHINS: " + Data.chinNumber);
+		Context.get().getActiveScript().log.info("Checking shit?: " + Data.runCheck);
+		Context.get().getActiveScript().log.info("Starting shit?: " + Data.START_SCRIPT);
+
+		return (((Method.isPoisoned() && antipoisonData == 0)) || antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber <= 100 || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn() && Data.runCheck && Data.START_SCRIPT;
 	}
 }
