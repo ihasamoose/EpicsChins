@@ -79,8 +79,9 @@ public class Banking extends Strategy implements Runnable {
 				Context.get().getActiveScript().log.info("Chins present in inventory, equipping...");
 				Item chinItem = Inventory.getItem(10034);
 				chinItem.getWidgetChild().click(true);
+				Time.sleep(2000, 4000);
 			}
-			if (Tiles.TILE_GRAND_BANK != null && Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 4) {
+			if (Calculations.distanceTo(Tiles.TILE_GRAND_BANK) >= 4) {
 				Walking.findPath(Tiles.TILE_GRAND_BANK).traverse();
 				Method.runState();
 				Camera.turnTo(Tiles.TILE_GRAND_BANK);
@@ -89,6 +90,7 @@ public class Banking extends Strategy implements Runnable {
 				Bank.open();
 			}
 		}
+
 		if (Data.chinNumber < 2000 && Bank.isOpen()) {
 			if (Data.chinNumber == 0) {
 				Context.get().getActiveScript().log.info("NO chins detected. Let's get some.");

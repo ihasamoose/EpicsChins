@@ -15,7 +15,6 @@ public class Data {
 	public static int logBankingCode = 0;
 	public static int logWalkingToChinCode = 0;
 	public static int logCheckSpotsCode = 0;
-	public static int logAttackMoneyCode = 0;
 
 	public static int chinNumber;
 	public static Timer t = null;

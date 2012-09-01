@@ -28,10 +28,9 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 		}
 
 		if (Data.walkToArea1) {
-			Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext();
 
-			if (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_1[22]) > 5){// && Walking.walk(nextTile)) {
-				if (Game.getClientState() == 12) { // game loading
+			if (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_1[22]) > 5) {// && Walking.walk(nextTile)) {
+				if (Game.getClientState() == 12) {
 					Time.sleep(200);
 				}
 				for (int x = Tiles.PATH_TO_CHIN_TILE_1.length - 1; x > 0; x--) {
@@ -48,11 +47,14 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 			}
 
 			if (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_1[22]) <= 5) {
+				Context.get().getActiveScript().log.info("FF");
 				Tiles.PATH_TO_CHIN_TILE_1[22].interact("Walk here");
 
 			}
 
 			if (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation()) && Tiles.PATH_TO_CHIN_TILE_1[22].equals(Players.getLocal().getLocation())) {
+				Context.get().getActiveScript().log.info("EE");
+
 				Walking.findPath(Tiles.TILE_CHIN_1).traverse();
 			}
 
@@ -76,9 +78,9 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 			}
 
 		} else if (Data.walkToArea2) {
-			Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).getNext();
+			Context.get().getActiveScript().log.info("GG");
 
-			if (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_2[2]) > 5){// && Walking.walk(nextTile)) {
+			if (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_2[2]) > 5) {// && Walking.walk(nextTile)) {
 
 				for (int x = Tiles.PATH_TO_CHIN_TILE_2.length - 1; x > 0; x--) {
 					final Tile tile = Tiles.PATH_TO_CHIN_TILE_2[x];
@@ -94,6 +96,7 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 			}
 
 			if (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_2[2]) <= 5) {
+
 				Tiles.PATH_TO_CHIN_TILE_2[2].interact("Walk here");
 
 			}
@@ -120,9 +123,8 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 			}
 
 		} else if (Data.walkToArea3) {
-			Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).getNext();
 
-			if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_3[6]) > 5){// && Walking.walk(nextTile)) {
+			if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_3[6]) > 5) {// && Walking.walk(nextTile)) {
 				for (int x = Tiles.PATH_TO_CHIN_TILE_3.length - 1; x > 0; x--) {
 					final Tile tile = Tiles.PATH_TO_CHIN_TILE_3[x];
 					if (tile != null && Calculations.distanceTo(tile) <= 20.0) {

@@ -30,6 +30,11 @@ public class ThrowChins extends Strategy implements Runnable {
 			Context.get().getActiveScript().log.info("Running attack code");
 			Data.logAttackCode++;
 		}
+		Method.checkPrayer();
+		Method.checkRenewal();
+		Method.checkAntipoison();
+		Method.checkRange();
+		Method.setQuickOn();
 
 		NPC monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE);
 

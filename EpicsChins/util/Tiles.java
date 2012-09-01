@@ -53,51 +53,51 @@ public class Tiles {
 	public final static Tile TILE_DAERO = new Tile(2478, 3488, 1);
 
 	//AREA_CHECK_TRAPS_1 traps list
-	public final static Tile TRAP_TILE_1 = new Tile(2715, 9138, 0);
-	public final static Tile TRAP_TILE_2 = new Tile(2712, 9136, 0);
-	public final static Tile TRAP_TILE_3 = new Tile(2708, 9136, 0);
-	public final static Tile TRAP_TILE_4 = new Tile(2709, 9134, 0);
-	public final static Tile TRAP_TILE_5 = new Tile(2715, 9134, 0);
-	public final static Tile TRAP_TILE_6 = new Tile(2717, 9133, 0);
-	public final static Tile TRAP_TILE_7 = new Tile(2712, 9133, 0);
-	public final static Tile TRAP_TILE_8 = new Tile(2708, 9132, 0);
-	public final static Tile TRAP_TILE_9 = new Tile(2711, 9131, 0);
-	public final static Tile TRAP_TILE_10 = new Tile(2716, 9131, 0);
-	public final static Tile TRAP_TILE_11 = new Tile(2719, 9130, 0);
-	public final static Tile TRAP_TILE_12 = new Tile(2713, 9130, 0);
+	private final static Tile TRAP_TILE_1 = new Tile(2715, 9138, 0);
+	private final static Tile TRAP_TILE_2 = new Tile(2712, 9136, 0);
+	private final static Tile TRAP_TILE_3 = new Tile(2708, 9136, 0);
+	private final static Tile TRAP_TILE_4 = new Tile(2709, 9134, 0);
+	private final static Tile TRAP_TILE_5 = new Tile(2715, 9134, 0);
+	private final static Tile TRAP_TILE_6 = new Tile(2717, 9133, 0);
+	private final static Tile TRAP_TILE_7 = new Tile(2712, 9133, 0);
+	private final static Tile TRAP_TILE_8 = new Tile(2708, 9132, 0);
+	private final static Tile TRAP_TILE_9 = new Tile(2711, 9131, 0);
+	private final static Tile TRAP_TILE_10 = new Tile(2716, 9131, 0);
+	private final static Tile TRAP_TILE_11 = new Tile(2719, 9130, 0);
+	private final static Tile TRAP_TILE_12 = new Tile(2713, 9130, 0);
 
 	//AREA_CHECK_TRAPS_2 traps list
-	public final static Tile TRAP_TILE_13 = new Tile(2739, 9129, 0);
-	public final static Tile TRAP_TILE_14 = new Tile(2743, 9123, 0);
-	public final static Tile TRAP_TILE_15 = new Tile(2741, 9125, 0);
-	public final static Tile TRAP_TILE_16 = new Tile(2740, 9122, 0);
-	public final static Tile TRAP_TILE_17 = new Tile(2737, 9123, 0);
-	public final static Tile TRAP_TILE_18 = new Tile(2735, 9122, 0);
-	public final static Tile TRAP_TILE_19 = new Tile(2736, 9120, 0);
-	public final static Tile TRAP_TILE_20 = new Tile(2742, 9121, 0);
-	public final static Tile TRAP_TILE_21 = new Tile(2739, 9119, 0);
-	public final static Tile TRAP_TILE_22 = new Tile(2738, 9117, 0);
+	private final static Tile TRAP_TILE_13 = new Tile(2739, 9129, 0);
+	private final static Tile TRAP_TILE_14 = new Tile(2743, 9123, 0);
+	private final static Tile TRAP_TILE_15 = new Tile(2741, 9125, 0);
+	private final static Tile TRAP_TILE_16 = new Tile(2740, 9122, 0);
+	private final static Tile TRAP_TILE_17 = new Tile(2737, 9123, 0);
+	private final static Tile TRAP_TILE_18 = new Tile(2735, 9122, 0);
+	private final static Tile TRAP_TILE_19 = new Tile(2736, 9120, 0);
+	private final static Tile TRAP_TILE_20 = new Tile(2742, 9121, 0);
+	private final static Tile TRAP_TILE_21 = new Tile(2739, 9119, 0);
+	private final static Tile TRAP_TILE_22 = new Tile(2738, 9117, 0);
 
 	//AREA_CHECK_TRAPS_3 traps list
-	public final static Tile TRAP_TILE_23 = new Tile(2715, 9119, 0);
-	public final static Tile TRAP_TILE_24 = new Tile(2710, 9114, 0);
-	public final static Tile TRAP_TILE_25 = new Tile(2707, 9113, 0);
-	public final static Tile TRAP_TILE_26 = new Tile(2704, 9113, 0);
-	public final static Tile TRAP_TILE_27 = new Tile(2711, 9111, 0);
-	public final static Tile TRAP_TILE_28 = new Tile(2709, 9110, 0);
-	public final static Tile TRAP_TILE_29 = new Tile(2706, 9109, 0);
-	public final static Tile TRAP_TILE_30 = new Tile(2713, 9109, 0);
-	public final static Tile TRAP_TILE_31 = new Tile(2703, 9108, 0);
-	public final static Tile TRAP_TILE_32 = new Tile(2703, 9106, 0);
-	public final static Tile TRAP_TILE_33 = new Tile(2711, 9111, 0);
-	public final static Tile TRAP_TILE_34 = new Tile(2706, 9106, 0);
-	public final static Tile TRAP_TILE_35 = new Tile(2710, 9106, 0);
-	public final static Tile TRAP_TILE_36 = new Tile(2713, 9107, 0);
-	public final static Tile TRAP_TILE_37 = new Tile(2711, 9104, 0);
-	public final static Tile TRAP_TILE_38 = new Tile(2708, 9103, 0);
+	private final static Tile TRAP_TILE_23 = new Tile(2715, 9119, 0);
+	private final static Tile TRAP_TILE_24 = new Tile(2710, 9114, 0);
+	private final static Tile TRAP_TILE_25 = new Tile(2707, 9113, 0);
+	private final static Tile TRAP_TILE_26 = new Tile(2704, 9113, 0);
+	private final static Tile TRAP_TILE_27 = new Tile(2711, 9111, 0);
+	private final static Tile TRAP_TILE_28 = new Tile(2709, 9110, 0);
+	private final static Tile TRAP_TILE_29 = new Tile(2706, 9109, 0);
+	private final static Tile TRAP_TILE_30 = new Tile(2713, 9109, 0);
+	private final static Tile TRAP_TILE_31 = new Tile(2703, 9108, 0);
+	private final static Tile TRAP_TILE_32 = new Tile(2703, 9106, 0);
+	private final static Tile TRAP_TILE_33 = new Tile(2711, 9111, 0);
+	private final static Tile TRAP_TILE_34 = new Tile(2706, 9106, 0);
+	private final static Tile TRAP_TILE_35 = new Tile(2710, 9106, 0);
+	private final static Tile TRAP_TILE_36 = new Tile(2713, 9107, 0);
+	private final static Tile TRAP_TILE_37 = new Tile(2711, 9104, 0);
+	private final static Tile TRAP_TILE_38 = new Tile(2708, 9103, 0);
 
 	public final static java.util.List<Tile> CHIN_LIST = Arrays.asList(TILE_CHIN_1, TILE_CHIN_2, TILE_CHIN_3);
-	public static
+	public final static
 	java.util.List<Tile>
 			TRAP_TILE_LIST_AREA_1 =
 			Arrays.asList(TRAP_TILE_1,
@@ -113,7 +113,7 @@ public class Tiles {
 					             TRAP_TILE_10,
 					             TRAP_TILE_11,
 					             TRAP_TILE_12);
-	public static
+	public final static
 	java.util.List<Tile>
 			TRAP_TILE_LIST_AREA_2 =
 			Arrays.asList(TRAP_TILE_13,
@@ -126,7 +126,7 @@ public class Tiles {
 					             TRAP_TILE_20,
 					             TRAP_TILE_21,
 					             TRAP_TILE_22);
-	public static
+	public final static
 	java.util.List<Tile>
 			TRAP_TILE_LIST_AREA_3 =
 			Arrays.asList(TRAP_TILE_1,

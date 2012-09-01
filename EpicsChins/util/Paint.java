@@ -22,7 +22,7 @@ public class Paint {
 	public static int chinsThrown;
 	private final static Color COLOR = new Color(255, 255, 255);
 	private final static Font FONT = new Font("Verdana", 0, 10);
-	public final static Image IMAGE_1 = GUI.getImage("http://2c1c.net/images/paint.png");
+	private final static Image IMAGE_1 = GUI.getImage("http://2c1c.net/images/paint.png");
 
 	public static void paintStuff(Graphics2D g) {
 

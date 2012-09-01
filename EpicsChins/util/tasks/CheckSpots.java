@@ -62,6 +62,7 @@ public class CheckSpots extends Strategy implements Runnable {
 		}
 
 		if (Tiles.AREA_CHIN_1.contains(Players.getLocal().getLocation()) && !Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_1)) {
+			Context.get().getActiveScript().log.info("ASDF");
 
 			if (Walking.findPath(Tiles.TILE_CHIN_1).traverse()) {
 				Method.runState();
@@ -81,8 +82,11 @@ public class CheckSpots extends Strategy implements Runnable {
 				Data.atDestination = true;
 			}
 		} else if (Tiles.AREA_CHIN_2.contains(Players.getLocal().getLocation()) && !Method.areaContainsTwoOrMore(Tiles.AREA_CHIN_2)) {
+			Context.get().getActiveScript().log.info("DFAWR");
 
 			if (Walking.findPath(Tiles.TILE_CHIN_2).traverse()) {
+				Context.get().getActiveScript().log.info("TRQES");
+
 				Method.runState();
 
 				if (Tiles.TILE_CHIN_2.validate() && Tiles.TILE_CHIN_2.isOnScreen()) {

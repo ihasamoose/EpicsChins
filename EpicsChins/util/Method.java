@@ -55,7 +55,7 @@ public class Method {
 		}
 	}
 
-	private static void checkPrayer() {
+	public static void checkPrayer() {
 		if (Prayer.getPoints() <= 250) {
 			final Item prayerPot = Inventory.getItem(Data.POT_PRAYER);
 			if (prayerPot != null && prayerPot.getWidgetChild().interact("Drink")) {
@@ -116,7 +116,7 @@ public class Method {
 		}
 	}
 
-	private static void checkRange() {
+	public static void checkRange() {
 		final Item rangePotItem = Inventory.getItem(Data.FLASK_RANGING);
 		final int realRange = Skills.getRealLevel(Skills.RANGE);
 		final int pottedRange = Skills.getLevel(Skills.RANGE);
