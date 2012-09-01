@@ -29,18 +29,20 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 
 		if (Data.walkToArea1) {
 
-			if (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_1[22]) > 5) {// && Walking.walk(nextTile)) {
+			if (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_1[22]) > 5) {
+
 				if (Game.getClientState() == 12) {
 					Time.sleep(200);
 				}
-				for (int x = Tiles.PATH_TO_CHIN_TILE_1.length - 1; x > 0; x--) {
-					final Tile tile = Tiles.PATH_TO_CHIN_TILE_1[x];
-					if (tile != null && Calculations.distanceTo(tile) <= 20.0) {
-						if (Walking.walk(tile)) {
-							Method.checkAntipoison();
-							Method.watchHp();
-							Method.runState();
-							break;
+
+				if (Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext().canReach()){
+					Context.get().getActiveScript().log.info("aaaa");
+					if (Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext().isOnMap()){
+						Context.get().getActiveScript().log.info("bbbb");
+							if(Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_1).getNext().clickOnMap()){
+								Context.get().getActiveScript().log.info("cccc");
+
+								Method.runState();
 						}
 					}
 				}
@@ -82,14 +84,18 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 
 			if (!Tiles.TILE_CHIN_2.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_2[2]) > 5) {// && Walking.walk(nextTile)) {
 
-				for (int x = Tiles.PATH_TO_CHIN_TILE_2.length - 1; x > 0; x--) {
-					final Tile tile = Tiles.PATH_TO_CHIN_TILE_2[x];
-					if (tile != null && Calculations.distanceTo(tile) <= 20.0) {
-						if (Walking.walk(tile)) {
-							Method.checkAntipoison();
-							Method.watchHp();
+				if (Game.getClientState() == 12) {
+					Time.sleep(200);
+				}
+
+				if (Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).getNext().canReach()){
+					Context.get().getActiveScript().log.info("ddd");
+					if (Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).getNext().isOnMap()){
+						Context.get().getActiveScript().log.info("eee");
+						if(Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_2).getNext().clickOnMap()){
+							Context.get().getActiveScript().log.info("fff");
+
 							Method.runState();
-							break;
 						}
 					}
 				}
@@ -125,14 +131,19 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 		} else if (Data.walkToArea3) {
 
 			if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_3[6]) > 5) {// && Walking.walk(nextTile)) {
-				for (int x = Tiles.PATH_TO_CHIN_TILE_3.length - 1; x > 0; x--) {
-					final Tile tile = Tiles.PATH_TO_CHIN_TILE_3[x];
-					if (tile != null && Calculations.distanceTo(tile) <= 20.0) {
-						if (Walking.walk(tile)) {
-							Method.checkAntipoison();
-							Method.watchHp();
+
+				if (Game.getClientState() == 12) {
+					Time.sleep(200);
+				}
+
+				if (Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).getNext().canReach()){
+					Context.get().getActiveScript().log.info("gggg");
+					if (Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).getNext().isOnMap()){
+						Context.get().getActiveScript().log.info("hhhh");
+						if(Walking.newTilePath(Tiles.PATH_TO_CHIN_TILE_3).getNext().clickOnMap()){
+							Context.get().getActiveScript().log.info("iiii");
+
 							Method.runState();
-							break;
 						}
 					}
 				}
