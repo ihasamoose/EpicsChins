@@ -35,6 +35,7 @@ public class ThrowChins extends Strategy implements Runnable {
 		Method.checkAntipoison();
 		Method.checkRange();
 		Method.setQuickOn();
+		Method.checkGreegreeState();
 
 		NPC monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE);
 
