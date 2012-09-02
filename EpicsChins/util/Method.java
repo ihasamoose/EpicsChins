@@ -1,6 +1,7 @@
 package EpicsChins.util;
 
 import org.powerbot.game.api.methods.*;
+import org.powerbot.game.api.methods.input.Mouse;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.SceneEntities;
 import org.powerbot.game.api.methods.tab.Inventory;
@@ -271,6 +272,12 @@ public class Method {
 
 				}
 				return;
+			} else {
+				if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {//TODO hardcode this path
+					Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
+					runState();
+				}
+
 			}
 			if (!Tiles.TILE_GRAND_BANK.validate()) {
 				final Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_BANK_TILE).randomize(2, 4).getNext();
@@ -319,24 +326,24 @@ public class Method {
 					varrockAltar.click(true);
 					if (Players.getLocal().getAnimation() == Data.ID_ANIMATION_PRAY) {
 						Time.sleep(100, 400);
-					}
-					if (Prayer.getPoints() == (Skills.getRealLevel(Skills.PRAYER)) * 10) {
-						Context.get().getActiveScript().log.info("All charged up, let's get going.");
-						if (!Tiles.TILE_GRAND_TREE.validate() && Calculations.distanceTo(Tiles.TILE_GRAND_TREE) >= 20) {
-							final
-							Tile
-									nextTile =
-									Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2,
-											                                                           4).reverse().getNext();
-							Walking.walk(nextTile);
-							runState();
-						} else {
-							Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
-							runState();
+						if (Prayer.getPoints() == (Skills.getRealLevel(Skills.PRAYER) * 10)) {
+							Context.get().getActiveScript().log.info("All charged up, let's get going.");
+							if (!Tiles.TILE_GRAND_TREE.validate() && Calculations.distanceTo(Tiles.TILE_GRAND_TREE) >= 10) {
+								final
+								Tile
+										nextTile =
+										Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2,
+												                                                           4).reverse().getNext();
+								Walking.walk(nextTile);
+								runState();
+							} else {
+								Walking.findPath(Tiles.TILE_GRAND_TREE).traverse();
+								runState();
+							}
 						}
-					} else {
-						Camera.turnTo(varrockAltar);
 					}
+				} else {
+					Camera.turnTo(varrockAltar);
 				}
 			}
 		}
@@ -522,9 +529,22 @@ public class Method {
 
 	public static void runState() {
 		final Timer t = new Timer(2500);
-		while (Players.getLocal().isMoving() && t.isRunning()) {
+		if (Players.getLocal().isMoving() && t.isRunning()) {
 			antiban();
 			Time.sleep(50);
+		}
+	}
+
+	public static void chinRunState() {
+		final Timer t = new Timer(2500);
+
+		if (Players.getLocal().isMoving() && t.isRunning()) {
+			Method.watchHp();
+			Method.checkAntipoison();
+			Method.checkPrayer();
+			Method.checkRenewal();
+			Method.checkRun();
+			Method.antiban();
 		}
 	}
 
@@ -536,6 +556,20 @@ public class Method {
 			}
 		} else {
 			Context.get().getActiveScript().log.info("Not using greegree");
+		}
+	}
+
+	public static void walkPath(Tile[] path) {
+		if (Game.getClientState() == 12) {
+			Time.sleep(200);
+		}
+
+		for (int i = path.length - 1; i > -1; i--) {
+			if (path[i].isOnMap() && path[i].canReach()) {
+				if (path[i].canReach()) {
+					Mouse.click(path[i].getMapPoint(), true);
+				}
+			}
 		}
 	}
 }
