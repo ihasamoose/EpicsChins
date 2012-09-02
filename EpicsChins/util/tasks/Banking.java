@@ -34,6 +34,7 @@ public class Banking extends Strategy implements Runnable {
 		int flaskRenewalCountData = 0;
 		int prayerPotCountData = 0;
 		int rangingFlaskData = 0;
+		int rangingFlaskExtremeData = 0;
 
 		for (Item y : Inventory.getItems()) {
 			for (int x : Data.ANTIPOISON_ALL) {
@@ -54,6 +55,11 @@ public class Banking extends Strategy implements Runnable {
 			for (int x : Data.FLASK_RANGING) {
 				if (y.getId() == x) {
 					rangingFlaskData++;
+				}
+			}
+			for (int x : Data.FLASK_RANGING_EXTREME) {
+				if (y.getId() == x) {
+					rangingFlaskExtremeData++;
 				}
 			}
 		}
@@ -175,7 +181,7 @@ public class Banking extends Strategy implements Runnable {
 				Context.get().getActiveScript().stop();
 			}
 
-			if (antipoisonData == 0 && Bank.getItemCount(GUI.antipoisonUser) > 0) {//TODO fix it
+			if (antipoisonData == 0 && Bank.getItemCount(GUI.antipoisonUser) > 0) {
 				Bank.withdraw(GUI.antipoisonUser, 1);
 				Time.sleep(80);
 				if (Inventory.getCount(GUI.antipoisonUser) == 1) {
@@ -213,13 +219,24 @@ public class Banking extends Strategy implements Runnable {
 					Context.get().getActiveScript().stop();
 				}
 				return;
-			}//TODO Make banking better.
-			if (rangingFlaskData == 0) {
+			}
+			if (rangingFlaskExtremeData == 0 || rangingFlaskData == 0) {//TODO implement extreme
+				if(Bank.getItem(Data.FLASK_RANGING_EXTREME_FULL).getStackSize() > 3){
+					Bank.withdraw(Data.FLASK_RANGING_EXTREME_FULL, 3);
+					Time.sleep(80);
+					Data.withdrawedRangingExtreme = true;
+				}
+
+				if(!Data.withdrawedRangingExtreme && Bank.getItem(Data.FLASK_RANGING_FULL).getStackSize() > 3){
 				Bank.withdraw(Data.FLASK_RANGING_FULL, 3);
-				Time.sleep(80);
-				if (rangingFlaskData == 3) {
+					Time.sleep(80);
+					Data.withdrawedRangingExtreme = false;
+
+				}
+
+				if (rangingFlaskData == 3 || rangingFlaskExtremeData == 3) {
 					Context.get().getActiveScript().log.info("Range flasks withdrawn");
-				} else if (Bank.getItem(Data.FLASK_RANGING_FULL).getStackSize() < 3 && rangingFlaskData < 3) {
+				} else if (Bank.getItem(Data.FLASK_RANGING_FULL).getStackSize() < 3 && rangingFlaskData < 3 || Bank.getItem(Data.FLASK_RANGING_EXTREME_FULL).getStackSize() < 3 && rangingFlaskExtremeData < 3) {
 					Context.get().getActiveScript().log.info("Not enough ranged flasks. Shutting down...");
 					Bank.close();
 					Game.logout(true);
