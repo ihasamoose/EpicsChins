@@ -197,7 +197,7 @@ public class Banking extends Strategy implements Runnable {
 			if (prayerPotCountData == 0) {
 				Bank.withdraw(Data.POT_PRAYER_DOSE_4, 18);
 				Time.sleep(80);
-				if (prayerPotCountData == 3) {
+				if (Inventory.getCount(Data.POT_PRAYER_DOSE_4) == 3) {
 					Context.get().getActiveScript().log.info("Prayer pots withdrawn");
 				} else if (Bank.getItem(Data.POT_PRAYER_DOSE_4).getStackSize() < 18 && prayerPotCountData < 18) {
 					Context.get().getActiveScript().log.info("Not enough prayer pots. Shutting down... ");
@@ -210,7 +210,7 @@ public class Banking extends Strategy implements Runnable {
 			if (flaskRenewalCountData == 0) {
 				Bank.withdraw(Data.FLASK_PRAYER_RENEWAL_FULL, 3);
 				Time.sleep(80);
-				if (flaskRenewalCountData == 3) {
+				if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) == 3) {
 					Context.get().getActiveScript().log.info("Renewal flasks withdrawn");
 				} else if (Bank.getItem(Data.FLASK_PRAYER_RENEWAL_FULL).getStackSize() < 3 && flaskRenewalCountData < 3) {
 					Context.get().getActiveScript().log.info("Not enough prayer renewal flasks. Shutting down...");
@@ -227,11 +227,10 @@ public class Banking extends Strategy implements Runnable {
 					Data.withdrawedRangingExtreme = true;
 				}
 
-				if(!Data.withdrawedRangingExtreme && Bank.getItem(Data.FLASK_RANGING_FULL).getStackSize() > 3){
+				if(!Data.withdrawedRangingExtreme && Bank.getItem(Data.FLASK_RANGING_EXTREME_FULL).getStackSize() > 3){
 				Bank.withdraw(Data.FLASK_RANGING_FULL, 3);
 					Time.sleep(80);
 					Data.withdrawedRangingExtreme = false;
-
 				}
 
 				if (rangingFlaskData == 3 || rangingFlaskExtremeData == 3) {

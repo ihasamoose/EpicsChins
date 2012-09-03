@@ -19,7 +19,7 @@ public class GUI extends JFrame {
 	public GUI() {
 		setVisible(true);
 		// Title
-		String version = " v0.182";
+		String version = " v0.183";
 		setTitle("EC" + version);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
