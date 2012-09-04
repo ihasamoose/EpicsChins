@@ -118,19 +118,42 @@ public class Method {
 	}
 
 	public static void checkRange() {
-		final Item rangePotItem = Inventory.getItem(Data.FLASK_RANGING);
+		final Item rangeFlaskItem = Inventory.getItem(Data.FLASK_RANGING);
+		final Item rangeFlaskExtremeItem = Inventory.getItem(Data.FLASK_RANGING_EXTREME);
 		final int realRange = Skills.getRealLevel(Skills.RANGE);
 		final int pottedRange = Skills.getLevel(Skills.RANGE);
 		final int rangeDifference = pottedRange - realRange;
-		if (rangePotItem != null && rangeDifference <= 3 && rangePotItem.getWidgetChild().interact("Drink")) {
-			final int id = rangePotItem.getId();
+
+		if (rangeFlaskItem != null && rangeDifference <= 3 && rangeFlaskItem.getWidgetChild().interact("Drink")) {
+			final int id = rangeFlaskItem.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
+			Data.outOfRangePots = false;
+
+			while (t.isRunning() && Inventory.getCount(id) == count) {
+				Time.sleep(50);
+			}
+
+		} else {
+
+			if (rangeFlaskItem == null) {
+				Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
+				Data.outOfRangePots = true;
+			}
+		}
+
+		if(rangeFlaskExtremeItem != null && rangeDifference <=3 && rangeFlaskExtremeItem.getWidgetChild().interact("Drink")){
+			final int id = rangeFlaskExtremeItem.getId();
+			final int count = Inventory.getCount(id);
+			final Timer t = new Timer(2500);
+			Data.outOfRangePots = false;
+
 			while (t.isRunning() && Inventory.getCount(id) == count) {
 				Time.sleep(50);
 			}
 		} else {
-			if (rangePotItem == null) {
+
+			if (rangeFlaskExtremeItem == null) {
 				Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
 				Data.outOfRangePots = true;
 			}
@@ -139,12 +162,16 @@ public class Method {
 
 	private static void equipGreegree() {
 		final Item greegree = Inventory.getItem(Data.GREEGREE_IDS);
+
 		if (greegree != null) {
 			final int ID = greegree.getId();
 			final int COUNT = Inventory.getCount(ID);
+
 			if (greegree.getWidgetChild().click(true)) {
 				final Timer t = new Timer(2500);
+
 				while (t.isRunning()) {
+
 					if (Inventory.getCount(ID) == COUNT) {
 						return;
 					}

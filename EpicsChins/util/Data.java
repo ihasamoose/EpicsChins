@@ -31,12 +31,19 @@ public class Data {
 	public final static int FLASK_ANTIPOISON_PLUS_FULL = 23579;
 	public final static int FLASK_ANTIPOISON_FULL = 23315;
 
+	public final static int FLASK_RANGING_FULL = 23303;
+	public final static int FLASK_RANGING_EXTREME_FULL = 23519;
+
+	public final static int FLASK_PRAYER_RENEWAL_FULL = 23609;
+
 	public final static int MIX_ANTIPOISON_FULL = 11433;
 
 	public final static int POT_ANTIPOISON_SUPER_FULL = 2448;
 	public final static int POT_ANTIPOISON_PLUSPLUS_FULL = 5952;
 	public final static int POT_ANTIPOISON_PLUS_FULL = 5943;
 	public final static int POT_ANTIPOISON_FULL = 2446;
+
+	public final static int POT_PRAYER_DOSE_4 = 2434;
 
 	public final static int ELIXIR_ANTIPOISON = 20879;
 
@@ -51,13 +58,12 @@ public class Data {
 			 5954, 5956, 5958, 5943, 5945, 5947, 5949, 2446, 175, 177, 179, 20879};
 
 	public final static int[] FLASK_RANGING = {23303, 23305, 23307, 23309, 23311, 23313};
-	public final static int FLASK_RANGING_FULL = 23303;
 
-	public final static int POT_PRAYER_DOSE_4 = 2434;
-	public final static int[] POT_PRAYER = {2434, 139, 141, 143};
-
-	public final static int FLASK_PRAYER_RENEWAL_FULL = 23609;
 	public final static int[] FLASK_PRAYER_RENEWAL = {23609, 23611, 23613, 23615, 23617, 23619};
+
+	public final static int[] FLASK_RANGING_EXTREME = {23519, 23520,23521,23522,23523,23524};
+
+	public final static int[] POT_PRAYER = {2434, 139, 141, 143};
 
 	public final static int[] GREEGREE_IDS = {4031, 4024, 4025, 40256, 4027, 4028, 4029, 4030};
 
@@ -88,6 +94,7 @@ public class Data {
 	public static boolean outOfRangePots = false;
 	public static boolean checkChins = true;
 	public static boolean runCheck = true;
+	public static boolean withdrawedRangingExtreme = false;
 	public static boolean SHOWPAINT;
 	public static boolean atDestination = false;
 	public static boolean tempCheckRenewal = false;
