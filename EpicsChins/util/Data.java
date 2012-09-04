@@ -77,8 +77,8 @@ public class Data {
 	public final static int ID_ANIMATION_TREE = 7082;
 	public final static int ID_ANIMATION_TREE_2 = 7084;
 	public final static int ID_ANIMATION_PRAY = 645;
-	public final static int[] ID_ANIMATION_DEATH_ZOMBIE = {1384, 5521};
 	public final static int ID_CHIN_THROW = 2779;
+	public final static int[] ID_ANIMATION_DEATH_ZOMBIE = {1384, 5521};
 
 	//SceneObject IDs
 	public final static int ID_TREEDOOR = 69198;
@@ -91,12 +91,15 @@ public class Data {
 	//Booleans
 	public static boolean START_SCRIPT;
 	public static boolean usingGreegree;
-	public static boolean outOfRangePots = false;
+	public static boolean SHOWPAINT;
+
 	public static boolean checkChins = true;
 	public static boolean runCheck = true;
-	public static boolean withdrawedRangingExtreme = false;
-	public static boolean SHOWPAINT;
+
 	public static boolean atDestination = false;
+	public static boolean outOfRangePots = false;
+	public static boolean withdrawedRangingExtreme = false;
+
 	public static boolean tempCheckRenewal = false;
 
 	public static boolean walkToArea1 = false;

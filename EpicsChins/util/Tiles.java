@@ -40,6 +40,10 @@ public class Tiles {
 	Tile[]
 			PATH_TO_BANK_TILE =
 			{new Tile(3205, 3440, 0), new Tile(3191, 3451, 0), new Tile(3175, 3459, 0)};
+	public final static
+	Tile[]
+			PATH_TO_BANK_FROM_TELE =
+			{new Tile(3208,3431,0), new Tile(3201,3441,0), new Tile(3194,3450,0), new Tile(3181,3456,0), new Tile(3171,3460,0), new Tile(3167,3464,0)};
 	public final static Tile TILE_GRAND_BANK = new Tile(3181, 3502, 0);
 	public final static Tile TILE_GRAND_TREE = new Tile(3185, 3509, 0);
 	public final static Tile TILE_APE_LADDER_TOP = new Tile(2765, 2703, 0);

@@ -40,9 +40,11 @@ public class ThrowChins extends Strategy implements Runnable {
 		NPC monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE);
 
 		if (monkeyZombie != null && monkeyZombie.isOnScreen()) {
+
 			if (monkeyZombie.interact("Attack")) {
 				Context.get().getActiveScript().log.info("a");
 				final Timer t = new Timer(5000);
+
 				while (t.isRunning() && monkeyZombie.interact("Attack")) {
 					Context.get().getActiveScript().log.info("Killing monkeys and nothing is needed. Using antiban...");
 					Method.antiban();
@@ -52,7 +54,9 @@ public class ThrowChins extends Strategy implements Runnable {
 			}
 
 			final Item vial = Inventory.getItem(229);
+
 			if (vial != null) {
+
 				if (vial.getWidgetChild().interact("Drop")) {
 					Time.sleep(1500);
 				}
@@ -61,6 +65,7 @@ public class ThrowChins extends Strategy implements Runnable {
 			if (Players.getLocal().getAnimation() == Data.ID_CHIN_THROW) {
 				Context.get().getActiveScript().log.info("Chins thrown: " + Paint.chinsThrown);
 				Paint.chinsThrown++;
+
 				Context.get().getActiveScript().log.info("Chin number:  " + Data.chinNumber);
 				Data.chinNumber--;
 			}
@@ -72,13 +77,16 @@ public class ThrowChins extends Strategy implements Runnable {
 
 			if (Players.getLocal().getInteracting().equals(monkeyZombie)) {
 				final Timer t = new Timer(5000);
+
 				while (t.isRunning() && monkeyZombie.interact("Attack")) {
 					Time.sleep(50);
 				}
 			}
+
 		} else {
 			if (monkeyZombie == null) {
 				Context.get().getActiveScript().log.severe("MONKEY NULL!!");
+
 			} else if (!monkeyZombie.isOnScreen()) {
 				Camera.turnTo(monkeyZombie);
 			}

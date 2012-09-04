@@ -225,8 +225,10 @@ public class GUI extends JFrame {
 	}
 
 	public static Image getImage(String url) {
+
 		try {
 			return ImageIO.read(new URL(url));
+
 		} catch (IOException e) {
 			return null;
 		}
