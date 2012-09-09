@@ -99,6 +99,7 @@ public class Data {
 	public static boolean atDestination = false;
 	public static boolean outOfRangePots = false;
 	public static boolean withdrawedRangingExtreme = false;
+	public static boolean prayerSetCorrectly = false;
 
 	public static boolean tempCheckRenewal = false;
 

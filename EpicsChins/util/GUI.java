@@ -19,7 +19,7 @@ public class GUI extends JFrame {
 	public GUI() {
 		setVisible(true);
 		// Title
-		String version = " v0.183";
+		String version = " v0.184";
 		setTitle("EC" + version);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -145,8 +145,6 @@ public class GUI extends JFrame {
 			contentPane.setMinimumSize(preferredSize);
 			contentPane.setPreferredSize(preferredSize);
 		}
-		setSize(210, 395);
-		setLocationRelativeTo(null);
 		// ---- startButton ----
 		final JButton START_BUTTON = new JButton("Start");
 		contentPane.add(START_BUTTON);
@@ -222,7 +220,11 @@ public class GUI extends JFrame {
 				dispose();
 			}
 		});
+		setSize(210, 395);
+		setLocationRelativeTo(null);
 	}
+
+
 
 	public static Image getImage(String url) {
 

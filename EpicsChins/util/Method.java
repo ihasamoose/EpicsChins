@@ -340,7 +340,7 @@ public class Method {
 
 			} else {
 
-				if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {//TODO hardcode this path
+				if (Tiles.TILE_GRAND_TREE.validate() && Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
 					Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_BANK_FROM_TELE).getNext();
 					Walking.walk(nextTile);
 					runState();
@@ -567,7 +567,25 @@ public class Method {
 			final Timer t = new Timer(2500);
 
 			while (!Prayer.isQuickOn() && t.isRunning()) {
-				Time.sleep(50);
+				Time.sleep(500);
+			}
+		}
+
+		if (Prayer.isQuickOn() && !Data.prayerSetCorrectly) {
+
+			if(Prayer.isQuickOn() && Data.prayerSetCorrectly){
+				Prayer.getActive();
+
+				if(Players.getLocal().getPrayerIcon() == Prayer.Curses.DEFLECT_MELEE.getId() || Players.getLocal().getPrayerIcon() == Prayer.Normal.PROTECT_FROM_MELEE.getId()){
+					Context.get().getActiveScript().log.info("You set up your quick-prayers correctly, good going!");
+					Data.prayerSetCorrectly = true;
+
+				} else if(!(Players.getLocal().getPrayerIcon() == Prayer.Curses.DEFLECT_MELEE.getId()) || !(Players.getLocal().getPrayerIcon() == Prayer.Normal.PROTECT_FROM_MELEE.getId())){
+					Context.get().getActiveScript().log.info("You moron! You forgot to set deflect melee! Getting outta hurr..");
+					breakTab();
+					Game.logout(true);
+					Context.get().getActiveScript().stop();
+				}
 			}
 		}
 	}
