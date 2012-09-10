@@ -31,7 +31,11 @@ public class Paint {
 		int expHr = (int) ((rangeGainedExp) * 3600000D / (System.currentTimeMillis() - startTime));
 
 		if (Data.SHOWPAINT) {
+			if(IMAGE_1 != null){
 			g.drawImage(IMAGE_1, -4, 336, null);
+			} else {
+				return;
+			}
 			g.setFont(FONT);
 			g.setColor(COLOR);
 			g.drawString(RUNTIME.toElapsedString(), 215, 444);

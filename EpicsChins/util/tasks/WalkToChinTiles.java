@@ -146,6 +146,6 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 
 	@Override
 	public boolean validate() {
-		return Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;// && (Data.walkToArea1 || Data.walkToArea2 || Data.walkToArea3);
+		return Game.isLoggedIn() && Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && !Data.runCheck && Data.START_SCRIPT;// && (Data.walkToArea1 || Data.walkToArea2 || Data.walkToArea3);
 	}
 }

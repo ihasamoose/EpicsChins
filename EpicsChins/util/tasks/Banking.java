@@ -306,6 +306,6 @@ public class Banking extends Strategy implements Runnable {
 		Context.get().getActiveScript().log.info("Checking shit?: " + Data.runCheck);
 		Context.get().getActiveScript().log.info("Starting shit?: " + Data.START_SCRIPT);
 		*/
-		return (((Method.isPoisoned() && antipoisonData == 0)) || antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || flaskRangeCountData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber == 0 || Players.getLocal().getHpPercent() <= 25) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
+		return (Game.isLoggedIn() && ((Method.isPoisoned() && antipoisonData == 0)) || antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || flaskRangeCountData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber == 0 || Players.getLocal().getHpPercent() <= 25) && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

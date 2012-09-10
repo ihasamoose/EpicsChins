@@ -117,6 +117,6 @@ public class RunToChins extends Strategy implements Runnable {
 				}
 			}
 		}
-		return !Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && antipoisonData >= 1 && flaskRenewalCountData >= 3 && prayerPotCountData >= 18 && rangingFlaskData >= 3 && Data.chinNumber >= 1500 && Inventory.getCount(Data.TAB_VARROCK) >= 1 && Inventory.getCount(GUI.foodUser) >= 1 && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
+		return Game.isLoggedIn() && !Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && antipoisonData >= 1 && flaskRenewalCountData >= 3 && prayerPotCountData >= 18 && rangingFlaskData >= 3 && Data.chinNumber >= 1500 && Inventory.getCount(Data.TAB_VARROCK) >= 1 && Inventory.getCount(GUI.foodUser) >= 1 && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

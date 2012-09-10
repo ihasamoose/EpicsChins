@@ -19,7 +19,7 @@ public class GUI extends JFrame {
 	public GUI() {
 		setVisible(true);
 		// Title
-		String version = " v0.184";
+		String version = " v0.185";
 		setTitle("EC" + version);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -52,25 +52,6 @@ public class GUI extends JFrame {
 
 		contentPane.add(WARNING_LABEL_B);
 		WARNING_LABEL_B.setBounds(new Rectangle(new Point(40, 305), WARNING_LABEL_B.getPreferredSize()));
-		// chinLabelLeft
-		final Image CHIN_PICTURE_LEFT = getImage("http://2c1c.net/images/faceRight.png");
-		final JLabel CHIN_LABEL_LEFT = new JLabel(new ImageIcon(CHIN_PICTURE_LEFT));
-
-		contentPane.add(CHIN_LABEL_LEFT);
-		CHIN_LABEL_LEFT.setBounds(10, 10, 24, 24);
-		// chinLabelRight
-		final Image CHIN_PICTURE_RIGHT = getImage("http://2c1c.net/images/faceLeft.png");
-
-		if (CHIN_PICTURE_RIGHT == null) {
-			Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
-		}
-		final JLabel CHIN_LABEL_RIGHT = new JLabel(new ImageIcon(CHIN_PICTURE_RIGHT));
-
-		if (CHIN_PICTURE_LEFT == null) {
-			Logger.getLogger("EpicsChinsGUI").info("Image failed to load");
-		}
-		contentPane.add(CHIN_LABEL_RIGHT);
-		CHIN_LABEL_RIGHT.setBounds(160, 10, 24, 24);
 		// ---- greeLabel ----
 		final JLabel GREEGREE_LABEL = new JLabel("Are we using a greegree?");
 
@@ -81,7 +62,7 @@ public class GUI extends JFrame {
 		final JLabel TITLE_LABEL = new JLabel("Epics Chinner" + version);
 		TITLE_LABEL.setFont(TITLE_LABEL.getFont().deriveFont(TITLE_LABEL.getFont().getStyle() | Font.BOLD));
 		contentPane.add(TITLE_LABEL);
-		TITLE_LABEL.setBounds(45, 10, 110, 25);
+		TITLE_LABEL.setBounds(45, 10, 130, 25);
 		// ---- reqTextPane ----
 		final JTextPane REQ_TEXT_PANE = new JTextPane();
 		REQ_TEXT_PANE.setBackground(new Color(212, 208, 200));
@@ -145,6 +126,8 @@ public class GUI extends JFrame {
 			contentPane.setMinimumSize(preferredSize);
 			contentPane.setPreferredSize(preferredSize);
 		}
+		setSize(210, 395);
+		setLocationRelativeTo(null);
 		// ---- startButton ----
 		final JButton START_BUTTON = new JButton("Start");
 		contentPane.add(START_BUTTON);
@@ -220,10 +203,7 @@ public class GUI extends JFrame {
 				dispose();
 			}
 		});
-		setSize(210, 395);
-		setLocationRelativeTo(null);
 	}
-
 
 
 	public static Image getImage(String url) {

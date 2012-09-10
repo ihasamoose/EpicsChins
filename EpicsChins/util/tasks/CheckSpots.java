@@ -128,6 +128,6 @@ public class CheckSpots extends Strategy implements Runnable {
 
 	@Override
 	public boolean validate() {
-		return Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && Game.isLoggedIn() && !Data.runCheck && Data.START_SCRIPT;
+		return  Game.isLoggedIn() && Tiles.AREA_APE_ATOLL_DUNGEON.contains(Players.getLocal().getLocation()) && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

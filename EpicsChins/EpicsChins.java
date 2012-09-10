@@ -28,7 +28,6 @@ public class EpicsChins extends ActiveScript implements PaintListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		Paint.rangedStartExp = Skills.getExperience(Skills.RANGE);
 		Paint.hpStartExp = Skills.getExperience(Skills.CONSTITUTION);
 		Paint.startTime = System.currentTimeMillis();

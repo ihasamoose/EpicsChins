@@ -72,6 +72,6 @@ public class Checks extends Strategy implements Runnable {
 
 	@Override
 	public boolean validate() {
-		return Data.runCheck && Data.START_SCRIPT && Game.isLoggedIn();
+		return  Game.isLoggedIn() && Data.runCheck && Data.START_SCRIPT;
 	}
 }

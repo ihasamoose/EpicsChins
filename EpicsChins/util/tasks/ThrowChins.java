@@ -108,6 +108,6 @@ public class ThrowChins extends Strategy implements Runnable {
 		Context.get().getActiveScript().log.info("chinNum: " +String.valueOf(Data.chinNumber));
 		Context.get().getActiveScript().log.info("atDest: " + String.valueOf(Data.atDestination));
 		*/
-		return Data.chinNumber >= 200 && prayPotCountData > 0 && Data.START_SCRIPT && Game.isLoggedIn() && !Data.runCheck && Data.atDestination;
+		return Game.isLoggedIn() && Data.chinNumber >= 200 && prayPotCountData > 0 && Data.START_SCRIPT && !Data.runCheck && Data.atDestination;
 	}
 }
