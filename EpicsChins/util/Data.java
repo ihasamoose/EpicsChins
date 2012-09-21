@@ -85,7 +85,7 @@ public class Data {
 	public final static int ID_SPIRITTREE_GE = 1317;
 	public final static int ID_SPIRITTREE_MAIN = 68974;
 	public final static int ID_LADDER_GNOME = 69499;
-	public final static int ID_LADDER_APE = 2745; // or 4780
+	public final static int ID_LADDER_APE = 2745;
 	public final static int ID_ALTAR_VARROCK = 24343;
 
 	//Booleans

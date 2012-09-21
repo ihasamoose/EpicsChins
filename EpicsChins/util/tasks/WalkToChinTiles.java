@@ -8,7 +8,6 @@ import org.powerbot.game.api.methods.Calculations;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.Walking;
 import org.powerbot.game.api.methods.interactive.Players;
-import org.powerbot.game.api.util.Time;
 import org.powerbot.game.api.wrappers.Tile;
 import org.powerbot.game.bot.Context;
 
@@ -28,21 +27,7 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 		}
 
 		if (Data.walkToArea1) {
-
-			//ADD THESE TO CHECKS DURING WALKING
-
-			if (Game.getClientState() == 12) {
-				Time.sleep(200);
-			}
-
-			Method.runState();
-			Method.watchHp();
-			Method.checkAntipoison();
-			Method.checkPrayer();
-			Method.checkRenewal();
-			Method.checkRun();
-
-			//END
+			Method.chinRunState();
 
 			if (!Tiles.TILE_CHIN_1.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_1[22]) > 5) {
 				Method.walkPath(Tiles.PATH_TO_CHIN_TILE_1);
@@ -113,12 +98,10 @@ public class WalkToChinTiles extends Strategy implements Runnable {
 
 			if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_3[6]) > 5) {// && Walking.walk(nextTile)) {
 				Method.walkPath(Tiles.PATH_TO_CHIN_TILE_3);
-				Method.chinRunState();
 			}
 
 			if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation()) && Calculations.distanceTo(Tiles.PATH_TO_CHIN_TILE_3[6]) <= 5) {
 				Tiles.PATH_TO_CHIN_TILE_3[6].interact("Walk here");
-
 			}
 
 			if (!Tiles.TILE_CHIN_3.equals(Players.getLocal().getLocation()) && Tiles.PATH_TO_CHIN_TILE_3[6].equals(Players.getLocal().getLocation())) {

@@ -3,7 +3,9 @@ package EpicsChins.util.tasks;
 import EpicsChins.util.Data;
 import EpicsChins.util.Method;
 import EpicsChins.util.Paint;
+import EpicsChins.util.Tiles;
 import org.powerbot.concurrent.strategy.Strategy;
+import org.powerbot.game.api.methods.Calculations;
 import org.powerbot.game.api.methods.Game;
 import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
@@ -37,28 +39,45 @@ public class ThrowChins extends Strategy implements Runnable {
 		Method.setQuickOn();
 		Method.checkGreegreeState();
 
+
 		NPC monkeyZombie = NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE);
 
-		if (monkeyZombie != null && monkeyZombie.isOnScreen()) {
+		Method.onBadTile(Tiles.AREA_CHIN_1);
+		Context.get().getActiveScript().log.info("g");
+		Method.onBadTile(Tiles.AREA_CHIN_2);
+		Context.get().getActiveScript().log.info("h");
+		Method.onBadTile(Tiles.AREA_CHIN_3_4);
 
-			if (monkeyZombie.interact("Attack")) {
-				Context.get().getActiveScript().log.info("a");
+		Context.get().getActiveScript().log.info("monkeyZombie state" + monkeyZombie);
+		Context.get().getActiveScript().log.info("screenState" + monkeyZombie.isOnScreen());
+		Context.get().getActiveScript().log.info("calculations" + (Calculations.distanceTo(monkeyZombie) <= 5));
+		Context.get().getActiveScript().log.info("playeranim" + Players.getLocal().getAnimation());
+		Context.get().getActiveScript().log.info("monkeyanim" + monkeyZombie.getAnimation());
+
+		if (monkeyZombie.isOnScreen() && Calculations.distanceTo(monkeyZombie) <= 5) {
+			Context.get().getActiveScript().log.info("ttt");
+
+			monkeyZombie.interact("Attack");
+
+			if(Players.getLocal().getAnimation() != -1){
+				Context.get().getActiveScript().log.info("bbb");
+
 				final Timer t = new Timer(5000);
 
-				while (t.isRunning() && monkeyZombie.interact("Attack")) {
+				if (!t.isRunning()) {
+					monkeyZombie.interact("Attack");
 					Context.get().getActiveScript().log.info("Killing monkeys and nothing is needed. Using antiban...");
 					Method.antiban();
 					Time.sleep(Random.nextInt(700, 800));
-				}
-				return;
-			}
+					final Item vial = Inventory.getItem(229);
 
-			final Item vial = Inventory.getItem(229);
+					if (vial != null) {
 
-			if (vial != null) {
-
-				if (vial.getWidgetChild().interact("Drop")) {
-					Time.sleep(1500);
+						if (vial.getWidgetChild().interact("Drop")) {
+							Time.sleep(1500);
+						}
+						return;
+					}
 				}
 			}
 
@@ -76,19 +95,19 @@ public class ThrowChins extends Strategy implements Runnable {
 			}
 
 			if (Players.getLocal().getInteracting().equals(monkeyZombie)) {
-				final Timer t = new Timer(5000);
+				final Timer t1 = new Timer(5000);
 
-				while (t.isRunning() && monkeyZombie.interact("Attack")) {
+				while (t1.isRunning() && monkeyZombie.interact("Attack")) {
 					Time.sleep(50);
 				}
 			}
 
 		} else {
-			if (monkeyZombie == null) {
-				Context.get().getActiveScript().log.severe("MONKEY NULL!!");
-
-			} else if (!monkeyZombie.isOnScreen()) {
+			if (!monkeyZombie.isOnScreen()) {
+				Context.get().getActiveScript().log.info("Monkey offscreen, rotating towards them!");
 				Camera.turnTo(monkeyZombie);
+			} else if (monkeyZombie.isOnScreen() && Calculations.distanceTo(monkeyZombie) > 5) {
+
 			}
 		}
 	}

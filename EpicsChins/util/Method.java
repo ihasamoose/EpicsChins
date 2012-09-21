@@ -2,6 +2,7 @@ package EpicsChins.util;
 
 import org.powerbot.game.api.methods.*;
 import org.powerbot.game.api.methods.input.Mouse;
+import org.powerbot.game.api.methods.interactive.NPCs;
 import org.powerbot.game.api.methods.interactive.Players;
 import org.powerbot.game.api.methods.node.SceneEntities;
 import org.powerbot.game.api.methods.tab.Inventory;
@@ -124,15 +125,7 @@ public class Method {
 				Time.sleep(50);
 			}
 
-		} else {
-
-			if (rangeFlaskItem == null) {
-				Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
-				Data.outOfRangePots = true;
-			}
-		}
-
-		if(rangeFlaskExtremeItem != null && rangeDifference <=3 && rangeFlaskExtremeItem.getWidgetChild().interact("Drink")){
+		} else if (rangeFlaskExtremeItem != null && rangeDifference <= 3 && rangeFlaskExtremeItem.getWidgetChild().interact("Drink")) {
 			final int id = rangeFlaskExtremeItem.getId();
 			final int count = Inventory.getCount(id);
 			final Timer t = new Timer(2500);
@@ -141,12 +134,9 @@ public class Method {
 			while (t.isRunning() && Inventory.getCount(id) == count) {
 				Time.sleep(50);
 			}
-		} else {
-
-			if (rangeFlaskExtremeItem == null) {
-				Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
-				Data.outOfRangePots = true;
-			}
+		} else if (rangeFlaskItem == null && rangeFlaskExtremeItem == null) {
+			Context.get().getActiveScript().log.info("We're out of ranging pots, resuming until prayer potions are gone!");
+			Data.outOfRangePots = true;
 		}
 	}
 
@@ -221,6 +211,33 @@ public class Method {
 			}
 		});
 		return Game.getClientState() != Game.INDEX_MAP_LOADING && PLAYERS_IN_AREA.length >= 2;
+	}
+
+	public static boolean onBadTile(final Area area) {
+		final Player[] PLAYERS_IN_AREA = Players.getLoaded(new Filter<Player>() {
+			@Override
+			public boolean accept(Player t) {
+
+				return area.contains(t) && !t.getName().equals(Players.getLocal().getName());
+			}
+		});
+		NPC[] monkies = NPCs.getLoaded(new Filter<NPC>() {
+			@Override
+			public boolean accept(final NPC n) {
+				return n.getId() == NPCs.getNearest(Data.ID_NPC_MONKEY_ZOMBIE).getId() && area.contains(n);
+			}
+		});
+
+		if (PLAYERS_IN_AREA != null) {
+			for (Player p : PLAYERS_IN_AREA) {
+				if (!p.getLocation().equals(Players.getLocal().getLocation()) && monkies != null) {
+					Tile tile = p.getLocation();
+
+					Walking.walk(tile);
+				}
+			}
+		}
+		return false;
 	}
 
 	private static void yesInterfaceClicker() {
@@ -378,7 +395,7 @@ public class Method {
 			if (Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
 				final Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
 
-				if (Walking.walk(nextTile)) {
+				if (Walking.walk(nextTile) && Walking.getDestination() == nextTile) {
 					runState();
 				}
 
@@ -390,7 +407,7 @@ public class Method {
 			} else if (!Tiles.AREA_GRAND_TELE.contains(Players.getLocal().getLocation()) && !Tiles.AREA_GE.contains(Players.getLocal().getLocation())) {
 				final Tile nextTile = Walking.newTilePath(Tiles.PATH_TO_PRAYER_FROM_GE).randomize(2, 4).getNext();
 
-					if (nextTile != null) {
+				if (nextTile != null) {
 					Walking.walk(nextTile);
 					runState();
 
@@ -490,6 +507,29 @@ public class Method {
 		}
 	}
 
+	public static void doYesInteractionDaero() {
+
+		if (Tiles.AREA_GNOME_LEVEL_ONE.contains(Players.getLocal().getLocation())) {
+			NPC daero = NPCs.getNearest(Data.ID_NPC_DAERO);
+
+			Walking.findPath(daero.getLocation()).traverse();
+			runState();
+
+			if (daero.isOnScreen() && daero.interact("Travel")) {
+				Time.sleep(1000);
+				final Timer t = new Timer(2500);
+
+				while (t.isRunning()) {
+					Method.yesInterfaceClicker();
+					Time.sleep(1000);
+				}
+
+			} else if (!daero.isOnScreen()) {
+				Camera.turnTo(daero);
+			}
+		}
+	}
+
 	public static void clickSpiritTree(final Area area, final SceneObject se) {
 
 		if (area.contains(Players.getLocal().getLocation())) {
@@ -550,8 +590,6 @@ public class Method {
 					Time.sleep(50);
 				}
 
-			} else if (apeAtollLadder == null) {
-				Context.get().getActiveScript().log.info("How did you manage to break me? apeAtollLadder is null!");
 			}
 
 			if (apeAtollLadder != null && !apeAtollLadder.isOnScreen()) {
@@ -573,14 +611,14 @@ public class Method {
 
 		if (Prayer.isQuickOn() && !Data.prayerSetCorrectly) {
 
-			if(Prayer.isQuickOn() && Data.prayerSetCorrectly){
+			if (Prayer.isQuickOn() && Data.prayerSetCorrectly) {
 				Prayer.getActive();
 
-				if(Players.getLocal().getPrayerIcon() == Prayer.Curses.DEFLECT_MELEE.getId() || Players.getLocal().getPrayerIcon() == Prayer.Normal.PROTECT_FROM_MELEE.getId()){
+				if (Players.getLocal().getPrayerIcon() == Prayer.Curses.DEFLECT_MELEE.getId() || Players.getLocal().getPrayerIcon() == Prayer.Normal.PROTECT_FROM_MELEE.getId()) {
 					Context.get().getActiveScript().log.info("You set up your quick-prayers correctly, good going!");
 					Data.prayerSetCorrectly = true;
 
-				} else if(!(Players.getLocal().getPrayerIcon() == Prayer.Curses.DEFLECT_MELEE.getId()) || !(Players.getLocal().getPrayerIcon() == Prayer.Normal.PROTECT_FROM_MELEE.getId())){
+				} else if (!(Players.getLocal().getPrayerIcon() == Prayer.Curses.DEFLECT_MELEE.getId()) || !(Players.getLocal().getPrayerIcon() == Prayer.Normal.PROTECT_FROM_MELEE.getId())) {
 					Context.get().getActiveScript().log.info("You moron! You forgot to set deflect melee! Getting outta hurr..");
 					breakTab();
 					Game.logout(true);
@@ -632,7 +670,7 @@ public class Method {
 	public static void runState() {
 		final Timer t = new Timer(2500);
 
-		if (Players.getLocal().isMoving() && t.isRunning()) {
+		while (Players.getLocal().isMoving() && t.isRunning()) {
 			antiban();
 			Time.sleep(50);
 		}
@@ -641,7 +679,8 @@ public class Method {
 	public static void chinRunState() {
 		final Timer t = new Timer(2500);
 
-		if (Players.getLocal().isMoving() && t.isRunning()) {
+		while (t.isRunning() && Players.getLocal().isMoving()) {
+			t.reset();
 			Method.watchHp();
 			Method.checkAntipoison();
 			Method.checkPrayer();
@@ -656,10 +695,13 @@ public class Method {
 		if (Data.usingGreegree) {
 			final Item chin = Inventory.getItem(10034);
 
-			if (chin.getId() > 0) {
-				chin.getWidgetChild().click(true);
-			}
+			if (Inventory.contains(chin.getId())) {
 
+				chin.getWidgetChild().click(true);
+			} else {
+				Context.get().getActiveScript().log.info("You're good scuba steve!");
+
+			}
 		} else {
 			Context.get().getActiveScript().log.info("Not using greegree");
 		}
@@ -671,14 +713,21 @@ public class Method {
 			Time.sleep(200);
 		}
 
-		for (int i = path.length - 1; i > -1; i--) {
+		for (int i = path.length - 1; i >= 0; i--) {
 
 			if (path[i].isOnMap() && path[i].canReach()) {
+				Mouse.click(path[i].getMapPoint(), true);
+				final Timer timer = new Timer(1500);
 
-				if (path[i].canReach()) {
-
-					Mouse.click(path[i].getMapPoint(), true);
+				if (Players.getLocal().isMoving()) {
+					Method.chinRunState();
 				}
+
+				if (timer.isRunning() && Calculations.distanceTo(path[i]) > 5) {
+					Time.sleep(100);
+					Method.chinRunState();
+				}
+				break;
 			}
 		}
 	}
@@ -690,8 +739,13 @@ public class Method {
 
 		switch (state) {
 			case 1:
-				Camera.setAngle(RANDOM_ANGLE);
-				Camera.setPitch(RANDOM_PITCH);
+				Timer t = new Timer(5000);
+
+				if (!t.isRunning()) {
+					Camera.setAngle(RANDOM_ANGLE);
+					Camera.setPitch(RANDOM_PITCH);
+					t.reset();
+				}
 				break;
 			case 2:
 				WidgetChild c = Widgets.get(1213).getChild(12);

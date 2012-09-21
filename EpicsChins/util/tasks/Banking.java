@@ -84,6 +84,7 @@ public class Banking extends Strategy implements Runnable {
 			if (Inventory.getCount(10034) > 0) {
 				Context.get().getActiveScript().log.info("Chins present in inventory, equipping...");
 				Item chinItem = Inventory.getItem(10034);
+
 				chinItem.getWidgetChild().click(true);
 				Time.sleep(2000, 4000);
 			}
@@ -112,7 +113,7 @@ public class Banking extends Strategy implements Runnable {
 						Time.sleep(50);
 					}
 				}
-			} else if (Bank.getItem(10034).getStackSize() <= 1500 && Data.chinNumber < 2000) {
+			} else if (Bank.getItemCount(true, 10034) <= 1500 && Data.chinNumber < 2000) {
 				Context.get().getActiveScript().log.info("Not enough chins to continue! Shutting down...");
 				Game.logout(true);
 				Context.get().getActiveScript().stop();
@@ -140,13 +141,13 @@ public class Banking extends Strategy implements Runnable {
 						return false;
 					}
 				});
-				if (greegreeItem != null && Inventory.getCount(greegreeItem.getId()) == 0 && Data.usingGreegree && Bank.getItemCount(greegreeItem.getId()) >= 1) {
+				if (greegreeItem != null && Inventory.getCount(greegreeItem.getId()) == 0 && Data.usingGreegree && Bank.getItemCount(true, greegreeItem.getId()) >= 1) {
 					Bank.withdraw(greegreeItem.getId(), 1);
 					Time.sleep(80);
 					if (Inventory.getCount(greegreeItem.getId()) != 0) {
 						Context.get().getActiveScript().log.info("Greegree withdrawn");
 					}
-				} else if (Bank.getItemCount(greegreeItem.getId()) == 0 && Data.usingGreegree && Inventory.getCount(greegreeItem.getId()) == 0) {
+				} else if (Bank.getItemCount(true, greegreeItem.getId()) == 0 && Data.usingGreegree && Inventory.getCount(greegreeItem.getId()) == 0) {
 					Context.get().getActiveScript().log.info("No greegree is present. Shutting down...");
 					Bank.close();
 					Game.logout(true);
@@ -155,12 +156,12 @@ public class Banking extends Strategy implements Runnable {
 
 			}
 
-			if (Inventory.getCount(Data.TAB_VARROCK) == 0 && Bank.getItem(Data.TAB_VARROCK).getStackSize() > 0) {
+			if (Inventory.getCount(Data.TAB_VARROCK) == 0 && Bank.getItemCount(true, Data.TAB_VARROCK) > 0) {
 				Bank.withdraw(Data.TAB_VARROCK, 1);
 				Time.sleep(80);
 				if (Inventory.getCount(Data.TAB_VARROCK) != 0) {
 					Context.get().getActiveScript().log.info("Varrock tab withdrawn");
-				} else if (Bank.getItem(Data.TAB_VARROCK).getStackSize() == 0 && Inventory.getCount(Data.TAB_VARROCK) < 1) {
+				} else if (Bank.getItemCount(true, Data.TAB_VARROCK) == 0 && Inventory.getCount(Data.TAB_VARROCK) < 1) {
 					Context.get().getActiveScript().log.info("Not enough tabs. Shutting down...");
 					Bank.close();
 					Game.logout(true);
@@ -168,25 +169,25 @@ public class Banking extends Strategy implements Runnable {
 				}
 			}
 
-			if (Inventory.getCount(GUI.foodUser) == 0 && Bank.getItemCount(GUI.foodUser) >= 1) {
+			if (Inventory.getCount(GUI.foodUser) == 0 && Bank.getItemCount(true, GUI.foodUser) >= 1) {
 				Bank.withdraw(GUI.foodUser, 1);
 				Time.sleep(80);
 				if (Inventory.getCount(GUI.foodUser) != 0) {
 					Context.get().getActiveScript().log.info("Food withdrawn");
 				}
-			} else if (Bank.getItem(GUI.foodUser).getStackSize() <= 1 && Inventory.getCount(GUI.foodUser) < 1) {
+			} else if (Bank.getItemCount(true, GUI.foodUser) <= 1 && Inventory.getCount(GUI.foodUser) < 1) {
 				Context.get().getActiveScript().log.severe("Food isn't present, shutting down...");
 				Bank.close();
 				Game.logout(true);
 				Context.get().getActiveScript().stop();
 			}
 
-			if (antipoisonData == 0 && Bank.getItemCount(GUI.antipoisonUser) > 0) {
+			if (antipoisonData == 0 && Bank.getItemCount(true, GUI.antipoisonUser) > 0) {
 				Bank.withdraw(GUI.antipoisonUser, 1);
 				Time.sleep(80);
 				if (Inventory.getCount(GUI.antipoisonUser) == 1) {
 					Context.get().getActiveScript().log.info("Antipoison withdrawn");
-				} else if (Bank.getItem(GUI.antipoisonUser).getStackSize() < 1 && antipoisonData < 1) {
+				} else if (Bank.getItemCount(true, GUI.antipoisonUser) < 1 && antipoisonData < 1) {
 					Context.get().getActiveScript().log.info("Not enough antipoison. Shutting down...");
 					Bank.close();
 					Game.logout(true);
@@ -197,9 +198,9 @@ public class Banking extends Strategy implements Runnable {
 			if (prayerPotCountData == 0) {
 				Bank.withdraw(Data.POT_PRAYER_DOSE_4, 18);
 				Time.sleep(80);
-				if (Inventory.getCount(Data.POT_PRAYER_DOSE_4) == 3) {
+				if (Inventory.getCount(Data.POT_PRAYER_DOSE_4) == 18) {
 					Context.get().getActiveScript().log.info("Prayer pots withdrawn");
-				} else if (Bank.getItem(Data.POT_PRAYER_DOSE_4).getStackSize() < 18 && prayerPotCountData < 18) {
+				} else if (Bank.getItemCount(true, Data.POT_PRAYER_DOSE_4) < 18 && prayerPotCountData < 18) {
 					Context.get().getActiveScript().log.info("Not enough prayer pots. Shutting down... ");
 					Bank.close();
 					Game.logout(true);
@@ -212,7 +213,7 @@ public class Banking extends Strategy implements Runnable {
 				Time.sleep(80);
 				if (Inventory.getCount(Data.FLASK_PRAYER_RENEWAL_FULL) == 3) {
 					Context.get().getActiveScript().log.info("Renewal flasks withdrawn");
-				} else if (Bank.getItem(Data.FLASK_PRAYER_RENEWAL_FULL).getStackSize() < 3 && flaskRenewalCountData < 3) {
+				} else if (Bank.getItemCount(true, Data.FLASK_PRAYER_RENEWAL_FULL) < 3 && flaskRenewalCountData < 3) {
 					Context.get().getActiveScript().log.info("Not enough prayer renewal flasks. Shutting down...");
 					Bank.close();
 					Game.logout(true);
@@ -221,21 +222,19 @@ public class Banking extends Strategy implements Runnable {
 				return;
 			}
 			if (rangingFlaskExtremeData == 0 || rangingFlaskData == 0) {//TODO implement extreme
-				if(Bank.getItem(Data.FLASK_RANGING_EXTREME_FULL).getStackSize() > 3){
+				if(rangingFlaskExtremeData == 0 && Bank.getItemCount(true, Data.FLASK_RANGING_EXTREME_FULL) > 3){
 					Bank.withdraw(Data.FLASK_RANGING_EXTREME_FULL, 3);
 					Time.sleep(80);
 					Data.withdrawedRangingExtreme = true;
-				}
-
-				if(!Data.withdrawedRangingExtreme && Bank.getItem(Data.FLASK_RANGING_EXTREME_FULL).getStackSize() > 3){
-				Bank.withdraw(Data.FLASK_RANGING_FULL, 3);
+				} else if(rangingFlaskData == 0 && !Data.withdrawedRangingExtreme && Bank.getItemCount(true, Data.FLASK_RANGING_FULL) > 3){
+					Bank.withdraw(Data.FLASK_RANGING_FULL, 3);
 					Time.sleep(80);
 					Data.withdrawedRangingExtreme = false;
 				}
 
 				if (rangingFlaskData == 3 || rangingFlaskExtremeData == 3) {
 					Context.get().getActiveScript().log.info("Range flasks withdrawn");
-				} else if (Bank.getItem(Data.FLASK_RANGING_FULL).getStackSize() < 3 && rangingFlaskData < 3 || Bank.getItem(Data.FLASK_RANGING_EXTREME_FULL).getStackSize() < 3 && rangingFlaskExtremeData < 3) {
+				} else if (Bank.getItemCount(true, Data.FLASK_RANGING_FULL) < 3 && rangingFlaskData < 3 && Bank.getItemCount(true, Data.FLASK_RANGING_EXTREME_FULL) < 3 && rangingFlaskExtremeData < 3) {
 					Context.get().getActiveScript().log.info("Not enough ranged flasks. Shutting down...");
 					Bank.close();
 					Game.logout(true);
@@ -260,6 +259,7 @@ public class Banking extends Strategy implements Runnable {
 				Bank.close();
 			}
 			final Item FOOD = Inventory.getItem(GUI.foodUser);
+
 			if (FOOD.getWidgetChild().interact("Eat")) {
 				Time.sleep(Random.nextInt(900, 1200));
 			}
@@ -306,6 +306,6 @@ public class Banking extends Strategy implements Runnable {
 		Context.get().getActiveScript().log.info("Checking shit?: " + Data.runCheck);
 		Context.get().getActiveScript().log.info("Starting shit?: " + Data.START_SCRIPT);
 		*/
-		return (Game.isLoggedIn() && ((Method.isPoisoned() && antipoisonData == 0)) || antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || flaskRangeCountData == 0 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber == 0 || Players.getLocal().getHpPercent() <= 25) && !Data.runCheck && Data.START_SCRIPT;
+		return (Game.isLoggedIn() && ((Method.isPoisoned() && antipoisonData == 0)) || antipoisonData == 0 || flaskRenewalCountData == 0 || prayerPotCountData == 0 || flaskRangeCountData == 0 || Inventory.getCount(229) >= 3 || Inventory.getCount(Data.TAB_VARROCK) < 1 || Data.chinNumber == 0 || Players.getLocal().getHpPercent() <= 25) && !Data.runCheck && Data.START_SCRIPT;
 	}
 }

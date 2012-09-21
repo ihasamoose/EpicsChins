@@ -74,7 +74,7 @@ public class RunToChins extends Strategy implements Runnable {
 				return;
 			}
 
-			Method.doYesInteraction(Tiles.AREA_GNOME_LEVEL_ONE, daero);
+			Method.doYesInteractionDaero();
 
 			NPC waydar = NPCs.getNearest(Data.ID_NPC_WAYDAR);
 			Method.doYesInteraction(Tiles.AREA_BLINDFOLD_ZONE, waydar);
